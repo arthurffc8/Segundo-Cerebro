@@ -1,0 +1,1737 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<title>Segundo Cérebro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+:root{
+  --ac:#FF6B00;--ac1:rgba(255,107,0,.1);--ac2:rgba(255,107,0,.22);
+  --bg:#0a0a0a;--card:#141414;--card2:#1a1a1a;--card3:#202020;
+  --bd:#1e1e1e;--bd2:#2a2a2a;--bd3:#333;
+  --tx:#f0f0f0;--tx2:#888;--tx3:#555;--tx4:#333;
+  --ok:#22c55e;--er:#ef4444;--warn:#eab308;
+  --ff:'DM Sans',system-ui,sans-serif;
+  --fm:'JetBrains Mono','Courier New',monospace;
+  --ft:'Bebas Neue','Impact',sans-serif;
+  --fs:14px;--r:8px;--tr:.18s ease;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{font-size:var(--fs);}
+body{background:var(--bg);color:var(--tx);font-family:var(--ff);min-height:100vh;overflow-x:hidden;-webkit-tap-highlight-color:transparent;}
+#root{min-height:100vh;display:flex;flex-direction:column;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--bd2);border-radius:2px;}
+input,textarea,select{background:var(--card2);border:1px solid var(--bd2);color:var(--tx);padding:8px 12px;border-radius:var(--r);font-size:.875rem;width:100%;outline:none;font-family:var(--ff);transition:border-color var(--tr);resize:vertical;}
+input:focus,textarea:focus,select:focus{border-color:var(--ac);}
+input::placeholder,textarea::placeholder{color:var(--tx4);}
+select option{background:#1a1a1a;}
+button{cursor:pointer;border:none;outline:none;font-family:var(--ff);transition:all var(--tr);}
+/* layout */
+.flex{display:flex;}.col{flex-direction:column;}.fc{display:flex;align-items:center;}.fcb{display:flex;align-items:center;justify-content:space-between;}
+.g4{gap:4px;}.g6{gap:6px;}.g8{gap:8px;}.g10{gap:10px;}.g12{gap:12px;}.g16{gap:16px;}
+.g2c{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.g3c{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.w100{width:100%;}.mt4{margin-top:4px;}.mt8{margin-top:8px;}.mt12{margin-top:12px;}.mt16{margin-top:16px;}.mb6{margin-bottom:6px;}.mb10{margin-bottom:10px;}.mb14{margin-bottom:14px;}.mb20{margin-bottom:20px;}
+/* card */
+.card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;}
+/* navbar */
+.navbar{background:var(--card);border-bottom:1px solid var(--bd);position:sticky;top:0;z-index:200;}
+.nav-header{display:flex;align-items:center;justify-content:space-between;padding:9px 14px;border-bottom:1px solid var(--bd);}
+.nav-tabs{display:flex;overflow-x:auto;scrollbar-width:none;padding:0 10px;}
+.nav-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{display:flex;align-items:center;gap:4px;padding:8px 11px;background:none;border:none;color:var(--tx2);font-size:.78rem;font-weight:600;white-space:nowrap;border-bottom:2px solid transparent;cursor:pointer;flex-shrink:0;transition:all var(--tr);}
+.tab-btn.on{color:var(--ac);border-bottom-color:var(--ac);}
+.tab-btn:hover{color:var(--tx);}
+/* section */
+.sec{padding:14px;flex:1;animation:fu .22s ease;}
+@keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
+/* buttons */
+.btn{padding:7px 14px;border-radius:var(--r);font-size:.8rem;font-weight:700;cursor:pointer;}
+.btn-ac{background:var(--ac);color:#000;border:none;}.btn-ac:hover{opacity:.85;}
+.btn-gh{background:var(--card2);border:1px solid var(--bd2);color:var(--tx2);}.btn-gh:hover{color:var(--tx);border-color:var(--bd3);}
+.btn-ic{background:none;border:none;color:var(--tx3);padding:4px;font-size:.95rem;border-radius:4px;}.btn-ic:hover{color:var(--tx);}
+.btn-er{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.25);color:#ef4444;font-size:.75rem;padding:5px 10px;border-radius:var(--r);}
+/* toggle */
+.tog{width:34px;height:18px;border-radius:9px;background:var(--bd2);position:relative;cursor:pointer;transition:background var(--tr);flex-shrink:0;}
+.tog.on{background:var(--ac);}
+.tog-th{width:12px;height:12px;border-radius:50%;background:#fff;position:absolute;top:3px;left:3px;transition:left var(--tr);}
+.tog.on .tog-th{left:19px;}
+/* checkbox */
+.chk{width:18px;height:18px;border:2px solid var(--bd2);border-radius:4px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.chk.on{background:var(--ac);border-color:var(--ac);}
+/* modal */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);z-index:500;display:flex;align-items:center;justify-content:center;padding:16px;animation:fi .18s ease;}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--card);border:1px solid var(--bd2);border-radius:12px;padding:20px;width:100%;max-width:480px;max-height:88vh;overflow-y:auto;}
+.modal-h{font-size:1.05rem;font-weight:700;margin-bottom:16px;}
+/* field */
+.fld{margin-bottom:10px;}
+.fld label{display:block;font-size:.7rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px;}
+/* priority */
+.prio{font-size:.68rem;font-weight:700;padding:2px 7px;border-radius:4px;text-transform:uppercase;letter-spacing:.05em;}
+.p-alta{background:rgba(239,68,68,.14);color:#ef4444;}
+.p-media{background:rgba(234,179,8,.14);color:#eab308;}
+.p-baixa{background:rgba(34,197,94,.14);color:#22c55e;}
+/* subtabs */
+.stabs{display:flex;gap:4px;overflow-x:auto;padding-bottom:12px;scrollbar-width:none;}
+.stabs::-webkit-scrollbar{display:none;}
+.stab{padding:5px 12px;border-radius:20px;font-size:.75rem;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid var(--bd2);background:none;color:var(--tx2);transition:all .15s;}
+.stab.on{background:var(--ac1);border-color:var(--ac2);color:var(--ac);}
+/* tracker */
+.trk-wrap{overflow-x:auto;padding-bottom:6px;}
+.trk-cell{width:22px;height:22px;border-radius:3px;display:flex;align-items:center;justify-content:center;font-size:.55rem;cursor:pointer;transition:all .12s;border:1px solid var(--bd2);flex-shrink:0;}
+.trk-cell.done{border-color:transparent;}
+.trk-cell.today{box-shadow:0 0 0 1px var(--ac);}
+/* metric card */
+.mcrd{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:12px 14px;}
+.mval{font-family:var(--fm);font-size:1.7rem;font-weight:700;color:var(--ac);line-height:1;}
+.mlbl{font-size:.68rem;color:var(--tx2);text-transform:uppercase;letter-spacing:.08em;margin-top:3px;}
+/* prog bar */
+.pbar{height:5px;background:var(--bd2);border-radius:3px;overflow:hidden;}
+.pfil{height:100%;border-radius:3px;transition:width .4s ease;}
+/* badge */
+.badge{border-radius:10px;padding:14px 10px;text-align:center;border:1px solid var(--bd);}
+.badge.locked{opacity:.3;filter:grayscale(1);}
+.badge.done{border-color:var(--ac2);background:var(--ac1);}
+/* config */
+.cfg-s{margin-bottom:22px;}
+.cfg-t{font-size:.72rem;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.09em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--bd);}
+.swatch{width:26px;height:26px;border-radius:6px;cursor:pointer;transition:transform .12s;border:2px solid transparent;}
+.swatch.on{transform:scale(1.25);border-color:#fff;}
+/* score */
+.score-n{font-family:var(--fm);font-size:2.6rem;font-weight:700;color:var(--ac);line-height:1;}
+/* habit item */
+.hab-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:6px;}
+/* task item */
+.tsk-row{display:flex;align-items:flex-start;gap:10px;padding:10px 12px;background:var(--card);border:1px solid var(--bd);border-radius:var(--r);margin-bottom:6px;transition:opacity .2s;}
+.tsk-row.done{opacity:.4;}
+/* status btn */
+.st-btn{padding:5px 9px;border-radius:5px;font-size:.75rem;font-weight:600;cursor:pointer;transition:all .15s;}
+/* section header */
+.sch{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sch-t{font-size:1.05rem;font-weight:700;}
+/* category tag */
+.cat-tag{font-size:.68rem;font-weight:700;padding:2px 8px;border-radius:4px;}
+/* drop zone for obj card */
+.obj-card{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:10px;}
+/* diario entry */
+.diary-e{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:10px;margin-bottom:6px;}
+/* notes / anotações */
+.notes-masonry{columns:2;column-gap:10px;}
+.notes-masonry .note-card{break-inside:avoid;margin-bottom:10px;display:block;}
+.note-card{border-radius:10px;padding:14px;border:1px solid var(--bd);cursor:pointer;transition:all .2s;position:relative;}
+.note-card:hover{transform:translateY(-2px);box-shadow:0 4px 20px rgba(0,0,0,.4);}
+.note-pin{position:absolute;top:8px;right:8px;font-size:.85rem;opacity:.6;}
+.note-title{font-weight:700;font-size:.9rem;margin-bottom:6px;line-height:1.3;}
+.note-text{font-size:.8rem;color:var(--tx2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;}
+.note-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--tx2);padding:2px 0;}
+.note-item.done{text-decoration:line-through;opacity:.5;}
+.note-img{width:100%;border-radius:6px;margin-bottom:8px;max-height:180px;object-fit:cover;}
+.note-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);}
+.note-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;}
+.note-card:hover .note-actions{opacity:1;}
+/* theme preset card */
+.theme-card{border:2px solid var(--bd2);border-radius:10px;padding:10px;cursor:pointer;transition:all .18s;text-align:center;}
+.theme-card.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac);}
+.theme-prev{height:36px;border-radius:6px;margin-bottom:6px;display:flex;align-items:flex-end;padding:4px;gap:3px;}
+.theme-dot{width:10px;height:10px;border-radius:50%;}
+/* responsive */
+@media(max-width:500px){
+  .g3c{grid-template-columns:1fr 1fr;}
+  .tab-btn{padding:8px 9px;font-size:.72rem;}
+  .notes-masonry{columns:1;}
+}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const{useState,useEffect,useMemo,useRef}=React;
+
+// ── CONSTANTS ────────────────────────────────────────────────────────────────
+
+const ACCENTS=[
+  {n:'Laranja',v:'#FF6B00'},{n:'Verde',v:'#22c55e'},{n:'Azul',v:'#3b82f6'},
+  {n:'Roxo',v:'#a855f7'},{n:'Vermelho',v:'#ef4444'},{n:'Rosa',v:'#ec4899'},
+  {n:'Ciano',v:'#06b6d4'},{n:'Amarelo',v:'#eab308'},
+];
+const BG_LVL={
+  carvao:{bg:'#0f0f0f',card:'#1a1a1a',card2:'#202020',bd:'#252525'},
+  midnight:{bg:'#0a0a0a',card:'#141414',card2:'#1a1a1a',bd:'#1e1e1e'},
+  void:{bg:'#060606',card:'#0f0f0f',card2:'#141414',bd:'#181818'},
+};
+// ── THEME PRESETS (inspirados no ChatGPT/Claude + extras) ──────────────────
+const THEMES=[
+  {id:'claude',    name:'Claude',      emoji:'🟠', bg:'#0a0a0a', card:'#141414', card2:'#1a1a1a', bd:'#1e1e1e', ac:'#FF6B00', desc:'Dark com laranja'},
+  {id:'chatgpt',   name:'ChatGPT',     emoji:'🟢', bg:'#212121', card:'#2d2d2d', card2:'#363636', bd:'#424242', ac:'#10a37f', desc:'Cinza-escuro, verde'},
+  {id:'void',      name:'Void',        emoji:'⬛', bg:'#050505', card:'#0d0d0d', card2:'#111',    bd:'#181818', ac:'#FF6B00', desc:'Ultra escuro'},
+  {id:'nord',      name:'Nord',        emoji:'🔵', bg:'#1e2030', card:'#252b40', card2:'#2e3554', bd:'#3b4261', ac:'#81a1c1', desc:'Azul ártico'},
+  {id:'matrix',    name:'Matrix',      emoji:'💚', bg:'#030a03', card:'#091409', card2:'#0f1f0f', bd:'#1a2e1a', ac:'#00ff41', desc:'Verde neon'},
+  {id:'roxo',      name:'Roxo Cósmico',emoji:'🟣', bg:'#0d0a14', card:'#161025', card2:'#1d1633', bd:'#2a1f45', ac:'#a855f7', desc:'Roxo profundo'},
+  {id:'oceano',    name:'Oceano',      emoji:'🔷', bg:'#060c14', card:'#0c1824', card2:'#12202e', bd:'#1a2c3a', ac:'#06b6d4', desc:'Ciano profundo'},
+  {id:'amber',     name:'Âmbar',       emoji:'🟡', bg:'#0f0d08', card:'#1a1810', card2:'#222018', bd:'#2e2a18', ac:'#f59e0b', desc:'Dourado quente'},
+];
+const NOTE_COLORS=[
+  {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
+  {k:'red',    bg:'#3b1515',bd:'#5c2020',name:'Vermelho'},
+  {k:'orange', bg:'#3b2010',bd:'#5c3515',name:'Laranja'},
+  {k:'yellow', bg:'#3b3310',bd:'#5c5015',name:'Amarelo'},
+  {k:'green',  bg:'#153b20',bd:'#205c35',name:'Verde'},
+  {k:'blue',   bg:'#102a3b',bd:'#15425c',name:'Azul'},
+  {k:'purple', bg:'#251535',bd:'#3c2055',name:'Roxo'},
+  {k:'pink',   bg:'#3b1530',bd:'#5c2048',name:'Rosa'},
+  {k:'gray',   bg:'#222222',bd:'#333',   name:'Cinza'},
+];
+const PRIORIDADES=['alta','media','baixa'];
+const FREQ_OPT=['diario','semanal','personalizado'];
+const DAYS_LABEL=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+const TODAY=()=>new Date().toISOString().slice(0,10);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+const ptDate=(d)=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR');
+const todayFull=()=>new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+const monthKey=(y,m)=>`${y}-${String(m).padStart(2,'0')}`;
+const daysInMonth=(y,m)=>new Date(y,m,0).getDate();
+
+// ── DEFAULT DATA ─────────────────────────────────────────────────────────────
+
+const DEF_HABITS=[
+  {id:'h1',name:'Futebol',emoji:'⚽',freq:'diario',days:[],weight:15,color:'#60a5fa',cat:'saude',monthlyGoal:20,active:true,order:0},
+  {id:'h2',name:'Futevôlei',emoji:'🏐',freq:'diario',days:[],weight:15,color:'#34d399',cat:'saude',monthlyGoal:8,active:true,order:1},
+  {id:'h3',name:'Passinho',emoji:'🕺',freq:'diario',days:[],weight:10,color:'#f472b6',cat:'pessoal',monthlyGoal:15,active:true,order:2},
+  {id:'h4',name:'Automação',emoji:'🤖',freq:'diario',days:[],weight:20,color:'#FF6B00',cat:'negocios',monthlyGoal:25,active:true,order:3},
+  {id:'h5',name:'Meditação',emoji:'🧘',freq:'diario',days:[],weight:10,color:'#a78bfa',cat:'saude',monthlyGoal:20,active:true,order:4},
+  {id:'h6',name:'Sem Redes Sociais',emoji:'📵',freq:'diario',days:[],weight:15,color:'#fbbf24',cat:'pessoal',monthlyGoal:20,active:true,order:5},
+  {id:'h7',name:'Sem Pornografia',emoji:'🚫',freq:'diario',days:[],weight:20,color:'#f87171',cat:'pessoal',monthlyGoal:30,active:true,order:6},
+];
+const DEF_CATS=[
+  {id:'negocios',name:'Negócios',color:'#3b82f6'},
+  {id:'saude',name:'Saúde',color:'#22c55e'},
+  {id:'pessoal',name:'Pessoal',color:'#a855f7'},
+];
+const DEF_GOALS=[
+  {id:'g1',name:'Pelada de Futebol',emoji:'⚽',desc:'Ter habilidade e confiança para se destacar em qualquer pelada',meta:'Driblar 3 adversários em sequência em 8 semanas',medicao:'Conseguir fazer em 3 peladas seguidas',status:'igual',updatedAt:null},
+  {id:'g2',name:'Futevôlei',emoji:'🏐',desc:'Jogar futevôlei com competência',meta:'',medicao:'',status:'igual',updatedAt:null},
+  {id:'g3',name:'Passinho de Funk',emoji:'🕺',desc:'Dançar passinho de funk antigo',meta:'',medicao:'',status:'igual',updatedAt:null},
+  {id:'g4',name:'Automação',emoji:'🤖',desc:'Ganhar dinheiro com automação',meta:'Lançar meu primeiro produto de automação em 90 dias',medicao:'Primeira venda realizada',status:'mais-perto',updatedAt:null},
+];
+const DEF_FRASES=[
+  'Você não precisa de motivação. Você precisa de um sistema.',
+  'Identidade antes de resultado.',
+  'Cada repetição é um voto para quem você está se tornando.',
+  'O sistema protege você nos dias que a motivação some.',
+  'Pequenas ações consistentes constroem grandes resultados.',
+  'Você não falha nos seus objetivos. Você falha nos seus sistemas.',
+  'O mínimo viável mantém vivo o que o perfeito mata.',
+  'Um gatilho certo vale mais que mil decisões de força de vontade.',
+  'Facilite o que deve ser feito. Dificulte o que não deve.',
+  'Você se torna o que pratica, não o que planeja.',
+  'DROP: Deseje. Resultado. Obstáculos. Protocolo.',
+  'Identidade é a âncora. Quando tudo balança, ela te mantém.',
+  'O jogador que treina 20 min todo dia supera quem treina 3h uma vez por semana.',
+  'Sua vida é o resultado do seu sistema, não da sua intenção.',
+  'Consistência é o novo talento.',
+  'Não espere estar pronto. Comece imperfeito.',
+  'O cérebro segue o que o corpo já começou.',
+  'Um sistema ruim executado bate qualquer plano perfeito não executado.',
+  'Clareza de direção vale mais que velocidade.',
+  'Quem controla sua manhã, controla seu dia.',
+];
+const DEF_BADGES=[
+  {id:'b1',emoji:'🔥',name:'Primeira Chama',desc:'Complete 1 hábito pela primeira vez',auto:true,type:'habits_total',threshold:1,unlocked:false},
+  {id:'b2',emoji:'⚡',name:'Início Forte',desc:'Complete todos os hábitos em um dia',auto:true,type:'all_habits_day',threshold:1,unlocked:false},
+  {id:'b3',emoji:'📅',name:'Semana Sólida',desc:'7 dias consecutivos de hábitos',auto:true,type:'streak',threshold:7,unlocked:false},
+  {id:'b4',emoji:'🏆',name:'Mês Lendário',desc:'30 dias consecutivos de hábitos',auto:true,type:'streak',threshold:30,unlocked:false},
+  {id:'b5',emoji:'✅',name:'Executor',desc:'Complete 10 tarefas',auto:true,type:'tasks_total',threshold:10,unlocked:false},
+  {id:'b6',emoji:'🎯',name:'Foco Total',desc:'Complete 50 tarefas',auto:true,type:'tasks_total',threshold:50,unlocked:false},
+  {id:'b7',emoji:'🧠',name:'Sistema Ativo',desc:'Use o app por 7 dias seguidos',auto:true,type:'app_streak',threshold:7,unlocked:false},
+  {id:'b8',emoji:'🌙',name:'Consistência',desc:'21 dias de hábitos no mês',auto:true,type:'month_habits',threshold:21,unlocked:false},
+];
+const DEF_TABS=[
+  {id:'hoje',label:'Hoje',emoji:'🏠',visible:true},
+  {id:'tarefas',label:'Tarefas',emoji:'✅',visible:true},
+  {id:'habitos',label:'Hábitos',emoji:'🔁',visible:true},
+  {id:'dashboard',label:'Dashboard',emoji:'📊',visible:true},
+  {id:'metas',label:'Metas',emoji:'🎯',visible:true},
+  {id:'anotacoes',label:'Anotações',emoji:'📝',visible:true},
+  {id:'conquistas',label:'Conquistas',emoji:'🏆',visible:true},
+  {id:'config',label:'Config',emoji:'⚙️',visible:true},
+];
+
+// ── STATE HELPERS ────────────────────────────────────────────────────────────
+
+function makeInit(){
+  const td=TODAY();
+  return{
+    user:{name:'Arthur',avatar:'🧠'},
+    config:{
+      accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
+      scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
+      tabs:DEF_TABS,themeId:'claude',
+    },
+    categories:DEF_CATS,
+    tasks:[
+      {id:'t1',title:'Estudar fundamentos de n8n',weight:8,date:td,cat:'negocios',prio:'alta',done:false,createdAt:td},
+      {id:'t2',title:'Ir à pelada às 19h',weight:6,date:td,cat:'saude',prio:'media',done:false,createdAt:td},
+      {id:'t3',title:'Ler 20 páginas',weight:4,date:td,cat:'pessoal',prio:'baixa',done:false,createdAt:td},
+    ],
+    habits:DEF_HABITS,
+    habitLog:{},
+    goals:DEF_GOALS,
+    gatilhos:{
+      g1:[{id:'ga1',quando:'Quando der 18h',entao:'Calço a chuteira e vou bater bola 30 min',ativo:true}],
+      g4:[{id:'ga2',quando:'Quando abro o computador de manhã',entao:'Primeiros 45 min são de estudo/build',ativo:true}],
+    },
+    facilitacao:{
+      g1:{facilitar:[{id:'fa1',texto:'Deixar a bola na entrada de casa',ok:false}],dificultar:[{id:'fa2',texto:'Não sentar antes de treinar',ok:false}]},
+      g4:{facilitar:[{id:'fa3',texto:'Deixar n8n aberto no navegador',ok:false}],dificultar:[{id:'fa4',texto:'Redes sociais bloqueadas até completar sessão',ok:false}]},
+    },
+    drop:{
+      g1:{desejo:'Ser o melhor da pelada',resultado:'Confiança e domínio em qualquer jogo',obs:[{id:'do1',obs:'Cansado após o trabalho',prot:'Só 15 min batendo bola. Só 15 min.'}]},
+      g4:{desejo:'Ganhar dinheiro dormindo',resultado:'Liberdade de tempo e renda passiva',obs:[{id:'do2',obs:'Sem motivação',prot:'Abrir o projeto e escrever 1 linha. Só 1 linha.'}]},
+    },
+    afirmacoes:{
+      g1:'Eu sou um jogador que melhora todo dia.',
+      g2:'Eu sou atleta de praia. O mar é meu treino.',
+      g3:'Eu sou alguém que dança. O funk corre no meu sangue.',
+      g4:'Eu sou um criador de sistemas.',
+    },
+    streaks:{
+      g1:{atual:0,recorde:0,ultima:null},
+      g2:{atual:0,recorde:0,ultima:null},
+      g3:{atual:0,recorde:0,ultima:null},
+      g4:{atual:0,recorde:0,ultima:null},
+    },
+    diario:[],
+    frases:DEF_FRASES,
+    badges:DEF_BADGES,
+    customBadges:[],
+    appLog:{firstOpen:td,lastOpen:td,appStreak:1},
+    noteCategories:[
+      {id:'nc1',name:'Pessoal',color:'#a855f7'},
+      {id:'nc2',name:'Trabalho',color:'#3b82f6'},
+      {id:'nc3',name:'Ideias',color:'#eab308'},
+      {id:'nc4',name:'Projetos',color:'#22c55e'},
+    ],
+    notes:[
+      {id:'n1',title:'Ideias de automação',type:'lista',content:'',items:[{id:'i1',text:'Automação de emails com n8n',done:false},{id:'i2',text:'Bot de agendamento WhatsApp',done:true},{id:'i3',text:'Dashboard de vendas automático',done:false}],imageData:null,color:'green',catId:'nc2',pinned:true,archived:false,createdAt:td},
+      {id:'n2',title:'Reflexão do dia',type:'texto',content:'Hoje treinei futebol por 30 min e estudei n8n. O sistema está funcionando — a chave foi colocar a bola na entrada de casa como gatilho visual.',items:[],imageData:null,color:'default',catId:'nc1',pinned:false,archived:false,createdAt:td},
+      {id:'n3',title:'Links para estudar',type:'lista',content:'',items:[{id:'i4',text:'Curso n8n avançado - YouTube',done:false},{id:'i5',text:'Documentação Make.com',done:false},{id:'i6',text:'Canal Macks Wendhell',done:true}],imageData:null,color:'blue',catId:'nc3',pinned:false,archived:false,createdAt:td},
+    ],
+  };
+}
+
+function loadSt(){
+  try{
+    const s=localStorage.getItem('sc-v3');
+    if(s){const p=JSON.parse(s);const d=makeInit();return mergeDeep(d,p);}
+  }catch(e){}
+  return makeInit();
+}
+function mergeDeep(target,source){
+  const out={...target};
+  for(const k in source){
+    if(source[k]&&typeof source[k]==='object'&&!Array.isArray(source[k])){
+      out[k]=mergeDeep(target[k]||{},source[k]);
+    }else{
+      out[k]=source[k];
+    }
+  }
+  return out;
+}
+
+// ── SCORE UTILS ──────────────────────────────────────────────────────────────
+
+function getDayScore(st,dateStr){
+  const tasks=st.tasks.filter(t=>t.date===dateStr&&t.done);
+  const log=st.habitLog[dateStr]||{};
+  const tScore=tasks.reduce((s,t)=>s+t.weight,0);
+  const hScore=st.habits.reduce((s,h)=>log[h.id]?s+h.weight:s,0);
+  if(st.config.scoreFormula==='weighted'){
+    const hw=st.config.habitWeight/100;
+    return Math.round(hScore*hw+tScore*(1-hw));
+  }
+  return tScore+hScore;
+}
+function getMonthScores(st,year,month){
+  const days=daysInMonth(year,month);
+  const mk=monthKey(year,month);
+  return Array.from({length:days},(_,i)=>{
+    const d=i+1;
+    const ds=`${mk}-${String(d).padStart(2,'0')}`;
+    return{day:d,score:getDayScore(st,ds),date:ds,isToday:ds===TODAY()};
+  });
+}
+
+// ── APPLY THEME ──────────────────────────────────────────────────────────────
+
+function applyTheme(config){
+  const r=document.documentElement.style;
+  const theme=THEMES.find(t=>t.id===config.themeId)||THEMES[0];
+  // accent: use theme's native accent, but config.accent can override (only if user explicitly changed it vs theme)
+  const ac=config.accentOverride||theme.ac;
+  r.setProperty('--ac',ac);
+  r.setProperty('--ac1',ac+'18');
+  r.setProperty('--ac2',ac+'38');
+  r.setProperty('--bg',theme.bg);
+  r.setProperty('--card',theme.card);
+  r.setProperty('--card2',theme.card2);
+  r.setProperty('--bd',theme.bd);
+  const fs={small:'13px',medium:'14px',large:'15px'};
+  r.setProperty('--fs',fs[config.fontSize]||'14px');
+}
+
+// ── UI PRIMITIVES ────────────────────────────────────────────────────────────
+
+function Modal({open,onClose,title,children}){
+  if(!open)return null;
+  return<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className="modal">
+      <div className="fcb mb14">
+        <div className="modal-h">{title}</div>
+        <button className="btn-ic"onClick={onClose}>✕</button>
+      </div>
+      {children}
+    </div>
+  </div>;
+}
+function Tog({on,onChange}){
+  return<div className={`tog${on?' on':''}`}onClick={onChange}><div className="tog-th"/></div>;
+}
+function Chk({on,onChange}){
+  return<div className={`chk${on?' on':''}`}onClick={onChange}>{on&&<span style={{color:'#fff',fontSize:'10px',fontWeight:'bold'}}>✓</span>}</div>;
+}
+function Fld({label,children}){
+  return<div className="fld"><label>{label}</label>{children}</div>;
+}
+function Btns({children,style={}}){
+  return<div className="fc g8 mt12"style={{justifyContent:'flex-end',...style}}>{children}</div>;
+}
+function PrioTag({p}){
+  return<span className={`prio p-${p}`}>{p==='alta'?'Alta':p==='media'?'Média':'Baixa'}</span>;
+}
+function CatTag({catId,cats}){
+  const c=cats.find(x=>x.id===catId);
+  if(!c)return null;
+  return<span className="cat-tag"style={{background:c.color+'18',color:c.color}}>{c.name}</span>;
+}
+function PBar({val,max=100,color}){
+  const pct=Math.min(100,Math.round((val/Math.max(max,1))*100));
+  const col=color||( pct>=70?'#22c55e':pct>=40?'#eab308':'#ef4444');
+  return<div className="pbar"><div className="pfil"style={{width:pct+'%',background:col}}/></div>;
+}
+function StBtn({status,onChange}){
+  const opts=[
+    {v:'mais-longe',label:'🔴 Longe',bg:'#ef444420',bd:'#ef4444'},
+    {v:'igual',label:'⚪ Igual',bg:'#88888820',bd:'#888'},
+    {v:'mais-perto',label:'🟢 Perto',bg:'#22c55e20',bd:'#22c55e'},
+  ];
+  return<div className="fc g6 flex"style={{flexWrap:'wrap'}}>
+    {opts.map(o=><button key={o.v}className="st-btn"onClick={()=>onChange(o.v)}style={{background:status===o.v?o.bg:'#1a1a1a',border:`1px solid ${status===o.v?o.bd:'#2a2a2a'}`,color:status===o.v?'#fff':'#666'}}>{o.label}</button>)}
+  </div>;
+}
+function SVGChart({data,accent}){
+  const W=560,H=80;
+  const max=Math.max(...data.map(d=>d.score),1);
+  const bw=Math.max(4,Math.floor(W/data.length)-1);
+  return<svg viewBox={`0 0 ${W} ${H}`}style={{width:'100%',height:'auto',display:'block'}}>
+    {data.map((d,i)=>{
+      const h=Math.max(3,(d.score/max)*(H-4));
+      const x=i*(bw+1);
+      const y=H-h;
+      return<rect key={i}x={x}y={y}width={bw}height={h}rx={2}fill={d.isToday?accent:accent+'55'}/>;
+    })}
+  </svg>;
+}
+
+// ── MODAIS DE FORMULÁRIO ─────────────────────────────────────────────────────
+
+function TaskModal({open,onClose,onSave,init,cats}){
+  const blank={title:'',weight:5,date:TODAY(),cat:cats[0]?.id||'',prio:'media',done:false};
+  const[f,setF]=useState(init||blank);
+  useEffect(()=>{setF(init||blank);},[open]);
+  function save(){if(!f.title.trim())return;onSave(f);onClose();}
+  return<Modal open={open}onClose={onClose}title={init?'Editar Tarefa':'Nova Tarefa'}>
+    <Fld label="Título"><input value={f.title}onChange={e=>setF(p=>({...p,title:e.target.value}))}placeholder="Ex: Estudar n8n por 1 hora"/></Fld>
+    <div className="g2c">
+      <Fld label="Data"><input type="date"value={f.date}onChange={e=>setF(p=>({...p,date:e.target.value}))}/></Fld>
+      <Fld label="Peso (1–10)"><input type="number"min={1}max={10}value={f.weight}onChange={e=>setF(p=>({...p,weight:+e.target.value}))}/></Fld>
+    </div>
+    <div className="g2c">
+      <Fld label="Categoria">
+        <select value={f.cat}onChange={e=>setF(p=>({...p,cat:e.target.value}))}>
+          {cats.map(c=><option key={c.id}value={c.id}>{c.name}</option>)}
+        </select>
+      </Fld>
+      <Fld label="Prioridade">
+        <select value={f.prio}onChange={e=>setF(p=>({...p,prio:e.target.value}))}>
+          <option value="alta">Alta</option><option value="media">Média</option><option value="baixa">Baixa</option>
+        </select>
+      </Fld>
+    </div>
+    <Btns>
+      <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
+      <button className="btn btn-ac"onClick={save}>Salvar</button>
+    </Btns>
+  </Modal>;
+}
+
+function HabitModal({open,onClose,onSave,init}){
+  const blank={name:'',emoji:'⭐',freq:'diario',days:[],weight:10,color:'#60a5fa',cat:'saude',monthlyGoal:20,active:true};
+  const[f,setF]=useState(init||blank);
+  useEffect(()=>{setF(init||blank);},[open]);
+  function save(){if(!f.name.trim())return;onSave(f);onClose();}
+  function toggleDay(d){setF(p=>({...p,days:p.days.includes(d)?p.days.filter(x=>x!==d):[...p.days,d]}));}
+  const colors=['#60a5fa','#34d399','#f472b6','#FF6B00','#a78bfa','#fbbf24','#f87171','#06b6d4'];
+  return<Modal open={open}onClose={onClose}title={init?'Editar Hábito':'Novo Hábito'}>
+    <div className="g2c">
+      <Fld label="Emoji"><input value={f.emoji}onChange={e=>setF(p=>({...p,emoji:e.target.value}))}maxLength={4}placeholder="⭐"/></Fld>
+      <Fld label="Nome"><input value={f.name}onChange={e=>setF(p=>({...p,name:e.target.value}))}placeholder="Ex: Meditação"/></Fld>
+    </div>
+    <div className="g2c">
+      <Fld label="Frequência">
+        <select value={f.freq}onChange={e=>setF(p=>({...p,freq:e.target.value}))}>
+          <option value="diario">Diário</option>
+          <option value="semanal">Dias específicos</option>
+        </select>
+      </Fld>
+      <Fld label="Peso (pts)"><input type="number"min={1}max={30}value={f.weight}onChange={e=>setF(p=>({...p,weight:+e.target.value}))}/></Fld>
+    </div>
+    {f.freq==='semanal'&&<Fld label="Dias da semana">
+      <div className="fc g6 flex"style={{flexWrap:'wrap',marginTop:'4px'}}>
+        {DAYS_LABEL.map((d,i)=><button key={i}onClick={()=>toggleDay(i)}style={{padding:'4px 8px',borderRadius:'5px',fontSize:'.75rem',fontWeight:'600',background:f.days.includes(i)?'var(--ac)':'var(--card2)',border:`1px solid ${f.days.includes(i)?'var(--ac)':'var(--bd2)'}`,color:f.days.includes(i)?'#000':'var(--tx2)'}}>{d}</button>)}
+      </div>
+    </Fld>}
+    <Fld label="Meta mensal (dias)"><input type="number"min={1}max={31}value={f.monthlyGoal}onChange={e=>setF(p=>({...p,monthlyGoal:+e.target.value}))}/></Fld>
+    <Fld label="Cor do indicador">
+      <div className="fc g8 mt4"style={{flexWrap:'wrap'}}>
+        {colors.map(c=><div key={c}className="swatch"style={{background:c}}onClick={()=>setF(p=>({...p,color:c}))}>{f.color===c&&<span style={{display:'flex',alignItems:'center',justifyContent:'center',height:'100%',color:'#fff',fontSize:'10px'}}>✓</span>}</div>)}
+      </div>
+    </Fld>
+    <Btns>
+      <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
+      <button className="btn btn-ac"onClick={save}>Salvar</button>
+    </Btns>
+  </Modal>;
+}
+
+function GoalModal({open,onClose,onSave,init}){
+  const blank={name:'',emoji:'🎯',desc:'',meta:'',medicao:'',status:'igual'};
+  const[f,setF]=useState(init||blank);
+  useEffect(()=>{setF(init||blank);},[open]);
+  function save(){if(!f.name.trim())return;onSave(f);onClose();}
+  return<Modal open={open}onClose={onClose}title={init?'Editar Objetivo':'Novo Objetivo'}>
+    <div className="g2c">
+      <Fld label="Emoji"><input value={f.emoji}onChange={e=>setF(p=>({...p,emoji:e.target.value}))}maxLength={4}/></Fld>
+      <Fld label="Nome"><input value={f.name}onChange={e=>setF(p=>({...p,name:e.target.value}))}placeholder="Ex: Musculação"/></Fld>
+    </div>
+    <Fld label="Descrição"><textarea rows={2}value={f.desc}onChange={e=>setF(p=>({...p,desc:e.target.value}))}placeholder="O que significa esse objetivo?"/></Fld>
+    <Fld label="Meta específica (com número e prazo)"><input value={f.meta}onChange={e=>setF(p=>({...p,meta:e.target.value}))}placeholder="Ex: Perder 5kg em 90 dias"/></Fld>
+    <Fld label="Como vou medir?"><input value={f.medicao}onChange={e=>setF(p=>({...p,medicao:e.target.value}))}placeholder="Ex: Balança toda segunda-feira"/></Fld>
+    <Btns>
+      <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
+      <button className="btn btn-ac"onClick={save}>Salvar</button>
+    </Btns>
+  </Modal>;
+}
+
+// ── NAVBAR ───────────────────────────────────────────────────────────────────
+
+function Navbar({cur,onChange,st}){
+  const tabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
+  return<div className="navbar">
+    <div className="nav-header">
+      <div className="fc g8">
+        <span style={{fontSize:'1.2rem'}}>{st.user.avatar}</span>
+        <div>
+          <div style={{fontFamily:'var(--ft)',fontSize:'1.1rem',letterSpacing:'.08em',color:'var(--ac)',lineHeight:1}}>SEGUNDO CÉREBRO</div>
+          <div style={{fontSize:'.68rem',color:'var(--tx2)',lineHeight:1}}>Olá, {st.user.name} — {todayFull()}</div>
+        </div>
+      </div>
+    </div>
+    <div className="nav-tabs">
+      {tabs.map(t=><button key={t.id}className={`tab-btn${cur===t.id?' on':''}`}onClick={()=>onChange(t.id)}>
+        <span>{t.emoji}</span>{t.label}
+      </button>)}
+    </div>
+  </div>;
+}
+
+// ── HOJE ─────────────────────────────────────────────────────────────────────
+
+function HojeSection({st,setSt}){
+  const td=TODAY();
+  const[taskModal,setTaskModal]=useState(false);
+  const[editTask,setEditTask]=useState(null);
+  const todayTasks=st.tasks.filter(t=>t.date===td);
+  const dayLog=st.habitLog[td]||{};
+  const activeHabits=st.habits.filter(h=>h.active);
+  const score=getDayScore(st,td);
+  const doneT=todayTasks.filter(t=>t.done).length;
+  const doneH=activeHabits.filter(h=>dayLog[h.id]).length;
+  const maxScore=todayTasks.reduce((s,t)=>s+t.weight,0)+activeHabits.reduce((s,h)=>s+h.weight,0);
+
+  function toggleTask(id){
+    setSt(p=>({...p,tasks:p.tasks.map(t=>t.id===id?{...t,done:!t.done}:t)}));
+  }
+  function toggleHabit(hid){
+    setSt(p=>({...p,habitLog:{...p.habitLog,[td]:{...( p.habitLog[td]||{}), [hid]:!(p.habitLog[td]||{})[hid]}}}));
+  }
+  function saveTask(f){
+    const td2=TODAY();
+    if(editTask){
+      setSt(p=>({...p,tasks:p.tasks.map(t=>t.id===editTask.id?{...t,...f}:t)}));
+    }else{
+      setSt(p=>({...p,tasks:[...p.tasks,{...f,id:uid(),done:false,createdAt:td2}]}));
+    }
+    setEditTask(null);
+  }
+
+  const frase=useMemo(()=>st.frases[Math.floor(Math.random()*st.frases.length)]||'',[]);
+
+  return<div className="sec">
+    {/* Score strip */}
+    <div className="card mb14"style={{background:'var(--card)',borderColor:'var(--ac2)'}}>
+      <div className="fc g16"style={{flexWrap:'wrap'}}>
+        <div>
+          <div className="score-n">{score}</div>
+          <div style={{fontSize:'.68rem',color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.08em'}}>Score do dia</div>
+        </div>
+        <div className="flex col g4"style={{flex:1,minWidth:120}}>
+          <div className="fcb"style={{fontSize:'.8rem'}}>
+            <span style={{color:'var(--tx2)'}}>Tarefas</span>
+            <span style={{fontFamily:'var(--fm)',color:'var(--ac)'}}>{doneT}/{todayTasks.length}</span>
+          </div>
+          <PBar val={doneT}max={Math.max(todayTasks.length,1)}color="var(--ac)"/>
+          <div className="fcb mt4"style={{fontSize:'.8rem'}}>
+            <span style={{color:'var(--tx2)'}}>Hábitos</span>
+            <span style={{fontFamily:'var(--fm)',color:'var(--ac)'}}>{doneH}/{activeHabits.length}</span>
+          </div>
+          <PBar val={doneH}max={Math.max(activeHabits.length,1)}color="var(--ac)"/>
+        </div>
+      </div>
+    </div>
+
+    {/* Frase */}
+    <div style={{padding:'10px 14px',background:'var(--ac1)',border:'1px solid var(--ac2)',borderRadius:'var(--r)',marginBottom:'14px',fontStyle:'italic',fontSize:'.85rem',color:'var(--ac)',lineHeight:1.5}}>
+      "{frase}"
+    </div>
+
+    {/* Tarefas do dia */}
+    <div className="sch">
+      <div className="sch-t">Tarefas de Hoje</div>
+      <button className="btn btn-ac"onClick={()=>{setEditTask(null);setTaskModal(true);}}>+ Tarefa</button>
+    </div>
+    {todayTasks.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'12px 0'}}>Sem tarefas para hoje. Adicione uma!</div>}
+    {todayTasks.map(t=><div key={t.id}className={`tsk-row${t.done?' done':''}`}>
+      <Chk on={t.done}onChange={()=>toggleTask(t.id)}/>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:'.88rem',fontWeight:600,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx2)':'var(--tx)'}}>{t.title}</div>
+        <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
+          <CatTag catId={t.cat}cats={st.categories}/>
+          <PrioTag p={t.prio}/>
+          <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>+{t.weight}pts</span>
+        </div>
+      </div>
+      <button className="btn-ic"onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
+    </div>)}
+
+    {/* Hábitos */}
+    <div className="sch mt12">
+      <div className="sch-t">Hábitos de Hoje</div>
+    </div>
+    {activeHabits.map(h=>{
+      const done=!!(dayLog[h.id]);
+      return<div key={h.id}className="hab-row"style={{borderColor:done?h.color+'33':'var(--bd)',opacity:h.active?1:.5}}>
+        <span style={{fontSize:'1.2rem'}}>{h.emoji}</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:600,fontSize:'.88rem',textDecoration:done?'line-through':'none',color:done?'var(--tx2)':'var(--tx)'}}>{h.name}</div>
+          <div style={{fontSize:'.7rem',fontFamily:'var(--fm)',color:h.color}}>+{h.weight}pts</div>
+        </div>
+        <Chk on={done}onChange={()=>toggleHabit(h.id)}/>
+      </div>;
+    })}
+
+    <TaskModal open={taskModal}onClose={()=>{setTaskModal(false);setEditTask(null);}}onSave={saveTask}init={editTask}cats={st.categories}/>
+  </div>;
+}
+
+// ── TAREFAS ──────────────────────────────────────────────────────────────────
+
+function TarefasSection({st,setSt}){
+  const[modal,setModal]=useState(false);
+  const[edit,setEdit]=useState(null);
+  const[filter,setFilter]=useState('hoje');
+  const[catFilter,setCatFilter]=useState('');
+  const td=TODAY();
+  const thisWeek=(()=>{const d=new Date();const mon=new Date(d);mon.setDate(d.getDate()-d.getDay()+1);const sun=new Date(mon);sun.setDate(mon.getDate()+6);return{start:mon.toISOString().slice(0,10),end:sun.toISOString().slice(0,10)};})();
+
+  const tasks=useMemo(()=>{
+    let t=st.tasks;
+    if(filter==='hoje')t=t.filter(x=>x.date===td);
+    else if(filter==='semana')t=t.filter(x=>x.date>=thisWeek.start&&x.date<=thisWeek.end);
+    if(catFilter)t=t.filter(x=>x.cat===catFilter);
+    return t.sort((a,b)=>{const po={alta:0,media:1,baixa:2};return po[a.prio]-po[b.prio];});
+  },[st.tasks,filter,catFilter,td]);
+
+  function save(f){
+    if(edit)setSt(p=>({...p,tasks:p.tasks.map(t=>t.id===edit.id?{...t,...f}:t)}));
+    else setSt(p=>({...p,tasks:[...p.tasks,{...f,id:uid(),done:false,createdAt:td}]}));
+    setEdit(null);
+  }
+  function del(id){setSt(p=>({...p,tasks:p.tasks.filter(t=>t.id!==id)}));}
+  function tog(id){setSt(p=>({...p,tasks:p.tasks.map(t=>t.id===id?{...t,done:!t.done}:t)}));}
+
+  const filts=[{k:'hoje',l:'Hoje'},{k:'semana',l:'Semana'},{k:'todas',l:'Todas'}];
+
+  return<div className="sec">
+    <div className="sch">
+      <div className="sch-t">Tarefas</div>
+      <button className="btn btn-ac"onClick={()=>{setEdit(null);setModal(true);}}>+ Nova Tarefa</button>
+    </div>
+    {/* Filtros */}
+    <div className="stabs mb14">
+      {filts.map(f=><button key={f.k}className={`stab${filter===f.k?' on':''}`}onClick={()=>setFilter(f.k)}>{f.l}</button>)}
+      <button className={`stab${catFilter===''?' on':''}`}onClick={()=>setCatFilter('')}>Todas categorias</button>
+      {st.categories.map(c=><button key={c.id}className={`stab${catFilter===c.id?' on':''}`}onClick={()=>setCatFilter(c.id)}style={catFilter===c.id?{background:c.color+'18',borderColor:c.color+'44',color:c.color}:{}}>{c.name}</button>)}
+    </div>
+    {tasks.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'16px 0',textAlign:'center'}}>Nenhuma tarefa nesse filtro.</div>}
+    {tasks.map(t=><div key={t.id}className={`tsk-row${t.done?' done':''}`}>
+      <Chk on={t.done}onChange={()=>tog(t.id)}/>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontWeight:600,fontSize:'.88rem',textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx2)':'var(--tx)',wordBreak:'break-word'}}>{t.title}</div>
+        <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
+          <CatTag catId={t.cat}cats={st.categories}/>
+          <PrioTag p={t.prio}/>
+          <span style={{fontSize:'.68rem',color:'var(--tx3)'}}>{ptDate(t.date)}</span>
+          <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--ac)'}}>+{t.weight}pts</span>
+        </div>
+      </div>
+      <div className="fc g4">
+        <button className="btn-ic"onClick={()=>{setEdit(t);setModal(true);}}>✏️</button>
+        <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(t.id)}>🗑</button>
+      </div>
+    </div>)}
+    <TaskModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={save}init={edit}cats={st.categories}/>
+  </div>;
+}
+
+// ── HÁBITOS ──────────────────────────────────────────────────────────────────
+
+function HabitosSection({st,setSt}){
+  const[sub,setSub]=useState('lista');
+  return<div className="sec">
+    <div className="stabs mb14">
+      <button className={`stab${sub==='lista'?' on':''}`}onClick={()=>setSub('lista')}>📋 Lista</button>
+      <button className={`stab${sub==='tracker'?' on':''}`}onClick={()=>setSub('tracker')}>📅 Tracker Mensal</button>
+    </div>
+    {sub==='lista'?<HabitsList st={st}setSt={setSt}/>:<HabitsTracker st={st}setSt={setSt}/>}
+  </div>;
+}
+
+function HabitsList({st,setSt}){
+  const[modal,setModal]=useState(false);
+  const[edit,setEdit]=useState(null);
+  const td=TODAY();
+  const mk=td.slice(0,7);
+
+  function save(f){
+    if(edit)setSt(p=>({...p,habits:p.habits.map(h=>h.id===edit.id?{...h,...f}:h)}));
+    else setSt(p=>({...p,habits:[...p.habits,{...f,id:uid(),order:p.habits.length}]}));
+    setEdit(null);
+  }
+  function del(id){setSt(p=>({...p,habits:p.habits.filter(h=>h.id!==id)}));}
+  function togActive(id){setSt(p=>({...p,habits:p.habits.map(h=>h.id===id?{...h,active:!h.active}:h)}));}
+  function move(id,dir){
+    setSt(p=>{
+      const arr=[...p.habits].sort((a,b)=>a.order-b.order);
+      const i=arr.findIndex(h=>h.id===id);
+      const j=dir==='up'?i-1:i+1;
+      if(j<0||j>=arr.length)return p;
+      [arr[i].order,arr[j].order]=[arr[j].order,arr[i].order];
+      return{...p,habits:arr};
+    });
+  }
+
+  const habits=[...st.habits].sort((a,b)=>a.order-b.order);
+
+  // calc month completions
+  function monthCount(hid){
+    let n=0;
+    const yr=new Date().getFullYear();
+    const mo=new Date().getMonth()+1;
+    const days=daysInMonth(yr,mo);
+    for(let d=1;d<=days;d++){
+      const ds=`${mk}-${String(d).padStart(2,'0')}`;
+      if(st.habitLog[ds]?.[hid])n++;
+    }
+    return n;
+  }
+
+  return<div>
+    <div className="sch">
+      <div className="sch-t">Hábitos</div>
+      <button className="btn btn-ac"onClick={()=>{setEdit(null);setModal(true);}}>+ Hábito</button>
+    </div>
+    {habits.map(h=>{
+      const mc=monthCount(h.id);
+      return<div key={h.id}className="hab-row"style={{borderColor:h.active?h.color+'33':'var(--bd)',opacity:h.active?1:.55}}>
+        <span style={{fontSize:'1.2rem'}}>{h.emoji}</span>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontWeight:600,fontSize:'.88rem'}}>{h.name}</div>
+          <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
+            <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:h.color}}>{mc}/{h.monthlyGoal} este mês</span>
+            <span style={{fontSize:'.68rem',color:'var(--tx3)'}}>+{h.weight}pts</span>
+            <span style={{fontSize:'.68rem',color:'var(--tx3)'}}>{h.freq==='diario'?'Diário':'Semanal'}</span>
+          </div>
+          <div className="mt4"><PBar val={mc}max={h.monthlyGoal}color={h.color}/></div>
+        </div>
+        <div className="fc g6">
+          <Tog on={h.active}onChange={()=>togActive(h.id)}/>
+          <button className="btn-ic"onClick={()=>move(h.id,'up')}>↑</button>
+          <button className="btn-ic"onClick={()=>move(h.id,'down')}>↓</button>
+          <button className="btn-ic"onClick={()=>{setEdit(h);setModal(true);}}>✏️</button>
+          <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(h.id)}>🗑</button>
+        </div>
+      </div>;
+    })}
+    <HabitModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={save}init={edit}/>
+  </div>;
+}
+
+function HabitsTracker({st,setSt}){
+  const now=new Date();
+  const[yr,setYr]=useState(now.getFullYear());
+  const[mo,setMo]=useState(now.getMonth()+1);
+  const days=daysInMonth(yr,mo);
+  const mk=monthKey(yr,mo);
+  const habits=[...st.habits].filter(h=>h.active).sort((a,b)=>a.order-b.order);
+  const td=TODAY();
+
+  function toggle(hid,day){
+    const ds=`${mk}-${String(day).padStart(2,'0')}`;
+    setSt(p=>({...p,habitLog:{...p.habitLog,[ds]:{...(p.habitLog[ds]||{}),[hid]:!(p.habitLog[ds]||{})[hid]}}}));
+  }
+  function prevMonth(){if(mo===1){setYr(y=>y-1);setMo(12);}else setMo(m=>m-1);}
+  function nextMonth(){if(mo===12){setYr(y=>y+1);setMo(1);}else setMo(m=>m+1);}
+  const mNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  return<div>
+    {/* Month nav */}
+    <div className="fcb mb14">
+      <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={prevMonth}>‹</button>
+      <div style={{fontFamily:'var(--fm)',fontWeight:700,fontSize:'.9rem'}}>{mNames[mo-1]} {yr}</div>
+      <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={nextMonth}>›</button>
+    </div>
+    <div className="trk-wrap">
+      <table style={{borderCollapse:'separate',borderSpacing:'2px',minWidth:'max-content'}}>
+        <thead>
+          <tr>
+            <th style={{fontSize:'.68rem',color:'var(--tx2)',fontWeight:600,padding:'2px 8px 6px 0',textAlign:'left',whiteSpace:'nowrap',minWidth:'100px'}}>Hábito</th>
+            {Array.from({length:days},(_,i)=>{
+              const d=i+1;
+              const ds=`${mk}-${String(d).padStart(2,'0')}`;
+              const isT=ds===td;
+              return<th key={d}style={{fontSize:'.65rem',color:isT?'var(--ac)':'var(--tx3)',fontWeight:isT?700:400,padding:'2px 1px',textAlign:'center',width:'24px'}}>{d}</th>;
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          {habits.map(h=>{
+            const mc=Array.from({length:days},(_,i)=>{
+              const ds=`${mk}-${String(i+1).padStart(2,'0')}`;
+              return st.habitLog[ds]?.[h.id]?1:0;
+            }).reduce((s,v)=>s+v,0);
+            return<tr key={h.id}>
+              <td style={{padding:'2px 8px 2px 0',whiteSpace:'nowrap'}}>
+                <div className="fc g6">
+                  <span style={{fontSize:'.9rem'}}>{h.emoji}</span>
+                  <span style={{fontSize:'.75rem',fontWeight:500}}>{h.name}</span>
+                  <span style={{fontSize:'.65rem',fontFamily:'var(--fm)',color:h.color}}>{mc}/{h.monthlyGoal}</span>
+                </div>
+              </td>
+              {Array.from({length:days},(_,i)=>{
+                const d=i+1;
+                const ds=`${mk}-${String(d).padStart(2,'0')}`;
+                const done=!!(st.habitLog[ds]?.[h.id]);
+                const isT=ds===td;
+                return<td key={d}style={{padding:'1px'}}>
+                  <div className={`trk-cell${done?' done':''}${isT?' today':''}`}
+                    style={{background:done?h.color:'transparent'}}
+                    onClick={()=>toggle(h.id,d)}>
+                    {done&&<span style={{color:'#fff'}}>✓</span>}
+                  </div>
+                </td>;
+              })}
+            </tr>;
+          })}
+        </tbody>
+      </table>
+    </div>
+  </div>;
+}
+
+// ── DASHBOARD ────────────────────────────────────────────────────────────────
+
+function DashboardSection({st,setSt}){
+  const now=new Date();
+  const[yr,setYr]=useState(now.getFullYear());
+  const[mo,setMo]=useState(now.getMonth()+1);
+  const td=TODAY();
+  const mNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const scores=getMonthScores(st,yr,mo);
+  const totalTasks=st.tasks.filter(t=>t.date.startsWith(monthKey(yr,mo))).length;
+  const doneTasks=st.tasks.filter(t=>t.date.startsWith(monthKey(yr,mo))&&t.done).length;
+  const todayScore=getDayScore(st,td);
+  const avgScore=useMemo(()=>{const s=scores.filter(d=>d.score>0);return s.length?Math.round(s.reduce((a,d)=>a+d.score,0)/s.length):0;},[scores]);
+  const bestDay=useMemo(()=>scores.reduce((b,d)=>d.score>b?d.score:b,0),[scores]);
+  const daysWithData=scores.filter(d=>d.score>0).length;
+  const totalDays=daysInMonth(yr,mo);
+  const pctMonth=Math.round((daysWithData/totalDays)*100);
+
+  // habits month progress
+  const habitsProgress=st.habits.filter(h=>h.active).map(h=>{
+    let done=0;
+    for(let d=1;d<=totalDays;d++){
+      const ds=`${monthKey(yr,mo)}-${String(d).padStart(2,'0')}`;
+      if(st.habitLog[ds]?.[h.id])done++;
+    }
+    return{...h,done,pct:Math.round((done/Math.max(h.monthlyGoal,1))*100)};
+  });
+
+  // Day of week failure pattern
+  const dayFails=Array(7).fill(0);
+  scores.forEach(d=>{
+    if(d.score===0){
+      const dow=new Date(d.date+'T12:00:00').getDay();
+      dayFails[dow]++;
+    }
+  });
+  const worstDay=dayFails.indexOf(Math.max(...dayFails));
+
+  function exp(){
+    const data={period:`${mNames[mo-1]} ${yr}`,avgScore,bestDay,daysActive:daysWithData,tasksCompleted:doneTasks,habits:habitsProgress.map(h=>({name:h.name,done:h.done,goal:h.monthlyGoal,pct:h.pct+'%'}))};
+    const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`cerebro-${monthKey(yr,mo)}.json`;a.click();
+  }
+
+  function prevMonth(){if(mo===1){setYr(y=>y-1);setMo(12);}else setMo(m=>m-1);}
+  function nextMonth(){if(mo===12){setYr(y=>y+1);setMo(1);}else setMo(m=>m+1);}
+
+  return<div className="sec">
+    <div className="fcb mb14">
+      <div className="fcb g8">
+        <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={prevMonth}>‹</button>
+        <div style={{fontFamily:'var(--fm)',fontWeight:700,fontSize:'.88rem'}}>{mNames[mo-1]} {yr}</div>
+        <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={nextMonth}>›</button>
+      </div>
+      <button className="btn btn-gh"style={{fontSize:'.75rem'}}onClick={exp}>⬇ Exportar</button>
+    </div>
+
+    {/* Metric cards */}
+    <div className="g2c mb14">
+      <div className="mcrd"><div className="mval">{todayScore}</div><div className="mlbl">Score hoje</div></div>
+      <div className="mcrd"><div className="mval">{avgScore}</div><div className="mlbl">Média do mês</div></div>
+      <div className="mcrd"><div className="mval">{bestDay}</div><div className="mlbl">Melhor dia</div></div>
+      <div className="mcrd"><div className="mval">{doneTasks}/{totalTasks}</div><div className="mlbl">Tarefas</div></div>
+    </div>
+
+    {/* Chart */}
+    <div className="card mb14">
+      <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'10px',textTransform:'uppercase',letterSpacing:'.07em'}}>Score por dia — {mNames[mo-1]}</div>
+      <SVGChart data={scores}accent={st.config.accent||'#FF6B00'}/>
+      <div style={{display:'flex',justifyContent:'space-between',marginTop:'4px',fontSize:'.65rem',color:'var(--tx3)',fontFamily:'var(--fm)'}}>
+        <span>1</span><span>{Math.floor(totalDays/2)}</span><span>{totalDays}</span>
+      </div>
+    </div>
+
+    {/* % conclusão + padrão */}
+    <div className="g2c mb14">
+      <div className="card">
+        <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Atividade do mês</div>
+        <div style={{fontFamily:'var(--fm)',fontSize:'1.4rem',fontWeight:700,color:'var(--ac)'}}>{pctMonth}%</div>
+        <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>{daysWithData} de {totalDays} dias</div>
+      </div>
+      <div className="card">
+        <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Padrão de falha</div>
+        <div style={{fontFamily:'var(--fm)',fontSize:'1.1rem',fontWeight:700,color:'#ef4444'}}>{DAYS_LABEL[worstDay]}</div>
+        <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>é o dia mais difícil</div>
+      </div>
+    </div>
+
+    {/* Habits progress */}
+    <div className="card">
+      <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'12px',textTransform:'uppercase',letterSpacing:'.07em'}}>Progresso dos hábitos</div>
+      {habitsProgress.map(h=><div key={h.id}style={{marginBottom:'10px'}}>
+        <div className="fcb mb4">
+          <span style={{fontSize:'.82rem',fontWeight:500}}>{h.emoji} {h.name}</span>
+          <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:h.color}}>{h.done}/{h.monthlyGoal} ({h.pct}%)</span>
+        </div>
+        <PBar val={h.done}max={h.monthlyGoal}color={h.color}/>
+      </div>)}
+    </div>
+  </div>;
+}
+
+// ── METAS ────────────────────────────────────────────────────────────────────
+
+function MetasSection({st,setSt}){
+  const[sub,setSub]=useState('clareza');
+  const subs=[
+    {k:'clareza',l:'🎯 Clareza'},{k:'gatilhos',l:'⚡ Gatilhos'},
+    {k:'facilitacao',l:'🔧 Facilitação'},{k:'drop',l:'🧠 DROP'},{k:'identidade',l:'🧬 Identidade'},
+  ];
+  return<div className="sec">
+    <div className="stabs mb14">
+      {subs.map(s=><button key={s.k}className={`stab${sub===s.k?' on':''}`}onClick={()=>setSub(s.k)}>{s.l}</button>)}
+    </div>
+    {sub==='clareza'&&<ClarezaTab st={st}setSt={setSt}/>}
+    {sub==='gatilhos'&&<GatilhosTab st={st}setSt={setSt}/>}
+    {sub==='facilitacao'&&<FacilitacaoTab st={st}setSt={setSt}/>}
+    {sub==='drop'&&<DropTab st={st}setSt={setSt}/>}
+    {sub==='identidade'&&<IdentidadeTab st={st}setSt={setSt}/>}
+  </div>;
+}
+
+function ClarezaTab({st,setSt}){
+  const[modal,setModal]=useState(false);
+  const[edit,setEdit]=useState(null);
+  const stMap={'mais-longe':{ic:'🔴',c:'#ef4444'},'igual':{ic:'⚪',c:'#888'},'mais-perto':{ic:'🟢',c:'#22c55e'}};
+  function save(f){
+    if(edit)setSt(p=>({...p,goals:p.goals.map(g=>g.id===edit.id?{...g,...f,updatedAt:TODAY()}:g)}));
+    else setSt(p=>({...p,goals:[...p.goals,{...f,id:uid(),updatedAt:TODAY()}]}));
+    setEdit(null);
+  }
+  function del(id){setSt(p=>({...p,goals:p.goals.filter(g=>g.id!==id)}));}
+  function setStatus(id,s){setSt(p=>({...p,goals:p.goals.map(g=>g.id===id?{...g,status:s,updatedAt:TODAY()}:g)}));}
+  function setMeta(id,f,v){setSt(p=>({...p,goals:p.goals.map(g=>g.id===id?{...g,[f]:v,updatedAt:TODAY()}:g)}));}
+  return<div>
+    <div className="sch">
+      <div className="sch-t">🎯 Clareza de Direção</div>
+      <button className="btn btn-ac"onClick={()=>{setEdit(null);setModal(true);}}>+ Objetivo</button>
+    </div>
+    {st.goals.map(g=>{
+      const s=stMap[g.status||'igual'];
+      return<div key={g.id}className="obj-card">
+        <div className="fcb mb10">
+          <div className="fc g8"><span style={{fontSize:'1.3rem'}}>{g.emoji}</span><div><div style={{fontWeight:700}}>{g.name}</div><div style={{fontSize:'.75rem',color:'var(--tx2)'}}>{g.desc}</div></div></div>
+          <div className="fc g6">
+            <button className="btn-ic"onClick={()=>{setEdit(g);setModal(true);}}>✏️</button>
+            <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(g.id)}>🗑</button>
+          </div>
+        </div>
+        <div className="fld"><label>Meta específica (com número e prazo)</label>
+          <input value={g.meta||''}onChange={e=>setMeta(g.id,'meta',e.target.value)}placeholder="Ex: Fazer 10 dribles seguidos em 8 semanas"/>
+        </div>
+        <div className="fld"><label>Como medir</label>
+          <input value={g.medicao||''}onChange={e=>setMeta(g.id,'medicao',e.target.value)}placeholder="Ex: Em 3 peladas seguidas"/>
+        </div>
+        <div className="fld"><label>Progresso vs. semana passada</label>
+          <StBtn status={g.status||'igual'}onChange={v=>setStatus(g.id,v)}/>
+        </div>
+        {g.updatedAt&&<div style={{fontSize:'.68rem',color:'var(--tx3)',fontFamily:'var(--fm)',marginTop:'6px'}}>Atualizado: {ptDate(g.updatedAt)}</div>}
+      </div>;
+    })}
+    <GoalModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={save}init={edit}/>
+  </div>;
+}
+
+function GatilhosTab({st,setSt}){
+  function add(gid){setSt(p=>({...p,gatilhos:{...p.gatilhos,[gid]:[...(p.gatilhos[gid]||[]),{id:uid(),quando:'',entao:'',ativo:true}]}}))}
+  function upd(gid,tid,f,v){setSt(p=>({...p,gatilhos:{...p.gatilhos,[gid]:p.gatilhos[gid].map(g=>g.id===tid?{...g,[f]:v}:g)}}))}
+  function del(gid,tid){setSt(p=>({...p,gatilhos:{...p.gatilhos,[gid]:(p.gatilhos[gid]||[]).filter(g=>g.id!==tid)}}))}
+  return<div>
+    <div className="sch-t mb14">⚡ Gatilhos IF/THEN</div>
+    {st.goals.map(g=>{
+      const gs=st.gatilhos[g.id]||[];
+      return<div key={g.id}className="obj-card">
+        <div className="fcb mb10">
+          <div className="fc g6"><span>{g.emoji}</span><span style={{fontWeight:700,fontSize:'.9rem'}}>{g.name}</span></div>
+          <button className="btn btn-ac"style={{fontSize:'.72rem',padding:'4px 10px'}}onClick={()=>add(g.id)}>+ Gatilho</button>
+        </div>
+        {gs.map(t=><div key={t.id}style={{background:'var(--card2)',border:`1px solid ${t.ativo?'var(--ac2)':'var(--bd2)'}`,borderRadius:'var(--r)',padding:'10px',marginBottom:'8px',opacity:t.ativo?1:.5}}>
+          <div className="fcb mb8">
+            <span style={{fontSize:'.68rem',fontWeight:700,color:'var(--ac)',textTransform:'uppercase',letterSpacing:'.08em'}}>IF / THEN</span>
+            <div className="fc g8"><Tog on={t.ativo}onChange={()=>upd(g.id,t.id,'ativo',!t.ativo)}/><button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(g.id,t.id)}>×</button></div>
+          </div>
+          <div className="fc g6 mb6"><span style={{fontSize:'.7rem',fontWeight:700,color:'var(--tx2)',minWidth:38}}>SE</span><input value={t.quando}onChange={e=>upd(g.id,t.id,'quando',e.target.value)}placeholder="Quando isso acontecer..."/></div>
+          <div className="fc g6"><span style={{fontSize:'.7rem',fontWeight:700,color:'var(--ac)',minWidth:38}}>ENTÃO</span><input value={t.entao}onChange={e=>upd(g.id,t.id,'entao',e.target.value)}placeholder="Eu faço isso..."/></div>
+        </div>)}
+        {gs.length===0&&<div style={{color:'var(--tx3)',fontSize:'.8rem',textAlign:'center',padding:'10px'}}>Nenhum gatilho. Crie o primeiro!</div>}
+      </div>;
+    })}
+  </div>;
+}
+
+function FacilitacaoTab({st,setSt}){
+  const[inputs,setInputs]=useState({});
+  function addItem(gid,tipo){
+    const k=`${gid}-${tipo}`;const txt=(inputs[k]||'').trim();if(!txt)return;
+    setSt(p=>({...p,facilitacao:{...p.facilitacao,[gid]:{...(p.facilitacao[gid]||{facilitar:[],dificultar:[]}),[tipo]:[...((p.facilitacao[gid]||{})[tipo]||[]),{id:uid(),texto:txt,ok:false}]}}}));
+    setInputs(p=>({...p,[k]:''}));
+  }
+  function togItem(gid,tipo,iid){
+    setSt(p=>({...p,facilitacao:{...p.facilitacao,[gid]:{...p.facilitacao[gid],[tipo]:p.facilitacao[gid][tipo].map(i=>i.id===iid?{...i,ok:!i.ok}:i)}}}));
+  }
+  function delItem(gid,tipo,iid){
+    setSt(p=>({...p,facilitacao:{...p.facilitacao,[gid]:{...p.facilitacao[gid],[tipo]:p.facilitacao[gid][tipo].filter(i=>i.id!==iid)}}}));
+  }
+  return<div>
+    <div className="sch-t mb14">🔧 Facilitação</div>
+    {st.goals.map(g=>{
+      const fac=st.facilitacao[g.id]||{facilitar:[],dificultar:[]};
+      return<div key={g.id}className="obj-card">
+        <div className="fc g6 mb12"><span>{g.emoji}</span><span style={{fontWeight:700,fontSize:'.9rem'}}>{g.name}</span></div>
+        {[['facilitar','✅ Facilitar o que DEVE','#22c55e'],['dificultar','🚫 Dificultar o que NÃO deve','#ef4444']].map(([tipo,lbl,cor])=>{
+          const k=`${g.id}-${tipo}`;
+          const items=fac[tipo]||[];
+          return<div key={tipo}style={{marginBottom:'14px'}}>
+            <div style={{fontSize:'.72rem',fontWeight:700,color:cor,textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>{lbl}</div>
+            {items.map(item=><div key={item.id}className="fc g8"style={{padding:'6px 8px',background:'var(--bg)',borderRadius:'6px',marginBottom:'4px',border:`1px solid ${item.ok?cor+'33':'var(--bd)'}` }}>
+              <Chk on={item.ok}onChange={()=>togItem(g.id,tipo,item.id)}/>
+              <span style={{flex:1,fontSize:'.82rem',color:item.ok?'var(--tx3)':'var(--tx)',textDecoration:item.ok?'line-through':'none'}}>{item.texto}</span>
+              <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(g.id,tipo,item.id)}>×</button>
+            </div>)}
+            <div className="fc g6 mt4">
+              <input value={inputs[k]||''}onChange={e=>setInputs(p=>({...p,[k]:e.target.value}))}onKeyDown={e=>e.key==='Enter'&&addItem(g.id,tipo)}placeholder="Adicionar item..."style={{fontSize:'.8rem',padding:'6px 10px'}}/>
+              <button className="btn btn-ac"style={{padding:'6px 10px',flexShrink:0}}onClick={()=>addItem(g.id,tipo)}>+</button>
+            </div>
+          </div>;
+        })}
+      </div>;
+    })}
+  </div>;
+}
+
+function DropTab({st,setSt}){
+  function updF(gid,f,v){setSt(p=>({...p,drop:{...p.drop,[gid]:{...(p.drop[gid]||{}), [f]:v}}}))}
+  function addObs(gid){setSt(p=>({...p,drop:{...p.drop,[gid]:{...(p.drop[gid]||{}),obs:[...((p.drop[gid]||{}).obs||[]),{id:uid(),obs:'',prot:''}]}}}))}
+  function updO(gid,oid,f,v){setSt(p=>({...p,drop:{...p.drop,[gid]:{...p.drop[gid],obs:p.drop[gid].obs.map(o=>o.id===oid?{...o,[f]:v}:o)}}}))}
+  function delO(gid,oid){setSt(p=>({...p,drop:{...p.drop,[gid]:{...p.drop[gid],obs:p.drop[gid].obs.filter(o=>o.id!==oid)}}}))}
+  const drops=[['🔥','Desejo','desejo','O que quero alcançar?'],['✨','Resultado','resultado','Como vou me sentir quando alcançar?']];
+  return<div>
+    <div className="sch-t mb6">🧠 Protocolo DROP</div>
+    <div className="fc g6 mb14"style={{flexWrap:'wrap'}}>
+      {[['D','#FF6B00'],['R','#22c55e'],['O','#f472b6'],['P','#60a5fa']].map(([l,c])=><span key={l}style={{fontSize:'.72rem',background:c+'18',color:c,border:`1px solid ${c}30`,padding:'2px 8px',borderRadius:'4px',fontWeight:700}}>{l}</span>)}
+    </div>
+    {st.goals.map(g=>{
+      const d=st.drop[g.id]||{desejo:'',resultado:'',obs:[]};
+      return<div key={g.id}className="obj-card">
+        <div className="fc g6 mb12"><span>{g.emoji}</span><span style={{fontWeight:700,fontSize:'.9rem'}}>{g.name}</span></div>
+        {drops.map(([ic,lbl,field,ph])=><div key={field}className="fld">
+          <label style={{color:field==='desejo'?'#FF6B00':'#22c55e'}}>{ic} {lbl}</label>
+          <textarea rows={2}value={d[field]||''}onChange={e=>updF(g.id,field,e.target.value)}placeholder={ph}/>
+        </div>)}
+        <div className="fcb mb8">
+          <label style={{fontSize:'.7rem',fontWeight:700,color:'#f472b6',textTransform:'uppercase',letterSpacing:'.07em'}}>🧱 O + P — Obstáculos</label>
+          <button className="btn btn-ac"style={{fontSize:'.72rem',padding:'4px 10px'}}onClick={()=>addObs(g.id)}>+ Obs.</button>
+        </div>
+        {(d.obs||[]).map(o=><div key={o.id}style={{background:'var(--card2)',border:'1px solid var(--bd2)',borderRadius:'var(--r)',padding:'10px',marginBottom:'8px'}}>
+          <div className="fcb mb6"><span style={{fontSize:'.68rem',fontWeight:700,color:'#f472b6',textTransform:'uppercase'}}>Obstáculo</span><button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delO(g.id,o.id)}>×</button></div>
+          <input value={o.obs}onChange={e=>updO(g.id,o.id,'obs',e.target.value)}placeholder="Qual barreira pode me impedir?"style={{marginBottom:'6px'}}/>
+          <label style={{fontSize:'.68rem',fontWeight:700,color:'#60a5fa',textTransform:'uppercase',letterSpacing:'.07em',display:'block',marginBottom:'4px'}}>Protocolo (mínimo passo)</label>
+          <textarea rows={2}value={o.prot}onChange={e=>updO(g.id,o.id,'prot',e.target.value)}placeholder="Se acontecer, eu faço exatamente isso..."/>
+        </div>)}
+        {(d.obs||[]).length===0&&<div style={{color:'var(--tx3)',fontSize:'.8rem',textAlign:'center',padding:'10px'}}>Sem obstáculos mapeados.</div>}
+      </div>;
+    })}
+  </div>;
+}
+
+function IdentidadeTab({st,setSt}){
+  const[texto,setTexto]=useState('');
+  const td=TODAY();
+  const hoje=new Date().toDateString();
+  const frase=useMemo(()=>st.frases[Math.floor(Math.random()*st.frases.length)]||'',[]);
+
+  function updAfirm(gid,v){setSt(p=>({...p,afirmacoes:{...p.afirmacoes,[gid]:v}}));}
+  function marcar(gid){
+    setSt(p=>{
+      const sk=p.streaks[gid]||{atual:0,recorde:0,ultima:null};
+      if(sk.ultima===hoje)return p;
+      const ontem=new Date();ontem.setDate(ontem.getDate()-1);
+      const seq=sk.ultima===ontem.toDateString()?sk.atual+1:1;
+      return{...p,streaks:{...p.streaks,[gid]:{atual:seq,recorde:Math.max(seq,sk.recorde),ultima:hoje}}};
+    });
+  }
+  function saveDiary(){
+    if(!texto.trim())return;
+    setSt(p=>({...p,diario:[{id:uid(),data:new Date().toLocaleDateString('pt-BR'),iso:new Date().toISOString(),texto:texto.trim()},...p.diario]}));
+    setTexto('');
+  }
+  function addFrase(){
+    const f=prompt('Nova frase:');
+    if(f?.trim())setSt(p=>({...p,frases:[...p.frases,f.trim()]}));
+  }
+
+  return<div>
+    {/* Frase */}
+    <div style={{padding:'12px 14px',background:'var(--ac1)',border:'1px solid var(--ac2)',borderRadius:'var(--r)',marginBottom:'16px',fontStyle:'italic',color:'var(--ac)',lineHeight:1.5}}>"{frase}"<button className="btn-ic"style={{marginLeft:'8px',fontSize:'.7rem'}}onClick={addFrase}>+ frase</button></div>
+
+    {/* Afirmações */}
+    <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.09em',marginBottom:'10px'}}>Afirmações de Identidade</div>
+    {st.goals.map(g=><div key={g.id}style={{background:'var(--card)',border:`1px solid var(--bd)`,borderLeft:`3px solid var(--ac)`,borderRadius:'var(--r)',padding:'10px 12px',marginBottom:'8px'}}>
+      <div style={{fontSize:'.75rem',color:'var(--ac)',fontWeight:700,marginBottom:'5px'}}>{g.emoji} {g.name}</div>
+      <textarea rows={2}value={st.afirmacoes[g.id]||''}onChange={e=>updAfirm(g.id,e.target.value)}placeholder="Eu sou..."style={{fontStyle:'italic'}}/>
+    </div>)}
+
+    {/* Streaks */}
+    <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.09em',margin:'16px 0 10px'}}>Consistência — Fiz Hoje</div>
+    <div className="g2c mb16">
+      {st.goals.map(g=>{
+        const sk=st.streaks[g.id]||{atual:0,recorde:0,ultima:null};
+        const feito=sk.ultima===hoje;
+        return<div key={g.id}style={{background:'var(--card)',border:`1px solid ${feito?'var(--ac2)':'var(--bd)'}`,borderRadius:'var(--r)',padding:'12px',textAlign:'center'}}>
+          <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:'4px'}}>{g.emoji}</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'2rem',fontWeight:700,color:feito?'var(--ac)':'var(--bd2)',lineHeight:1}}>{sk.atual}</div>
+          <div style={{fontSize:'.65rem',color:'var(--tx3)',fontFamily:'var(--fm)',marginBottom:'8px'}}>dias · rec:{sk.recorde}</div>
+          <button onClick={()=>marcar(g.id)}disabled={feito}style={{background:feito?'var(--ac1)':'var(--ac)',border:`1px solid var(--ac)`,color:feito?'var(--ac)':'#000',padding:'5px',borderRadius:'5px',fontSize:'.72rem',fontWeight:700,cursor:feito?'default':'pointer',width:'100%'}}>{feito?'✓ Feito':'Fiz hoje!'}</button>
+        </div>;
+      })}
+    </div>
+
+    {/* Diário */}
+    <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.09em',marginBottom:'10px'}}>Diário do Sistema</div>
+    <div style={{fontSize:'.68rem',color:'var(--tx3)',fontFamily:'var(--fm)',marginBottom:'4px'}}>{new Date().toLocaleDateString('pt-BR')}</div>
+    <textarea rows={4}value={texto}onChange={e=>setTexto(e.target.value)}placeholder="Como foi hoje? O que funcionou? O que aprendi?"style={{marginBottom:'8px'}}/>
+    <button className="btn btn-ac w100"onClick={saveDiary}>Salvar reflexão</button>
+    {st.diario.slice(0,14).map(e=><div key={e.id}className="diary-e mt8">
+      <div style={{fontSize:'.68rem',color:'var(--tx3)',fontFamily:'var(--fm)',marginBottom:'3px'}}>{e.data}</div>
+      <div style={{fontSize:'.82rem',color:'var(--tx)',lineHeight:1.5,whiteSpace:'pre-wrap'}}>{e.texto}</div>
+    </div>)}
+  </div>;
+}
+
+// ── ANOTAÇÕES ────────────────────────────────────────────────────────────────
+
+function getNoteStyle(colorKey){
+  const c=NOTE_COLORS.find(x=>x.k===colorKey)||NOTE_COLORS[0];
+  return{background:c.bg,borderColor:c.bd};
+}
+
+function NoteModal({open,onClose,onSave,init,cats}){
+  const blank={title:'',type:'texto',content:'',items:[],imageData:null,color:'default',catId:'',pinned:false};
+  const[f,setF]=useState(init||blank);
+  const[newItem,setNewItem]=useState('');
+  const fileRef=useRef();
+  useEffect(()=>{setF(init||blank);setNewItem('');},[open]);
+
+  function addItem(){
+    if(!newItem.trim())return;
+    setF(p=>({...p,items:[...p.items,{id:uid(),text:newItem.trim(),done:false}]}));
+    setNewItem('');
+  }
+  function togItem(id){setF(p=>({...p,items:p.items.map(i=>i.id===id?{...i,done:!i.done}:i)}));}
+  function delItem(id){setF(p=>({...p,items:p.items.filter(i=>i.id!==id)}));}
+  function handleImage(e){
+    const file=e.target.files[0];if(!file)return;
+    const r=new FileReader();
+    r.onload=ev=>setF(p=>({...p,imageData:ev.target.result,type:'imagem'}));
+    r.readAsDataURL(file);
+  }
+  function save(){onSave({...f,updatedAt:TODAY()});onClose();}
+
+  const types=[{k:'texto',l:'📝 Texto'},{k:'lista',l:'✅ Lista'},{k:'imagem',l:'🖼 Imagem'}];
+  return<Modal open={open}onClose={onClose}title={init?'Editar nota':'Nova nota'}>
+    {/* Type selector */}
+    <div className="stabs mb10">
+      {types.map(t=><button key={t.k}className={`stab${f.type===t.k?' on':''}`}onClick={()=>setF(p=>({...p,type:t.k}))}>{t.l}</button>)}
+    </div>
+    <Fld label="Título (opcional)"><input value={f.title}onChange={e=>setF(p=>({...p,title:e.target.value}))}placeholder="Título da nota..."/></Fld>
+
+    {/* Content by type */}
+    {f.type==='texto'&&<Fld label="Conteúdo">
+      <textarea rows={5}value={f.content}onChange={e=>setF(p=>({...p,content:e.target.value}))}placeholder="Escreva aqui..."/>
+    </Fld>}
+
+    {f.type==='lista'&&<Fld label="Itens">
+      {f.items.map(item=><div key={item.id}className="fc g8 mb6">
+        <Chk on={item.done}onChange={()=>togItem(item.id)}/>
+        <span style={{flex:1,fontSize:'.85rem',textDecoration:item.done?'line-through':'none',color:item.done?'var(--tx3)':'var(--tx)'}}>{item.text}</span>
+        <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(item.id)}>×</button>
+      </div>)}
+      <div className="fc g6 mt4">
+        <input value={newItem}onChange={e=>setNewItem(e.target.value)}onKeyDown={e=>e.key==='Enter'&&addItem()}placeholder="Novo item... (Enter)"/>
+        <button className="btn btn-ac"style={{padding:'6px 10px',flexShrink:0}}onClick={addItem}>+</button>
+      </div>
+    </Fld>}
+
+    {f.type==='imagem'&&<div>
+      {f.imageData&&<img src={f.imageData}style={{width:'100%',borderRadius:'8px',marginBottom:'8px',maxHeight:'200px',objectFit:'cover'}}/>}
+      <button className="btn btn-gh w100"onClick={()=>fileRef.current.click()}>📎 {f.imageData?'Trocar imagem':'Adicionar imagem'}</button>
+      <input ref={fileRef}type="file"accept="image/*"style={{display:'none'}}onChange={handleImage}/>
+      {f.imageData&&<Fld label="Legenda" style={{marginTop:'8px'}}>
+        <input value={f.content}onChange={e=>setF(p=>({...p,content:e.target.value}))}placeholder="Legenda opcional..."/>
+      </Fld>}
+    </div>}
+
+    {/* Bottom row: category + color + pin */}
+    <div className="g2c mt12">
+      <Fld label="Categoria">
+        <select value={f.catId}onChange={e=>setF(p=>({...p,catId:e.target.value}))}>
+          <option value="">Sem categoria</option>
+          {cats.map(c=><option key={c.id}value={c.id}>{c.name}</option>)}
+        </select>
+      </Fld>
+      <Fld label="Cor do card">
+        <select value={f.color}onChange={e=>setF(p=>({...p,color:e.target.value}))}>
+          {NOTE_COLORS.map(c=><option key={c.k}value={c.k}>{c.name}</option>)}
+        </select>
+      </Fld>
+    </div>
+    <div className="fc g10 mt4">
+      <Chk on={f.pinned}onChange={()=>setF(p=>({...p,pinned:!p.pinned}))}/>
+      <span style={{fontSize:'.85rem',color:'var(--tx2)'}}>Fixar nota no topo</span>
+    </div>
+    <Btns>
+      <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
+      <button className="btn btn-ac"onClick={save}>Salvar</button>
+    </Btns>
+  </Modal>;
+}
+
+function AnotacoesSection({st,setSt}){
+  const[modal,setModal]=useState(false);
+  const[edit,setEdit]=useState(null);
+  const[search,setSearch]=useState('');
+  const[catFilter,setCatFilter]=useState('');
+  const[catModal,setCatModal]=useState(false);
+  const[newCat,setNewCat]=useState({name:'',color:'#a855f7'});
+
+  const CAT_COLORS=['#a855f7','#3b82f6','#22c55e','#eab308','#ef4444','#ec4899','#06b6d4','#f97316'];
+
+  function saveNote(f){
+    const td=TODAY();
+    if(edit){
+      setSt(p=>({...p,notes:p.notes.map(n=>n.id===edit.id?{...n,...f}:n)}));
+    }else{
+      setSt(p=>({...p,notes:[{...f,id:uid(),createdAt:td,archived:false},...p.notes]}));
+    }
+    setEdit(null);
+  }
+  function delNote(id){setSt(p=>({...p,notes:p.notes.filter(n=>n.id!==id)}));}
+  function pinNote(id){setSt(p=>({...p,notes:p.notes.map(n=>n.id===id?{...n,pinned:!n.pinned}:n)}));}
+  function archiveNote(id){setSt(p=>({...p,notes:p.notes.map(n=>n.id===id?{...n,archived:!n.archived}:n)}));}
+  function addCat(){
+    if(!newCat.name.trim())return;
+    setSt(p=>({...p,noteCategories:[...p.noteCategories,{id:uid(),...newCat}]}));
+    setNewCat({name:'',color:'#a855f7'});setCatModal(false);
+  }
+  function delCat(id){setSt(p=>({...p,noteCategories:p.noteCategories.filter(c=>c.id!==id)}));}
+
+  const notes=useMemo(()=>{
+    let n=(st.notes||[]).filter(x=>!x.archived);
+    if(search)n=n.filter(x=>(x.title+x.content+x.items.map(i=>i.text).join(' ')).toLowerCase().includes(search.toLowerCase()));
+    if(catFilter)n=n.filter(x=>x.catId===catFilter);
+    // pinned first
+    return [...n.filter(x=>x.pinned),...n.filter(x=>!x.pinned)];
+  },[st.notes,search,catFilter]);
+
+  const cats=st.noteCategories||[];
+
+  return<div className="sec">
+    {/* Header */}
+    <div className="fcb mb10">
+      <div className="sch-t">📝 Anotações</div>
+      <div className="fc g6">
+        <button className="btn btn-gh"style={{fontSize:'.75rem',padding:'5px 10px'}}onClick={()=>setCatModal(true)}>🏷 Cats</button>
+        <button className="btn btn-ac"onClick={()=>{setEdit(null);setModal(true);}}>+ Nota</button>
+      </div>
+    </div>
+
+    {/* Search */}
+    <input value={search}onChange={e=>setSearch(e.target.value)}placeholder="🔍 Buscar nas anotações..."style={{marginBottom:'10px'}}/>
+
+    {/* Category filter */}
+    <div className="stabs mb14">
+      <button className={`stab${catFilter===''?' on':''}`}onClick={()=>setCatFilter('')}>Todas</button>
+      {cats.map(c=><button key={c.id}className={`stab${catFilter===c.id?' on':''}`}onClick={()=>setCatFilter(c.id)}style={catFilter===c.id?{background:c.color+'18',borderColor:c.color+'44',color:c.color}:{}}>{c.name}</button>)}
+    </div>
+
+    {/* Notes grid */}
+    {notes.length===0&&<div style={{color:'var(--tx3)',textAlign:'center',padding:'32px 0',fontSize:'.9rem'}}>
+      {search?'Nenhuma nota encontrada.':'Sem anotações. Crie a primeira!'}
+    </div>}
+    <div className="notes-masonry">
+      {notes.map(note=>{
+        const cat=cats.find(c=>c.id===note.catId);
+        const ns=getNoteStyle(note.color);
+        return<div key={note.id}className="note-card"style={ns}onClick={()=>{setEdit(note);setModal(true);}}>
+          {note.pinned&&<div className="note-pin">📌</div>}
+          {note.type==='imagem'&&note.imageData&&<img src={note.imageData}className="note-img"onClick={e=>e.stopPropagation()}/>}
+          {note.title&&<div className="note-title"style={{paddingRight:note.pinned?'20px':'0'}}>{note.title}</div>}
+          {note.type==='texto'&&note.content&&<div className="note-text">{note.content}</div>}
+          {note.type==='lista'&&<div>{note.items.slice(0,6).map(item=><div key={item.id}className={`note-item${item.done?' done':''}`}>
+            <div style={{width:10,height:10,borderRadius:2,flexShrink:0,border:`1.5px solid ${item.done?'var(--ac)':'var(--bd2)'}`,background:item.done?'var(--ac)':'transparent'}}/>
+            <span>{item.text}</span>
+          </div>)}
+          {note.items.length>6&&<div style={{fontSize:'.72rem',color:'var(--tx3)',marginTop:'4px'}}>+{note.items.length-6} itens</div>}
+          </div>}
+          {note.type==='imagem'&&note.content&&<div className="note-text"style={{marginTop:'4px'}}>{note.content}</div>}
+          <div className="note-footer"onClick={e=>e.stopPropagation()}>
+            <div>{cat&&<span className="cat-tag"style={{background:cat.color+'18',color:cat.color}}>{cat.name}</span>}</div>
+            <div className="note-actions">
+              <button className="btn-ic"onClick={e=>{e.stopPropagation();pinNote(note.id);}}title={note.pinned?'Desafixar':'Fixar'}>📌</button>
+              <button className="btn-ic"onClick={e=>{e.stopPropagation();archiveNote(note.id);}}title="Arquivar">📦</button>
+              <button className="btn-ic"style={{color:'var(--er)'}}onClick={e=>{e.stopPropagation();delNote(note.id);}}>🗑</button>
+            </div>
+          </div>
+        </div>;
+      })}
+    </div>
+
+    {/* Note modal */}
+    <NoteModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={saveNote}init={edit}cats={cats}/>
+
+    {/* Category modal */}
+    <Modal open={catModal}onClose={()=>setCatModal(false)}title="Categorias de notas">
+      <div className="flex col g6 mb12">
+        {cats.map(c=><div key={c.id}className="fcb"style={{padding:'6px 10px',background:'var(--card2)',borderRadius:'6px'}}>
+          <div className="fc g8"><div style={{width:12,height:12,borderRadius:'50%',background:c.color}}/><span style={{fontSize:'.85rem'}}>{c.name}</span></div>
+          <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delCat(c.id)}>🗑</button>
+        </div>)}
+      </div>
+      <div className="fc g6 mb8">
+        <input value={newCat.name}onChange={e=>setNewCat(p=>({...p,name:e.target.value}))}onKeyDown={e=>e.key==='Enter'&&addCat()}placeholder="Nova categoria..."/>
+        <div className="fc g4"style={{flexWrap:'wrap',flexShrink:0}}>
+          {CAT_COLORS.map(col=><div key={col}className={`swatch${newCat.color===col?' on':''}`}style={{background:col,width:20,height:20}}onClick={()=>setNewCat(p=>({...p,color:col}))}/>)}
+        </div>
+      </div>
+      <button className="btn btn-ac w100"onClick={addCat}>+ Adicionar categoria</button>
+    </Modal>
+  </div>;
+}
+
+// ── CONQUISTAS ───────────────────────────────────────────────────────────────
+
+function ConquistasSection({st,setSt}){
+  const[modal,setModal]=useState(false);
+  const[nb,setNb]=useState({name:'',emoji:'🏅',desc:''});
+
+  // Auto-check badges
+  const td=TODAY();
+  const totalDoneHabits=Object.values(st.habitLog).reduce((s,day)=>s+Object.values(day).filter(Boolean).length,0);
+  const totalTasks=st.tasks.filter(t=>t.done).length;
+  const dayLog=st.habitLog[td]||{};
+  const allDoneToday=st.habits.filter(h=>h.active).every(h=>dayLog[h.id]);
+
+  function unlock(bid){setSt(p=>({...p,badges:p.badges.map(b=>b.id===bid?{...b,unlocked:true}:b)}));}
+  function unlockCustom(bid){setSt(p=>({...p,customBadges:p.customBadges.map(b=>b.id===bid?{...b,unlocked:true}:b)}));}
+  function saveCustom(){
+    if(!nb.name.trim())return;
+    setSt(p=>({...p,customBadges:[...p.customBadges,{...nb,id:uid(),unlocked:false}]}));
+    setNb({name:'',emoji:'🏅',desc:''});setModal(false);
+  }
+  function delCustom(id){setSt(p=>({...p,customBadges:p.customBadges.filter(b=>b.id!==id)}));}
+
+  // Auto-unlock logic (simplified)
+  useEffect(()=>{
+    const updates=st.badges.map(b=>{
+      if(b.unlocked)return b;
+      if(b.type==='habits_total'&&totalDoneHabits>=b.threshold)return{...b,unlocked:true};
+      if(b.type==='tasks_total'&&totalTasks>=b.threshold)return{...b,unlocked:true};
+      if(b.type==='all_habits_day'&&allDoneToday)return{...b,unlocked:true};
+      return b;
+    });
+    if(updates.some((b,i)=>b.unlocked!==st.badges[i].unlocked))setSt(p=>({...p,badges:updates}));
+  },[totalDoneHabits,totalTasks,allDoneToday]);
+
+  const all=[...st.badges,...st.customBadges];
+
+  return<div className="sec">
+    <div className="sch">
+      <div className="sch-t">🏆 Conquistas</div>
+      <button className="btn btn-ac"onClick={()=>setModal(true)}>+ Criar</button>
+    </div>
+    <div className="g2c">
+      {all.map(b=>{
+        const isCustom=!b.auto;
+        return<div key={b.id}className={`badge${b.unlocked?' done':' locked'}`}style={{cursor:isCustom?'pointer':'default'}}onClick={()=>{if(isCustom&&!b.unlocked)unlockCustom(b.id);}}>
+          <div style={{fontSize:'2rem',marginBottom:'6px'}}>{b.emoji}</div>
+          <div style={{fontWeight:700,fontSize:'.82rem',marginBottom:'3px'}}>{b.name}</div>
+          <div style={{fontSize:'.72rem',color:'var(--tx2)',lineHeight:1.4}}>{b.desc}</div>
+          {b.unlocked&&<div style={{fontSize:'.68rem',color:'var(--ac)',marginTop:'6px',fontWeight:700}}>✓ Desbloqueada</div>}
+          {isCustom&&!b.unlocked&&<div style={{fontSize:'.68rem',color:'var(--tx3)',marginTop:'6px'}}>Toque para desbloquear</div>}
+          {isCustom&&<button className="btn-ic"style={{color:'var(--er)',position:'absolute',top:6,right:6}}onClick={e=>{e.stopPropagation();delCustom(b.id);}}>×</button>}
+        </div>;
+      })}
+    </div>
+    <Modal open={modal}onClose={()=>setModal(false)}title="Nova Conquista">
+      <div className="g2c"><Fld label="Emoji"><input value={nb.emoji}onChange={e=>setNb(p=>({...p,emoji:e.target.value}))}maxLength={4}/></Fld>
+      <Fld label="Nome"><input value={nb.name}onChange={e=>setNb(p=>({...p,name:e.target.value}))}placeholder="Minha conquista"/></Fld></div>
+      <Fld label="Descrição"><textarea rows={2}value={nb.desc}onChange={e=>setNb(p=>({...p,desc:e.target.value}))}placeholder="Quando conquistar isso..."/></Fld>
+      <Btns><button className="btn btn-gh"onClick={()=>setModal(false)}>Cancelar</button><button className="btn btn-ac"onClick={saveCustom}>Criar</button></Btns>
+    </Modal>
+  </div>;
+}
+
+// ── CONFIGURAÇÕES ────────────────────────────────────────────────────────────
+
+function ConfigSection({st,setSt}){
+  const[sub,setSub]=useState('aparencia');
+  const subs=[{k:'aparencia',l:'🎨 Aparência'},{k:'navbar',l:'🗂 Navbar'},{k:'score',l:'🏅 Score'},{k:'cats',l:'🏷 Categorias'},{k:'dados',l:'💾 Dados'},{k:'perfil',l:'👤 Perfil'}];
+  function setCfg(f,v){setSt(p=>({...p,config:{...p.config,[f]:v}}));}
+
+  return<div className="sec">
+    <div className="stabs mb14">
+      {subs.map(s=><button key={s.k}className={`stab${sub===s.k?' on':''}`}onClick={()=>setSub(s.k)}>{s.l}</button>)}
+    </div>
+    {sub==='aparencia'&&<CfgAparencia st={st}setSt={setSt}setCfg={setCfg}/>}
+    {sub==='navbar'&&<CfgNavbar st={st}setSt={setSt}/>}
+    {sub==='score'&&<CfgScore st={st}setCfg={setCfg}/>}
+    {sub==='cats'&&<CfgCats st={st}setSt={setSt}/>}
+    {sub==='dados'&&<CfgDados st={st}setSt={setSt}/>}
+    {sub==='perfil'&&<CfgPerfil st={st}setSt={setSt}/>}
+  </div>;
+}
+
+function CfgAparencia({st,setCfg,setSt}){
+  const fss=[{k:'small',l:'Pequena'},{k:'medium',l:'Média'},{k:'large',l:'Grande'}];
+  function setTheme(tid){
+    const t=THEMES.find(x=>x.id===tid);
+    if(!t)return;
+    setSt(p=>({...p,config:{...p.config,themeId:tid,accentOverride:null}}));
+  }
+  function setAccentOverride(v){
+    setSt(p=>({...p,config:{...p.config,accentOverride:v}}));
+  }
+  const curTheme=THEMES.find(t=>t.id===st.config.themeId)||THEMES[0];
+  const activeAc=st.config.accentOverride||curTheme.ac;
+  return<div>
+    {/* Theme presets */}
+    <div className="cfg-s">
+      <div className="cfg-t">Tema visual</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(100px,1fr))',gap:'8px'}}>
+        {THEMES.map(t=><div key={t.id}className={`theme-card${st.config.themeId===t.id?' on':''}`}onClick={()=>setTheme(t.id)}>
+          {/* Mini preview */}
+          <div className="theme-prev"style={{background:t.bg,border:`1px solid ${t.bd}`}}>
+            <div style={{flex:1,height:'100%',background:t.card,borderRadius:'3px'}}/>
+            <div className="theme-dot"style={{background:t.ac}}/>
+          </div>
+          <div style={{fontSize:'.72rem',fontWeight:700,marginBottom:'2px'}}>{t.emoji} {t.name}</div>
+          <div style={{fontSize:'.62rem',color:'var(--tx3)'}}>{t.desc}</div>
+        </div>)}
+      </div>
+    </div>
+    {/* Accent color override */}
+    <div className="cfg-s">
+      <div className="cfg-t">Cor de acento (override)</div>
+      <div className="fc g10"style={{flexWrap:'wrap'}}>
+        {ACCENTS.map(a=><div key={a.v}className={`swatch${activeAc===a.v?' on':''}`}style={{background:a.v}}onClick={()=>setAccentOverride(a.v)}title={a.n}/> )}
+        <button className="btn-gh"style={{fontSize:'.72rem',padding:'3px 8px'}}onClick={()=>setSt(p=>({...p,config:{...p.config,accentOverride:null}}))}>Reset</button>
+      </div>
+    </div>
+    <div className="cfg-s">
+      <div className="cfg-t">Tamanho da fonte</div>
+      <div className="fc g8">
+        {fss.map(f=><button key={f.k}className="btn"style={{background:st.config.fontSize===f.k?'var(--ac)':'var(--card2)',border:`1px solid ${st.config.fontSize===f.k?'var(--ac)':'var(--bd2)'}`,color:st.config.fontSize===f.k?'#000':'var(--tx2)',fontSize:'.78rem',padding:'6px 12px'}}onClick={()=>setCfg('fontSize',f.k)}>{f.l}</button>)}
+      </div>
+    </div>
+    <div className="cfg-s">
+      <div className="cfg-t">Animações</div>
+      <div className="fc g10"><Tog on={st.config.animations!==false}onChange={()=>setCfg('animations',!st.config.animations)}/><span style={{fontSize:'.85rem',color:'var(--tx2)'}}>{st.config.animations!==false?'Ativadas':'Desativadas'}</span></div>
+    </div>
+  </div>;
+}
+
+function CfgNavbar({st,setSt}){
+  const tabs=st.config.tabs||DEF_TABS;
+  function move(id,dir){
+    setSt(p=>{
+      const arr=[...p.config.tabs];
+      const i=arr.findIndex(t=>t.id===id);
+      const j=dir==='up'?i-1:i+1;
+      if(j<0||j>=arr.length)return p;
+      [arr[i],arr[j]]=[arr[j],arr[i]];
+      return{...p,config:{...p.config,tabs:arr}};
+    });
+  }
+  function togVis(id){setSt(p=>({...p,config:{...p.config,tabs:p.config.tabs.map(t=>t.id===id?{...t,visible:t.visible===false?true:false}:t)}}))}
+  function renameTab(id,label){setSt(p=>({...p,config:{...p.config,tabs:p.config.tabs.map(t=>t.id===id?{...t,label}:t)}}))}
+  return<div>
+    <div className="cfg-t">Ordem e visibilidade das abas</div>
+    {tabs.map((t,i)=><div key={t.id}className="fc g10"style={{padding:'8px 10px',background:'var(--card)',border:'1px solid var(--bd)',borderRadius:'var(--r)',marginBottom:'6px'}}>
+      <span style={{fontSize:'1rem'}}>{t.emoji}</span>
+      <input value={t.label}onChange={e=>renameTab(t.id,e.target.value)}style={{flex:1,padding:'4px 8px',fontSize:'.82rem'}}/>
+      <Tog on={t.visible!==false}onChange={()=>togVis(t.id)}/>
+      <button className="btn-ic"onClick={()=>move(t.id,'up')}>↑</button>
+      <button className="btn-ic"onClick={()=>move(t.id,'down')}>↓</button>
+    </div>)}
+  </div>;
+}
+
+function CfgScore({st,setCfg}){
+  return<div>
+    <div className="cfg-s">
+      <div className="cfg-t">Fórmula do Score</div>
+      <div className="fc g8">
+        {[['simple','Soma direta'],['weighted','Ponderado']].map(([k,l])=><button key={k}className="btn"style={{background:st.config.scoreFormula===k?'var(--ac)':'var(--card2)',border:`1px solid ${st.config.scoreFormula===k?'var(--ac)':'var(--bd2)'}`,color:st.config.scoreFormula===k?'#000':'var(--tx2)',fontSize:'.78rem',padding:'6px 12px'}}onClick={()=>setCfg('scoreFormula',k)}>{l}</button>)}
+      </div>
+    </div>
+    {st.config.scoreFormula==='weighted'&&<div className="cfg-s">
+      <div className="cfg-t">Peso dos hábitos no score ponderado: {st.config.habitWeight}%</div>
+      <input type="range"min={10}max={90}value={st.config.habitWeight}onChange={e=>setCfg('habitWeight',+e.target.value)}style={{width:'100%',accentColor:'var(--ac)'}}/>
+      <div className="fc"style={{justifyContent:'space-between',fontSize:'.72rem',color:'var(--tx2)'}}>
+        <span>Tarefas: {100-st.config.habitWeight}%</span>
+        <span>Hábitos: {st.config.habitWeight}%</span>
+      </div>
+    </div>}
+    <div className="cfg-s">
+      <div className="cfg-t">Pesos padrão</div>
+      <div className="g2c">
+        <div><label style={{fontSize:'.72rem',color:'var(--tx2)',display:'block',marginBottom:'4px'}}>Nova tarefa</label>
+          <input type="number"min={1}max={20}value={st.config.taskDefW}onChange={e=>setCfg('taskDefW',+e.target.value)}/></div>
+        <div><label style={{fontSize:'.72rem',color:'var(--tx2)',display:'block',marginBottom:'4px'}}>Novo hábito</label>
+          <input type="number"min={1}max={30}value={st.config.habitDefW}onChange={e=>setCfg('habitDefW',+e.target.value)}/></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function CfgCats({st,setSt}){
+  const[nm,setNm]=useState('');
+  const[cor,setCor]=useState('#3b82f6');
+  const COLS=['#3b82f6','#22c55e','#a855f7','#ef4444','#ec4899','#06b6d4','#eab308','#f87171','#fbbf24','#a78bfa'];
+  function add(){if(!nm.trim())return;setSt(p=>({...p,categories:[...p.categories,{id:uid(),name:nm.trim(),color:cor}]}));setNm('');}
+  function del(id){setSt(p=>({...p,categories:p.categories.filter(c=>c.id!==id)}));}
+  function ren(id,name){setSt(p=>({...p,categories:p.categories.map(c=>c.id===id?{...c,name}:c)}));}
+  function setCatColor(id,color){setSt(p=>({...p,categories:p.categories.map(c=>c.id===id?{...c,color}:c)}));}
+  return<div>
+    <div className="cfg-t">Categorias de tarefas</div>
+    {st.categories.map(c=><div key={c.id}className="fc g8"style={{padding:'8px 10px',background:'var(--card)',border:'1px solid var(--bd)',borderRadius:'var(--r)',marginBottom:'6px'}}>
+      <div style={{width:14,height:14,borderRadius:'50%',background:c.color,flexShrink:0}}/>
+      <input value={c.name}onChange={e=>ren(c.id,e.target.value)}style={{flex:1,padding:'4px 8px',fontSize:'.82rem'}}/>
+      <select value={c.color}onChange={e=>setCatColor(c.id,e.target.value)}style={{width:'auto',padding:'4px 6px',fontSize:'.72rem'}}>
+        {COLS.map(col=><option key={col}value={col}style={{background:col}}>{col}</option>)}
+      </select>
+      <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(c.id)}>🗑</button>
+    </div>)}
+    <div className="fc g8 mt8">
+      <input value={nm}onChange={e=>setNm(e.target.value)}onKeyDown={e=>e.key==='Enter'&&add()}placeholder="Nova categoria..."style={{flex:1}}/>
+      <select value={cor}onChange={e=>setCor(e.target.value)}style={{width:'auto',padding:'8px 6px'}}>
+        {COLS.map(c=><option key={c}value={c}>{c}</option>)}
+      </select>
+      <button className="btn btn-ac"onClick={add}>+</button>
+    </div>
+  </div>;
+}
+
+function CfgDados({st,setSt}){
+  function exp(){
+    const blob=new Blob([JSON.stringify(st,null,2)],{type:'application/json'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='segundo-cerebro-backup.json';a.click();
+  }
+  function imp(){
+    const i=document.createElement('input');i.type='file';i.accept='.json';
+    i.onchange=e=>{
+      const f=e.target.files[0];if(!f)return;
+      const r=new FileReader();
+      r.onload=ev=>{
+        try{
+          const data=JSON.parse(ev.target.result);
+          if(window.confirm('Mesclar com dados existentes? (Cancelar = substituir tudo)'))setSt(p=>mergeDeep(p,data));
+          else setSt(data);
+        }catch(err){alert('Arquivo inválido.');}
+      };r.readAsText(f);
+    };i.click();
+  }
+  function expTxt(){
+    const td=TODAY();const mk=td.slice(0,7);
+    const lines=[
+      `SEGUNDO CÉREBRO — Resumo ${new Date().toLocaleDateString('pt-BR')}`,
+      `Usuário: ${st.user.name}`,'',' HÁBITOS ATIVOS:',
+      ...st.habits.filter(h=>h.active).map(h=>{
+        let n=0;for(let d=1;d<=31;d++){const ds=`${mk}-${String(d).padStart(2,'0')}`;if(st.habitLog[ds]?.[h.id])n++;}
+        return`  ${h.emoji} ${h.name}: ${n}/${h.monthlyGoal} dias`;
+      }),'',
+      ' TAREFAS DO MÊS:',`  Total: ${st.tasks.filter(t=>t.date.startsWith(mk)).length}`,`  Concluídas: ${st.tasks.filter(t=>t.date.startsWith(mk)&&t.done).length}`,
+    ];
+    const blob=new Blob([lines.join('\n')],{type:'text/plain'});
+    const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`cerebro-${mk}.txt`;a.click();
+  }
+  function reset(){
+    if(window.confirm('Resetar TODOS os dados? Isso não pode ser desfeito.')&&window.confirm('Tem ABSOLUTA certeza?')){
+      setSt(makeInit());localStorage.removeItem('sc-v3');
+    }
+  }
+  return<div>
+    <div className="cfg-s">
+      <div className="cfg-t">Exportar / Importar</div>
+      <div className="flex col g8">
+        <button className="btn btn-ac"onClick={exp}>⬇ Exportar todos os dados (JSON)</button>
+        <button className="btn btn-gh"onClick={imp}>⬆ Importar dados (JSON)</button>
+        <button className="btn btn-gh"onClick={expTxt}>📄 Exportar resumo do mês (TXT)</button>
+      </div>
+    </div>
+    <div className="cfg-s">
+      <div className="cfg-t">Zona de perigo</div>
+      <button className="btn-er"onClick={reset}>🗑 Resetar app</button>
+    </div>
+  </div>;
+}
+
+function CfgPerfil({st,setSt}){
+  const[name,setName]=useState(st.user.name);
+  const[av,setAv]=useState(st.user.avatar);
+  function save(){setSt(p=>({...p,user:{...p.user,name,avatar:av}}));}
+  const emojis=['🧠','🔥','⚡','🎯','💪','🚀','🦁','🐉','🌊','☀️','🌙','💎'];
+  return<div>
+    <div className="cfg-s">
+      <div className="cfg-t">Avatar</div>
+      <div className="fc g8"style={{flexWrap:'wrap'}}>
+        {emojis.map(e=><button key={e}onClick={()=>setAv(e)}style={{fontSize:'1.4rem',padding:'6px',borderRadius:'8px',background:av===e?'var(--ac1)':'var(--card2)',border:`1px solid ${av===e?'var(--ac2)':'var(--bd2)'}`}}>{e}</button>)}
+      </div>
+    </div>
+    <div className="cfg-s">
+      <div className="cfg-t">Nome</div>
+      <input value={name}onChange={e=>setName(e.target.value)}placeholder="Seu nome"/>
+    </div>
+    <button className="btn btn-ac mt8"onClick={save}>Salvar perfil</button>
+  </div>;
+}
+
+// ── APP ROOT ─────────────────────────────────────────────────────────────────
+
+function App(){
+  const[st,setSt]=useState(loadSt);
+  const[tab,setTab]=useState('hoje');
+
+  // Persist
+  useEffect(()=>{
+    try{localStorage.setItem('sc-v3',JSON.stringify(st));}catch(e){}
+  },[st]);
+
+  // Apply theme
+  useEffect(()=>{applyTheme(st.config);},[st.config.themeId,st.config.accentOverride,st.config.fontSize]);
+
+  // On first load, apply theme immediately
+  useEffect(()=>{applyTheme(st.config);},[]);
+
+  const sections={
+    hoje:<HojeSection st={st}setSt={setSt}/>,
+    tarefas:<TarefasSection st={st}setSt={setSt}/>,
+    habitos:<HabitosSection st={st}setSt={setSt}/>,
+    dashboard:<DashboardSection st={st}setSt={setSt}/>,
+    metas:<MetasSection st={st}setSt={setSt}/>,
+    anotacoes:<AnotacoesSection st={st}setSt={setSt}/>,
+    conquistas:<ConquistasSection st={st}setSt={setSt}/>,
+    config:<ConfigSection st={st}setSt={setSt}/>,
+  };
+
+  const visibleTab=(st.config.tabs||DEF_TABS).some(t=>t.id===tab&&t.visible!==false)?tab:'hoje';
+
+  return<div>
+    <Navbar cur={visibleTab}onChange={setTab}st={st}/>
+    {sections[visibleTab]||null}
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
