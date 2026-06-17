@@ -1087,6 +1087,7 @@ function MissaoSection({st,setSt}){
   const cls=info.cls;
   const base=st.classBaseImg;
   const fileRef=useRef(null);
+  const[imgModal,setImgModal]=useState(null);
   function handleAvatarFile(file){
     if(!file)return;
     const reader=new FileReader();
@@ -1122,8 +1123,8 @@ function MissaoSection({st,setSt}){
       <div style={{position:'absolute',inset:0,background:`radial-gradient(ellipse at 80% 0%, ${acc}22, transparent 60%)`,pointerEvents:'none'}}/>
       <div className="fc g16"style={{position:'relative'}}>
         <div style={{position:'relative'}}>
-          <div style={{filter:`drop-shadow(0 0 10px ${acc}88)`}}><ClassAvatar cls={cls}size={94}baseImg={base}/></div>
-          <button onClick={()=>fileRef.current&&fileRef.current.click()}title="Definir foto do avatar"style={{position:'absolute',bottom:-2,right:-2,width:28,height:28,borderRadius:'50%',background:acc,border:'2px solid #0B1522',color:'#0B1522',cursor:'pointer',fontSize:'.8rem',display:'flex',alignItems:'center',justifyContent:'center',zIndex:5}}>📷</button>
+          <div style={{filter:`drop-shadow(0 0 10px ${acc}88)`,cursor:'pointer'}}onClick={()=>setImgModal(cls)}><ClassAvatar cls={cls}size={94}baseImg={base}/></div>
+          <button onClick={e=>{e.stopPropagation();fileRef.current&&fileRef.current.click();}}title="Definir foto do avatar"style={{position:'absolute',bottom:-2,right:-2,width:28,height:28,borderRadius:'50%',background:acc,border:'2px solid #0B1522',color:'#0B1522',cursor:'pointer',fontSize:'.8rem',display:'flex',alignItems:'center',justifyContent:'center',zIndex:5}}>📷</button>
           <input ref={fileRef}type="file"accept="image/*"onChange={e=>handleAvatarFile(e.target.files&&e.target.files[0])}style={{display:'none'}}/>
         </div>
         <div style={{flex:1,minWidth:0}}>
@@ -1160,7 +1161,7 @@ function MissaoSection({st,setSt}){
       {CLASSES.map(c=>{
         const unlocked=info.lvl>=c.minLevel;
         const isCurrent=c.id===cls.id;
-        return<div key={c.id}style={{minWidth:108,flex:'0 0 108px',textAlign:'center',background:isCurrent?c.cor+'1f':'var(--card)',border:`1px solid ${isCurrent?c.cor:unlocked?c.cor+'44':'var(--bd)'}`,borderRadius:12,padding:'12px 8px',boxShadow:isCurrent?`0 0 14px ${c.cor}55`:'none'}}>
+        return<div key={c.id}style={{minWidth:108,flex:'0 0 108px',textAlign:'center',background:isCurrent?c.cor+'1f':'var(--card)',border:`1px solid ${isCurrent?c.cor:unlocked?c.cor+'44':'var(--bd)'}`,borderRadius:12,padding:'12px 8px',boxShadow:isCurrent?`0 0 14px ${c.cor}55`:'none',cursor:unlocked?'pointer':'default'}}onClick={()=>unlocked&&setImgModal(c)}>
           <div style={{display:'flex',justifyContent:'center',marginBottom:6}}><ClassAvatar cls={c}locked={!unlocked}size={62}baseImg={base}/></div>
           <div style={{fontFamily:'var(--serif)',fontWeight:700,fontSize:'.78rem',color:unlocked?c.cor:'var(--tx4)',letterSpacing:'.04em'}}>{unlocked?c.nome:'? ? ?'}</div>
           <div style={{fontSize:'.58rem',fontFamily:'var(--fm)',marginTop:3,color:isCurrent?c.cor:'var(--tx4)'}}>
@@ -1185,6 +1186,20 @@ function MissaoSection({st,setSt}){
           <div style={{fontFamily:'var(--fm)',fontSize:'.72rem',fontWeight:700,color:d,flexShrink:0}}>+{XP_PER_SKILL_LEVEL} XP</div>
         </div>;})}
       </div>}
+
+    {/* ── MODAL DE IMAGEM DA CLASSE ── */}
+    {imgModal&&<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)setImgModal(null);}}>
+      <div style={{position:'relative',maxWidth:'90vw',maxHeight:'90vh',display:'flex',flexDirection:'column',alignItems:'center',gap:12}}>
+        <button onClick={()=>setImgModal(null)}style={{position:'absolute',top:-32,right:0,background:'none',border:'none',color:'var(--tx2)',fontSize:'1.2rem',cursor:'pointer',zIndex:10}}>✕ Fechar</button>
+        <div style={{width:'100%',maxHeight:'80vh',display:'flex',justifyContent:'center'}}>
+          <img src={imgModal.img||CLASS_IMAGES[imgModal.id]||base||BASE_MALANDRO_IMG}alt={imgModal.nome}style={{maxWidth:'100%',maxHeight:'80vh',objectFit:'contain',borderRadius:12,border:`2px solid ${imgModal.cor}66`,boxShadow:`0 0 30px ${imgModal.cor}44`}}/>
+        </div>
+        <div style={{textAlign:'center'}}>
+          <div style={{fontFamily:'var(--serif)',fontWeight:900,fontSize:'1.2rem',letterSpacing:'.06em',color:imgModal.cor}}>{imgModal.nome}</div>
+          <div style={{fontSize:'.75rem',color:'var(--tx2)',fontStyle:'italic'}}>{imgModal.desc}</div>
+        </div>
+      </div>
+    </div>}
   </div>;
 }
 
