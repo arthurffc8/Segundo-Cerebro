@@ -335,7 +335,8 @@ const NOTE_COLORS=[
 const PRIORIDADES=['alta','media','baixa'];
 const FREQ_OPT=['diario','semanal','personalizado'];
 const DAYS_LABEL=['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
-const TODAY=()=>new Date().toISOString().slice(0,10);
+const localDateStr=(d)=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const TODAY=()=>localDateStr(new Date());
 const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
 const ptDate=(d)=>new Date(d+'T12:00:00').toLocaleDateString('pt-BR');
 const todayFull=()=>new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
@@ -1029,7 +1030,7 @@ function InsightCard({st,yr,mo}){
   let streak=0;
   for(let i=0;i<60;i++){
     const d=new Date(now);d.setDate(now.getDate()-i);
-    const ds=d.toISOString().slice(0,10);
+    const ds=localDateStr(d);
     if(getDayScore(st,ds)>0)streak++;else break;
   }
 
@@ -1706,7 +1707,7 @@ function TarefasSection({st,setSt}){
   function weekDates(ref){
     const d=new Date(ref);const off=(d.getDay()===0?-6:1-d.getDay());
     const mon=new Date(d);mon.setDate(d.getDate()+off);
-    return Array.from({length:7},(_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return x.toISOString().slice(0,10);});
+    return Array.from({length:7},(_,i)=>{const x=new Date(mon);x.setDate(mon.getDate()+i);return localDateStr(x);});
   }
   const thisWeek=weekDates(new Date());
 
@@ -2924,7 +2925,7 @@ function ritualStreak(log){
   let s=0;const now=new Date();
   for(let i=0;i<365;i++){
     const d=new Date(now);d.setDate(now.getDate()-i);
-    const ds=d.toISOString().slice(0,10);
+    const ds=localDateStr(d);
     if(log&&log[ds])s++;else if(i===0)continue;else break;
   }
   return s;
