@@ -400,7 +400,7 @@ const DEF_BADGES=[
 // ── SKILL TREES ──────────────────────────────────────────────────────────────
 const SKILL_GOLD='#e8b84b';
 const SKILL_GOLD_HI='#f7d268';
-const _S=(id,emoji,nome,maxNivel,tier,nivel,sub)=>({id,emoji,nome,maxNivel,tier,nivel:nivel||0,subcat:sub||'',desc:''});
+const _S=(id,emoji,nome,maxNivel,tier,nivel,sub,levels)=>({id,emoji,nome,maxNivel,tier,nivel:nivel||0,subcat:sub||'',desc:'',levels:levels||null});
 // Paletas por área (destaque + secundária) — estilo templo RPG
 const SKILL_PALETTES={
   futebol:  {d:'#F5D98C',s:'#D18B1F'},
@@ -437,10 +437,239 @@ function _ah(a){return Math.round(Math.max(0,Math.min(1,a))*255).toString(16).pa
 // subcats = colunas (branches) personalizáveis; cada skill tem subcat = id da coluna
 const DEF_SKILLTREES=[
   {id:'futebol',nome:'Futebol',emoji:'⚽',destaque:'#F5D98C',secundaria:'#D18B1F',cor:'#F5D98C',
-    subcats:[{id:'controle',nome:'Controle'},{id:'ataque',nome:'Ataque'},{id:'visao',nome:'Visão'}],skills:[
-    _S('fb1','⚽','Domínio de bola',3,1,1,'controle'), _S('fb2','🏃','Condução',3,2,1,'controle'), _S('fb3','🎯','Passe curto',3,3,1,'controle'), _S('fb4','📡','Passe longo',3,4,0,'controle'),
-    _S('fb5','🥅','Finalização',3,1,0,'ataque'), _S('fb6','💥','Cabeceio',2,2,0,'ataque'), _S('fb7','🌀','Drible (elástico/caneta)',3,3,0,'ataque'), _S('fb8','🚀','Chute de fora',3,4,0,'ataque'), _S('fb10','🕴️','Finta de corpo',2,5,0,'ataque'), _S('fb12','⚡','Cobrança de falta',2,6,0,'ataque'),
-    _S('fb9','🧭','Posicionamento',3,1,0,'visao'), _S('fb11','👁️','Visão de jogo',3,2,0,'visao'),
+    subcats:[{id:'fundamentos',nome:'FUNDAMENTOS'},{id:'mental',nome:'MENTAL'},{id:'freestyle',nome:'FREESTYLE'}],skills:[
+    _S('fb-dominio','⚽','Domínio de Bola',5,1,2,'fundamentos',[
+      'Nunca tentou dominar uma bola.',
+      'Tenta dominar mas a bola escapa na maioria das vezes.',
+      'Domina bem parado, mas falha em movimento.',
+      'Domina bem em velocidade baixa-média, recebe rasteiro com segurança.',
+      'Domina bolas aéreas e em velocidade média, de diferentes alturas.',
+      'Domina de qualquer altura/sentido sem pensar. Consegue ensinar.',
+    ]),
+    _S('fb-conducao','🏃','Condução',5,1,2,'fundamentos',[
+      'Nunca conduziu a bola em movimento.',
+      'Conduz tropeçando, bola longe do pé, perde o controle fácil.',
+      'Conduz olhando pra bola o tempo todo, velocidade baixa.',
+      'Conduz olhando pra frente em velocidade moderada, troca de direção.',
+      'Conduz em velocidade alta, muda direção com segurança.',
+      'Conduz em sprint com curva e proteção sem pensar, usa ambos os pés.',
+    ]),
+    _S('fb-passe-curto','🎯','Passe Curto',5,1,2,'fundamentos',[
+      'Nunca deu um passe curto intencional.',
+      'Acerta às vezes, sem direção precisa, bola muito forte ou fraca.',
+      'Acerta passe curto parado, mas com força e precisão inconsistentes.',
+      'Passes rasteiros precisos até 10m, velocidade adequada ao parceiro.',
+      'Passes precisos em movimento, com ambos os pés, de primeira às vezes.',
+      'Passes de primeira no ritmo certo, com efeito se necessário, sem olhar.',
+    ]),
+    _S('fb-protecao','🛡️','Proteção de Corpo',5,1,1,'fundamentos',[
+      'Perde a bola sempre que um adversário se aproxima.',
+      'Tenta usar o corpo mas ainda perde a bola com frequência.',
+      'Consegue proteger a bola parado contra 1 adversário.',
+      'Protege a bola em movimento, usa o corpo para segurar.',
+      'Protege em velocidade, aguenta contato físico.',
+      'Protege naturalmente, já sai jogando após a proteção sem pensar.',
+    ]),
+    _S('fb-passe-longo','📡','Passe Longo',5,2,2,'fundamentos',[
+      'Nunca tentou passe longo.',
+      'Tenta mas a bola não chega no destino, sem direção.',
+      'Acerta no ar mas sem direção precisa, distância curta (~15m).',
+      'Bola chega no destino (20-30m) na direção certa.',
+      'Passe longo preciso alternando elevação, mira no pé do parceiro.',
+      'Lançamento de 40m+ no pé do parceiro em velocidade de jogo.',
+    ]),
+    _S('fb-finalizacao','🥅','Finalização',5,2,2,'fundamentos',[
+      'Nunca chutou a gol.',
+      'Chuta fraco e pra fora, sem direção.',
+      'Chuta no gol mas sem força e sem colocar no ângulo.',
+      'Finaliza bem de frente sem goleiro, colocado.',
+      'Finaliza sob pressão com goleiro, colocado e potente.',
+      'Finaliza de qualquer ângulo, ambos os pés, de primeira se necessário.',
+    ]),
+    _S('fb-reacao','⚡','Reação em Movimento',5,2,1,'fundamentos',[
+      'Fica parado esperando a bola chegar.',
+      'Reage mas chega atrasado na maioria das jogadas.',
+      'Reage bem a bolas próximas, mas lento em distância.',
+      'Reage bem em movimento, antecipa lances simples.',
+      'Reage rápido em todas as direções, antecipa jogadas.',
+      'Reação instantânea, sempre um passo à frente da jogada.',
+    ]),
+    _S('fb-scan','👀','Scan/Olhar Antes de Receber',5,2,2,'fundamentos',[
+      'Recebe a bola sem olhar ao redor.',
+      'Olha às vezes antes de receber mas não processa a informação.',
+      'Olha antes de receber, já tem noção básica do entorno.',
+      'Olha antes de receber e já decide o próximo passe.',
+      'Faz scan constante, recebe sabendo exatamente onde está cada um.',
+      'Scan automático, recebe e já sai jogando sem pausa.',
+    ]),
+    _S('fb-cabeceio','💥','Cabeceio',5,3,1,'fundamentos',[
+      'Nunca cabeceou.',
+      'Fecha o olho, bola vai longe sem direção.',
+      'Acerta a direção mas sem força.',
+      'Cabeceia bem em bola parada, direciona.',
+      'Cabeceia em movimento, direcionado e com força.',
+      'Cabeceia no ângulo em corrida, de frente ou de lado, orientado ao gol.',
+    ]),
+    _S('fb-croqueta','🔄','Croqueta',5,3,1,'fundamentos',[
+      'Não sabe o que é croqueta.',
+      'Conhece o movimento mas não executa em velocidade.',
+      'Executa parado ou em velocidade baixa.',
+      'Executa em movimento moderado.',
+      'Executa em velocidade contra marcador.',
+      'Croqueta natural, usa nos dois sentidos sem pensar.',
+    ]),
+    _S('fb-corte-ext','✂️','Corte Externo',5,3,2,'fundamentos',[
+      'Não sabe o que é corte externo.',
+      'Conhece o movimento mas perde a bola ao tentar.',
+      'Executa parado ou em velocidade baixa.',
+      'Executa em velocidade moderada mantendo o controle.',
+      'Executa em velocidade alta, muda direção rapidamente.',
+      'Corte externo automático, usa para passar ou finalizar sem pensar.',
+    ]),
+    _S('fb-pos-ofensivo','🗺️','Posicionamento Ofensivo',5,4,1,'fundamentos',[
+      'Fica parado ou corre sem rumo no ataque.',
+      'Tenta se posicionar mas não sabe onde ficar.',
+      'Se posiciona bem em bolas paradas ofensivas.',
+      'Se posiciona bem em organização ofensiva.',
+      'Se posiciona prevendo o lance seguinte, dá linha de passe.',
+      'Posicionamento natural, sempre aparece onde a bola vai chegar.',
+    ]),
+    _S('fb-pos-defensivo','🧱','Posicionamento Defensivo',5,4,3,'fundamentos',[
+      'Corre atrás da bola sem pensar.',
+      'Marca o homem mas perde a referência fácil.',
+      'Marca bem o homem, fica entre ele e o gol.',
+      'Marca e fecha linhas de passe, boa leitura defensiva.',
+      'Antecipa jogadas, rouba bola na leitura.',
+      'Posicionamento defensivo automático, organiza a defesa e cobre.',
+    ]),
+    _S('fb-finta','🕴️','Finta de Corpo',5,5,0,'fundamentos',[
+      'Nunca fez finta de corpo.',
+      'Tenta fintar mas o marcador não cai.',
+      'Acerta de vez em quando no treino.',
+      'Finta engana o marcador na parada.',
+      'Finta em movimento, engana e sai para o espaço.',
+      'Finta como extensão do corpo, engana sem esforço.',
+    ]),
+    _S('fb-falta','🎯','Cobrança de Falta',5,5,1,'fundamentos',[
+      'Nunca cobrou falta.',
+      'Chuta na barreira ou por cima.',
+      'Acerta direção mas fraco, sem vencer o goleiro.',
+      'Bola no gol de falta sem goleiro, colocado.',
+      'Acerta o gol com goleiro, colocado e com força.',
+      'Define o tipo ideal pra cada distância, bate no ângulo com consistência.',
+    ]),
+    _S('fb-pe-fraco','🦶','Pé Fraco',5,5,2,'fundamentos',[
+      'Usa só o pé dominante, não troca.',
+      'Tenta usar o pé fraco mas a bola não vai.',
+      'Consegue passar curto com o pé fraco.',
+      'Consegue finalizar e passar médio com o pé fraco.',
+      'Usa o pé fraco em velocidade, passe longo e finalização.',
+      'Pé fraco tão bom quanto o dominante, usa sem pensar.',
+    ]),
+    _S('fb-chute-dist','🚀','Chute à Distância',5,5,0,'fundamentos',[
+      'Nunca chutou de longe.',
+      'Chuta forte mas sem direção.',
+      'Acerta o gol de longe às vezes, sem força.',
+      'Chuta colocado de 20-25m com direção.',
+      'Chuta de 30m+ com efeito e direção.',
+      'Bate de qualquer distância com precisão, lê o goleiro.',
+    ]),
+    _S('fb-elastico','🌀','Elástico',5,6,0,'fundamentos',[
+      'Não sabe o que é.',
+      'Conhece o movimento mas não executa.',
+      'Acerta de vez em quando no treino parado.',
+      'Executa em movimento em velocidade baixa.',
+      'Executa em velocidade contra marcador.',
+      'Elástico automático, combina com outros dribles.',
+    ]),
+    _S('fb-letra','👟','Chute de Letra',5,6,0,'fundamentos',[
+      'Não sabe o que é.',
+      'Conhece o movimento mas não acerta a bola.',
+      'Acerta a bola mas sem direção.',
+      'Acerta o gol de letra de vez em quando.',
+      'Executa em movimento, no ângulo.',
+      'Chute de letra natural, finaliza assim sem pensar.',
+    ]),
+    _S('fb-lambreta','🤸','Lambreta',5,6,0,'fundamentos',[
+      'Não sabe o que é.',
+      'Conhece o movimento mas não executa.',
+      'Acerta de vez em quando parado.',
+      'Executa em movimento lento.',
+      'Executa em velocidade.',
+      'Lambreta automática, passa por qualquer marcador com ela.',
+    ]),
+    _S('fb-nervosismo','😰','Nervosismo Pré-Jogo',5,1,2,'mental',[
+      'Não sente nada (pode ser displicência).',
+      'Sente muito nervosismo, atrapalha o desempenho.',
+      'Sente nervosismo mas consegue jogar.',
+      'Sente um pouco de ansiedade que vira energia positiva.',
+      'Controla o nervosismo, transforma em foco.',
+      'Confiança total, sabe ativar o estado ideal.',
+    ]),
+    _S('fb-pressao','🫂','Receber Sobre Pressão',5,2,1,'mental',[
+      'Perde a bola sempre que marcado de perto.',
+      'Tenta receber sob pressão mas erra na maioria das vezes.',
+      'Consegue receber e segurar sob pressão.',
+      'Recebe sob pressão e consegue passar.',
+      'Recebe sob pressão, protege e sai jogando.',
+      'Recebe sob pressão e já sai driblando ou passando sem pensar.',
+    ]),
+    _S('fb-tirar-cima','⬆️','Tirar para Cima',5,2,1,'mental',[
+      'Nunca tentou tirar para cima.',
+      'Tenta mas erra na maioria das vezes.',
+      'Acerta tirar para cima em treino.',
+      'Usa em jogo para escapar de marcação.',
+      'Usa naturalmente, domina e já sai jogando.',
+      'Tira para cima em qualquer situação, antecipa a jogada.',
+    ]),
+    _S('fb-futebolar','😈','Futebolar na Rua',5,3,0,'mental',[
+      'Não tem malícia, joga sempre certinho.',
+      'Conhece os princípios da malandragem mas não aplica.',
+      'Aplica de vez em quando, leva vantagem em lances isolados.',
+      'Sabe usar o corpo, a cera e o tempo a seu favor.',
+      'Malandro na medida certa, controla o ritmo do jogo.',
+      'Futebola naturalmente, lê o adversário e controla o jogo com experiência.',
+    ]),
+    _S('fb-embaixadinha','🤹','Embaixadinha',5,1,3,'freestyle',[
+      'Nunca tentou embaixadinha.',
+      'Consegue 5-10 embaixadinhas.',
+      'Consegue 20-50 embaixadinhas.',
+      'Consegue 50-100 embaixadinhas quando concentrado.',
+      'Consegue 100+ embaixadinhas em qualquer superfície.',
+      'Embaixadinha infinita, faz de cabeça, coxa, pé, calcanhar.',
+    ]),
+    _S('fb-zerinho','0️⃣','Zerinho',5,2,2,'freestyle',[
+      'Não sabe o que é zerinho.',
+      'Sabe o movimento mas não acerta o encaixe.',
+      'Acerta de vez em quando.',
+      'Acerta na maioria das tentativas.',
+      'Acerta zerinho em movimento.',
+      'Zerinho perfeito sempre, de qualquer ângulo.',
+    ]),
+    _S('fb-levantada','👆','Levantada de Letra',5,2,2,'freestyle',[
+      'Não sabe o que é.',
+      'Conhece o movimento mas não levanta a bola.',
+      'Levanta a bola mas sem controle de direção.',
+      'Levanta a bola e domina na sequência.',
+      'Levanta de qualquer posição e já sai jogando.',
+      'Levantada de letra natural, em movimento, sem pensar.',
+    ]),
+    _S('fb-colar-pe','🧲','Colar Bola no Pé',5,2,1,'freestyle',[
+      'Nunca tentou.',
+      'Tenta mas a bola cai rápido.',
+      'Segura a bola por alguns segundos.',
+      'Segura a bola por mais de 10 segundos.',
+      'Cola a bola no pé e anda.',
+      'Cola a bola no pé, corre, para, sem cair.',
+    ]),
+    _S('fb-colar-nuca','🧘','Colar Bola na Nuca',5,3,0,'freestyle',[
+      'Nunca tentou.',
+      'Tenta mas a bola cai na hora.',
+      'Segura por alguns segundos.',
+      'Segura por mais de 10 segundos.',
+      'Cola na nuca e anda.',
+      'Cola na nuca, corre, abaixa, levanta, sem cair.',
+    ]),
   ]},
   {id:'futevolei',nome:'Futevôlei',emoji:'🏐',destaque:'#FF6EB3',secundaria:'#A02E6E',cor:'#FF6EB3',
     subcats:[{id:'fund',nome:'Fundamentos'},{id:'ataque',nome:'Ataque'},{id:'defesa',nome:'Defesa'}],skills:[
@@ -648,6 +877,8 @@ function sanitizeSkilltree(state){
     // Futevôlei: vermelho antigo → rosa
     if(t.id==='futevolei'&&t.destaque==='#D94747'){nt={...nt,destaque:'#FF6EB3',secundaria:'#A02E6E',cor:'#FF6EB3'};changed=true;}
     if(!nt.destaque&&SKILL_PALETTES[nt.id]){nt={...nt,destaque:SKILL_PALETTES[nt.id].d,secundaria:SKILL_PALETTES[nt.id].s,cor:SKILL_PALETTES[nt.id].d};changed=true;}
+    // substituir árvore de futebol antiga (IDs fb1-fb12) pela nova estrutura FUNDAMENTOS/MENTAL/FREESTYLE
+    if(t.id==='futebol'&&t.skills&&t.skills.some(s=>/^fb\d+$/.test(s.id))){const def=DEF_SKILLTREES.find(d=>d.id==='futebol');if(def){nt={...def,skills:def.skills.map(s=>({...s}))};changed=true;}}
     // backfill de subcategorias (colunas) em dados antigos
     const def=defMap[nt.id];
     if((!nt.subcats||!nt.subcats.length)){
@@ -3300,6 +3531,17 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete}){
     <div style={{height:7,background:'rgba(255,255,255,.07)',borderRadius:4,overflow:'hidden',marginBottom:10}}>
       <div style={{height:'100%',width:(lv/max*100)+'%',background:lv>=max?'#22c55e':cor,borderRadius:4,transition:'width .3s'}}/>
     </div>
+    {skill.levels&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
+      <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>📏 Critérios por Nível</div>
+      <div style={{maxHeight:160,overflowY:'auto',display:'flex',flexDirection:'column',gap:2,paddingRight:4}}>
+        {skill.levels.map((d,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:6,padding:'4px 7px',borderRadius:5,background:lv===i?cor+'22':'transparent',border:lv===i?`1px solid ${cor}44`:'1px solid transparent',fontSize:'.72rem',color:lv===i?'var(--tx1)':i<=lv?'var(--tx2)':'var(--tx4)',lineHeight:1.35,transition:'all .2s'}}>
+            <span style={{fontWeight:700,fontSize:'.65rem',minWidth:13,textAlign:'right',color:lv===i?cor:i<=lv?cor+'aa':cor+'44'}}>{i}</span>
+            <span>{d}</span>
+          </div>
+        ))}
+      </div>
+    </div>}
     <div style={{textAlign:'center',fontSize:'.68rem',color:'var(--tx3)',marginBottom:14}}>⚡ Cada nível vale <b style={{color:cor}}>+{XP_PER_SKILL_LEVEL} XP</b> no seu nível (aba Missão)</div>
     <Btns>
       <button className="btn btn-gh"onClick={onEdit}>✏️ Editar</button>
