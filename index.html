@@ -3562,8 +3562,21 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier}){
   const list=subcats||[];
   const blank={nome:'',emoji:'⭐',maxNivel:3,subcat:list[0]?list[0].id:'',tier:1,desc:''};
   const[f,setF]=useState(init||blank);
-  useEffect(()=>{setF(init?{...blank,...init}:blank);},[open]);
-  function save(){if(!f.nome.trim())return;onSave({...f,maxNivel:Math.max(1,Math.min(9,+f.maxNivel||1)),tier:Math.max(1,+f.tier||1),subcat:f.subcat||(list[0]?list[0].id:'')});onClose();}
+  useEffect(()=>{
+    const base=init?{...blank,...init}:{...blank};
+    if(!base.levels)base.levels=Array.from({length:(base.maxNivel||3)+1},()=>'');
+    setF(base);
+  },[open]);
+  function save(){if(!f.nome.trim())return;onSave({...f,maxNivel:Math.max(1,Math.min(9,+f.maxNivel||1)),tier:Math.max(1,+f.tier||1),subcat:f.subcat||(list[0]?list[0].id:''),levels:(f.levels||[]).slice(0,Math.max(1,Math.min(9,+f.maxNivel||1))+1)});onClose();}
+  function handleMaxChange(val){
+    const n=Math.max(1,Math.min(9,+val||1));
+    setF(p=>{
+      const cur=p.levels||[];
+      const next=Array.from({length:n+1},(_,i)=>i<cur.length?cur[i]:'');
+      return{...p,maxNivel:n,levels:next};
+    });
+  }
+  function setLv(i,v){setF(p=>({...p,levels:(p.levels||[]).map((d,j)=>j===i?v:d)}));}
   const tierOpts=[];for(let i=1;i<=(maxTier||1)+1;i++)tierOpts.push(i);
   return<Modal open={open}onClose={onClose}title={init&&init.id?'Editar Habilidade':'Nova Habilidade'}>
     <div className="g2c">
@@ -3582,8 +3595,19 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier}){
         </select>
       </Fld>
     </div>
-    <Fld label="Níveis (máximo)"><input type="number"min={1}max={9}value={f.maxNivel}onChange={e=>setF(p=>({...p,maxNivel:+e.target.value}))}/></Fld>
+    <Fld label="Níveis (máximo)"><input type="number"min={1}max={9}value={f.maxNivel}onChange={e=>handleMaxChange(e.target.value)}/></Fld>
     <Fld label="Descrição (opcional)"><textarea rows={2}value={f.desc}onChange={e=>setF(p=>({...p,desc:e.target.value}))}placeholder="Detalhes, referências, o que dominar..."/></Fld>
+    {(f.levels||[]).length>0&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
+      <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>📏 Critérios por Nível</div>
+      <div style={{display:'flex',flexDirection:'column',gap:3,marginBottom:8}}>
+        {(f.levels||[]).map((d,i)=>(
+          <div key={i}style={{display:'flex',gap:4,alignItems:'center'}}>
+            <span style={{fontWeight:700,fontSize:'.65rem',minWidth:13,textAlign:'right',color:'var(--tx3)'}}>{i}</span>
+            <input value={d}onChange={e=>setLv(i,e.target.value)}placeholder={`Critério p/ nível ${i}`}style={{flex:1,minWidth:0}}/>
+          </div>
+        ))}
+      </div>
+    </div>}
     <Btns>
       <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
       <button className="btn btn-ac"onClick={save}>Salvar</button>
