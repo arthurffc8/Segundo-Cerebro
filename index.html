@@ -1599,6 +1599,37 @@ function HojeSection({st,setSt}){
     setEditTask(null);
   }
 
+  const streak=useMemo(()=>{
+    let n=0;const now=new Date();
+    for(let i=0;i<365;i++){
+      const d=new Date(now);d.setDate(now.getDate()-i);
+      const ds=localDateStr(d);
+      if(getDayScore(st,ds)>0)n++;else break;
+    }
+    return n;
+  },[st]);
+  const streakRecord=useMemo(()=>{
+    let best=0,cur=0;
+    const now=new Date();
+    for(let i=0;i<365;i++){
+      const d=new Date(now);d.setDate(now.getDate()-i);
+      if(getDayScore(st,localDateStr(d))>0)cur++;else{if(cur>best)best=cur;cur=0;}
+    }
+    return Math.max(best,cur);
+  },[st]);
+  const streakMilestones=[3,7,14,21,30,60,90];
+  const nextMilestone=streakMilestones.find(m=>m>streak)||streakMilestones[streakMilestones.length-1];
+  const fireLevel=streak>=30?5:streak>=21?4:streak>=14?3:streak>=7?2:streak>=3?1:0;
+  const fireEmojis=['🔥','🔥','🔥🔥','🔥🔥🔥','🔥🔥🔥🔥','💥🔥🔥🔥🔥'];
+  const fireMsgs=[
+    'Aquecendo... bora ativar!',
+    'Chama começou! Mantenha.',
+    'Fogo brando! Não apaga.',
+    'Fogueira acesa! Tá pegando.',
+    'Inferno na área! Só passa por cima.',
+    'LENDA VIVA — tá imparável! 🔥💥'
+  ];
+
   const staticFrase=useMemo(()=>st.frases[Math.floor(Math.random()*st.frases.length)]||'',[]);
   const aiFraseHoje=(st.aiFrase&&st.aiFrase.date===td)?st.aiFrase.text:'';
   const frase=aiFraseHoje||staticFrase;
@@ -1646,6 +1677,30 @@ function HojeSection({st,setSt}){
           <PBar val={doneH}max={Math.max(activeHabits.length,1)}color="var(--ac)"/>
         </div>
       </div>
+    </div>
+
+    {/* Sequência de Fogo */}
+    <div className="card mb14"style={{borderColor:fireLevel>=4?'var(--ok)':fireLevel>=2?'var(--warn)':'var(--bd)',overflow:'hidden',padding:0}}>
+      <div className="fcb"style={{padding:'10px 14px',background:`linear-gradient(135deg,${fireLevel>=4?'#22c55e22':fireLevel>=2?'#eab30822':'transparent'},transparent)`}}>
+        <div className="fc g10">
+          <span style={{fontSize:fireLevel===0?'1.3rem':'1.6rem',filter:fireLevel>=3?'drop-shadow(0 0 6px #f97316)':'none',transition:'all .3s'}}>
+            {fireEmojis[fireLevel]}
+          </span>
+          <div>
+            <div style={{fontWeight:700,fontSize:'.95rem'}}>
+              {streak>0?`${streak} ${streak===1?'dia seguido':'dias seguidos'}`:'Nenhum registro hoje'}
+            </div>
+            <div style={{fontSize:'.7rem',color:'var(--tx2)'}}>
+              {fireMsgs[fireLevel]}{streakRecord>1?` · Recorde: ${streakRecord} dias`:' · Bora começar!'}
+            </div>
+          </div>
+        </div>
+        {streak>0&&streak<streakMilestones[streakMilestones.length-1]&&<div style={{textAlign:'right',flexShrink:0}}>
+          <div style={{fontSize:'.6rem',color:'var(--tx3)',textTransform:'uppercase',letterSpacing:'.06em'}}>Próx. marco</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'.8rem',fontWeight:700,color:'var(--ac)'}}>{nextMilestone}d</div>
+        </div>}
+      </div>
+      {streak>0&&<div style={{padding:'0 14px 10px'}}><PBar val={streak}max={nextMilestone}color={fireLevel>=4?'#22c55e':fireLevel>=2?'#eab308':'var(--ac)'}/></div>}
     </div>
 
     {/* Frase */}
