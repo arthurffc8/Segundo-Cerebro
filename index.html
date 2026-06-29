@@ -6,6 +6,7 @@
 <title>Segundo Cérebro</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone@7.25.0/babel.min.js"></script>
@@ -175,6 +176,106 @@ button{cursor:pointer;border:none;outline:none;font-family:var(--ff);transition:
   .g3c{grid-template-columns:1fr 1fr;}
   .tab-btn{padding:8px 9px;font-size:.72rem;}
   .notes-masonry{columns:1;}
+}
+
+/* ===================== EIXO — Protocolo de Transferência de Peso ===================== */
+.eixo{
+  --bg:#14110D;--bg-2:#1A1611;--surface:#211C16;--surface-2:#2A241B;
+  --line:#342D22;--line-soft:#28221A;--bone:#EDE4D3;--bone-dim:#B6AB98;--muted:#83786A;
+  --fire:#FF5436;--fire-dim:#C9472F;--euca:#5FB8A6;--euca-dim:#3E7E72;
+  --eradius:14px;--emaxw:880px;
+  background:var(--bg);color:var(--bone);
+  font-family:'Hanken Grotesk',system-ui,sans-serif;line-height:1.55;-webkit-font-smoothing:antialiased;
+  border-radius:16px;padding:6px 18px 36px;
+}
+.eixo *{box-sizing:border-box;margin:0;padding:0}
+.eixo .wrap{max-width:var(--emaxw);margin:0 auto}
+/* HERO */
+.eixo header{padding:34px 0 24px}
+.eixo .eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.32em;text-transform:uppercase;color:var(--muted);margin-bottom:18px}
+.eixo .eyebrow b{color:var(--fire);font-weight:700}
+.eixo h1.brand{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(52px,15vw,104px);line-height:.84;letter-spacing:.01em;text-transform:uppercase}
+.eixo h1.brand span{color:var(--fire)}
+.eixo .tagline{margin-top:18px;max-width:480px;color:var(--bone-dim);font-size:15.5px}
+.eixo .tagline em{color:var(--bone);font-style:normal;font-weight:600}
+/* BALANCE METER */
+.eixo .meter{margin:30px 0 6px;background:linear-gradient(180deg,var(--surface) 0%,var(--bg-2) 100%);border:1px solid var(--line);border-radius:var(--eradius);padding:24px 22px 20px;user-select:none}
+.eixo .meter-head{display:flex;justify-content:space-between;align-items:baseline;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:20px}
+.eixo .meter-head .lbl{color:var(--bone-dim)}
+.eixo .track{position:relative;height:70px;cursor:grab;touch-action:none}
+.eixo .track:active{cursor:grabbing}
+.eixo .base-line{position:absolute;left:0;right:0;top:50%;height:2px;background:linear-gradient(90deg,var(--fire) 0%,var(--line) 50%,var(--euca) 100%);opacity:.5;transform:translateY(-50%)}
+.eixo .tick{position:absolute;top:50%;width:1px;height:14px;background:var(--line);transform:translateY(-50%)}
+.eixo .tick.center{height:24px;background:var(--bone-dim);opacity:.6}
+.eixo .foot-lbl{position:absolute;top:0;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--bone-dim)}
+.eixo .foot-lbl.l{left:0}
+.eixo .foot-lbl.r{right:0;text-align:right}
+.eixo .dot{position:absolute;top:50%;left:50%;width:34px;height:34px;margin:-17px 0 0 -17px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff 0%,var(--fire) 55%,var(--fire-dim) 100%);box-shadow:0 0 0 6px rgba(255,84,54,.14),0 8px 22px rgba(255,84,54,.28);transition:box-shadow .25s ease}
+.eixo .dot.centered{background:radial-gradient(circle at 35% 30%,#fff 0%,var(--euca) 55%,var(--euca-dim) 100%);box-shadow:0 0 0 6px rgba(95,184,166,.16),0 8px 22px rgba(95,184,166,.3)}
+.eixo .meter-read{display:flex;justify-content:space-between;align-items:center;margin-top:18px}
+.eixo .read-vals{font-family:'Space Mono',monospace;font-size:13px;color:var(--bone-dim)}
+.eixo .read-vals b{color:var(--bone);font-weight:700}
+.eixo .read-vals .c{color:var(--euca)}
+.eixo .btn-center{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;background:transparent;color:var(--bone-dim);border:1px solid var(--line);border-radius:30px;padding:8px 16px;cursor:pointer;transition:border-color .2s,color .2s}
+.eixo .btn-center:hover{border-color:var(--euca-dim);color:var(--euca)}
+.eixo .meter-hint{margin-top:14px;font-size:12.5px;color:var(--muted);line-height:1.5}
+/* STATS */
+.eixo .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:32px 0 8px}
+.eixo .stat{background:var(--surface);border:1px solid var(--line);border-radius:var(--eradius);padding:18px 16px}
+.eixo .stat .num{font-family:'Space Mono',monospace;font-size:34px;font-weight:700;line-height:1;color:var(--fire)}
+.eixo .stat .num.euca{color:var(--euca)}
+.eixo .stat .cap{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:10px}
+/* HEATMAP */
+.eixo .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--eradius);padding:22px 20px;margin:14px 0}
+.eixo .panel-title{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--bone-dim);margin-bottom:18px}
+.eixo .grid-days{display:grid;grid-template-columns:repeat(14,1fr);gap:6px}
+.eixo .cell{aspect-ratio:1;border-radius:5px;background:var(--surface-2);border:1px solid var(--line-soft);transition:transform .15s;cursor:pointer}
+.eixo .cell.done{background:var(--fire);border-color:var(--fire);box-shadow:0 0 10px rgba(255,84,54,.3)}
+.eixo .cell.today{outline:2px solid var(--bone-dim);outline-offset:1px}
+.eixo .cell.today.done{outline-color:var(--bone)}
+.eixo .cell:hover{transform:scale(1.18)}
+/* LOG BUTTON */
+.eixo .log-row{display:flex;gap:12px;align-items:center;margin-top:18px;flex-wrap:wrap}
+.eixo .btn-log{flex:1;min-width:220px;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.04em;text-transform:uppercase;background:var(--fire);color:#1a0d09;border:none;border-radius:12px;padding:16px 22px;cursor:pointer;transition:transform .12s,background .2s,box-shadow .2s;box-shadow:0 6px 20px rgba(255,84,54,.22)}
+.eixo .btn-log:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(255,84,54,.34)}
+.eixo .btn-log:active{transform:translateY(0)}
+.eixo .btn-log.done{background:transparent;color:var(--euca);border:1px solid var(--euca-dim);box-shadow:none}
+.eixo .btn-log.done:hover{box-shadow:0 0 0 1px var(--euca-dim)}
+.eixo .log-note{font-size:12.5px;color:var(--muted);max-width:260px}
+/* PHASES */
+.eixo .section-head{margin:48px 0 22px}
+.eixo .section-head .kick{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--fire);margin-bottom:12px}
+.eixo .section-head h2{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(30px,7vw,46px);line-height:.92;text-transform:uppercase;letter-spacing:.01em}
+.eixo .section-head p{margin-top:14px;color:var(--bone-dim);font-size:15px;max-width:560px}
+.eixo .phase-tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap}
+.eixo .ptab{font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;background:var(--surface);color:var(--muted);border:1px solid var(--line);border-radius:30px;padding:10px 16px;cursor:pointer;transition:.2s}
+.eixo .ptab b{color:var(--bone-dim)}
+.eixo .ptab.active{background:var(--fire);color:#1a0d09;border-color:var(--fire)}
+.eixo .ptab.active b{color:#1a0d09}
+.eixo .phase{border:1px solid var(--line);border-radius:var(--eradius);overflow:hidden;background:var(--surface)}
+.eixo .phase-top{padding:24px 22px;border-bottom:1px solid var(--line);background:linear-gradient(180deg,var(--surface-2) 0%,var(--surface) 100%)}
+.eixo .phase-no{font-family:'Anton',sans-serif;font-size:13px;letter-spacing:.2em;color:var(--fire);text-transform:uppercase}
+.eixo .phase-name{font-family:'Anton',sans-serif;font-weight:400;font-size:clamp(26px,6vw,38px);text-transform:uppercase;line-height:.95;margin:6px 0 14px}
+.eixo .phase-meta{display:flex;gap:8px;flex-wrap:wrap}
+.eixo .chip{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.06em;color:var(--bone-dim);background:var(--bg-2);border:1px solid var(--line);border-radius:20px;padding:6px 12px}
+.eixo .chip .k{color:var(--muted)}
+.eixo .phase-foco{padding:18px 22px 4px;color:var(--bone-dim);font-size:14.5px;border-bottom:1px solid var(--line-soft)}
+.eixo .phase-foco b{color:var(--bone);font-weight:600}
+.eixo ol.exs{list-style:none}
+.eixo ol.exs li{padding:20px 22px;border-bottom:1px solid var(--line-soft);display:grid;grid-template-columns:38px 1fr;gap:14px;align-items:start}
+.eixo ol.exs li:last-child{border-bottom:none}
+.eixo ol.exs li .n{font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:var(--fire);padding-top:1px}
+.eixo ol.exs li .ex-name{font-weight:700;font-size:16px;color:var(--bone)}
+.eixo ol.exs li .ex-det{margin-top:5px;color:var(--bone-dim);font-size:14px;line-height:1.55}
+.eixo ol.exs li .ex-dose{margin-top:9px;display:inline-block;font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.04em;color:var(--euca);background:rgba(95,184,166,.08);border:1px solid var(--euca-dim);border-radius:6px;padding:4px 10px}
+.eixo .rule{margin:20px 0 0;padding:18px 20px;border-left:3px solid var(--fire);background:var(--bg-2);border-radius:0 10px 10px 0;font-size:14.5px;color:var(--bone-dim)}
+.eixo .rule b{color:var(--bone);font-weight:600}
+.eixo .efoot{margin-top:34px;padding-top:24px;border-top:1px solid var(--line);font-family:'Space Mono',monospace;font-size:11.5px;letter-spacing:.04em;color:var(--muted);line-height:1.7}
+.eixo .efoot b{color:var(--bone-dim)}
+@media (max-width:560px){
+  .eixo .stats{grid-template-columns:1fr 1fr}
+  .eixo .stats .stat:last-child{grid-column:1/-1}
+  .eixo .grid-days{grid-template-columns:repeat(7,1fr)}
 }
 </style>
 </head>
@@ -724,6 +825,7 @@ const DEF_TABS=[
   {id:'crencas',label:'Mente',emoji:'🦋',visible:true},
   {id:'skilltree',label:'Skill Tree',emoji:'🌳',visible:true},
   {id:'conquistas',label:'Conquistas',emoji:'🏆',visible:true},
+  {id:'eixo',label:'Eixo',emoji:'⚖️',visible:true},
   {id:'config',label:'Config',emoji:'⚙️',visible:true},
 ];
 
@@ -4347,6 +4449,214 @@ function CfgPerfil({st,setSt}){
 
 // ── APP ROOT ─────────────────────────────────────────────────────────────────
 
+// ── EIXO — Protocolo de Transferência de Peso ────────────────────────────────
+const EIXO_PHASES={
+  1:{
+    no:"Fase 01", nome:"Consciência",
+    meta:[["frequência","todo dia"],["duração","5–8 min"],["onde","chão firme, descalço"],["disco","ainda não"]],
+    foco:"<b>Sentir onde o peso está.</b> Aqui não é pra suar — é pra perceber. Sem visão muscular, sem pressa. Você está acordando a propriocepção que ficou adormecida.",
+    exs:[
+      {n:"Mapa do pé parado", d:"Em pé, pés na largura do quadril. Sem mover nada por fora, leve a atenção pra sola: peso no calcanhar ou na ponta? Esquerdo ou direito? Borda interna ou externa? Só audite — não corrige.", dose:"1 min"},
+      {n:"Transferência lenta lado a lado", d:"Bem devagar, empurre 100% do peso pro pé direito até o esquerdo poder sair do chão sem cambalear. Segure, volte ao centro, troque. O peso vai — o tronco fica alinhado.", dose:"8–10 trocas · 3s cada"},
+      {n:"Os quatro cantos", d:"Imagine 4 pontos em cada pé (2 no calcanhar, 2 na ponta). Role a pressão da sola por eles, desenhando um círculo: frente, borda externa, calcanhar, borda interna.", dose:"5 círculos por pé"},
+      {n:"Olhos fechados", d:"Repita a transferência lateral sem visão. Tirar o olho força o corpo a se localizar pela propriocepção pura — exatamente o sentido que você quer afiar. Vai parecer mais difícil. É aí que mora o ganho.", dose:"6–8 trocas"},
+      {n:"Transição entre apoios", d:"Passo lento à frente. Perceba o instante exato em que o peso DEIXA o pé de trás e CHEGA no da frente. Esse momento de troca é o que vira drible, ataque e passinho. Câmera lenta.", dose:"6 passos por perna"}
+    ]
+  },
+  2:{
+    no:"Fase 02", nome:"Estabilidade",
+    meta:[["frequência","todo dia"],["duração","8–12 min"],["onde","perto da parede"],["disco","sim — entra agora"]],
+    foco:"<b>Controlar o peso na instabilidade.</b> O disco obriga os receptores do pé e tornozelo a trabalharem o tempo todo. Vai parecer difícil no início — esse é o ponto, não o problema. Mão perto da parede nas primeiras sessões.",
+    exs:[
+      {n:"Apoio nos dois pés sobre o disco", d:"Só fique em pé sobre o disco, os dois pés, procurando o centro e segurando ali. Repare nos micro-ajustes do tornozelo. É o ABC da fase.", dose:"3x 30s"},
+      {n:"Transferência lateral no disco", d:"A mesma da Fase 1, agora em cima do disco. Levar o peso de um pé pro outro numa base que se mexe é outro nível de controle. Devagar.", dose:"8 trocas"},
+      {n:"Apoio num pé só", d:"Primeiro no chão firme, depois no disco. Ficar num pé só obriga o corpo a encontrar a linha do peso sozinho.", dose:"Chão 20s · disco 10–15s · cada pé"},
+      {n:"Mini-agachamento no disco", d:"Descer e subir poucos graus mantendo o centro estável sobre o disco. Sem deixar o joelho cair pra dentro nem o peso fugir pro calcanhar.", dose:"8–10 reps"},
+      {n:"Olhos fechados no disco", d:"Dois pés no disco, olhos fechados. O nível mais alto de propriocepção do protocolo: sem visão e sem base firme, só o corpo se localizando. Mão pertinho da parede.", dose:"3x 15–20s"}
+    ]
+  },
+  3:{
+    no:"Fase 03", nome:"Ritmo e aplicação",
+    meta:[["frequência","todo dia"],["duração","10–15 min"],["onde","espaço livre"],["disco","opcional no aquecimento"]],
+    foco:"<b>Transferência rápida, ritmada e aplicada ao jogo.</b> Agora o peso troca no tempo da música e engana o adversário. É aqui que a fundação vira futevôlei, futebol e passinho de verdade.",
+    exs:[
+      {n:"Transferência com ritmo", d:"Com música ou metrônomo, troque o peso de um pé pro outro no tempo da batida — e vá acelerando. É a base do suingue do passinho: peso ritmado, não pé parado.", dose:"2–3 min"},
+      {n:"Deslocamento lateral (skater)", d:"Saltos laterais de um pé pro outro, aterrissando estável e controlado em cada apoio. Aterrissagem firme importa mais que a altura do salto.", dose:"3x 30s"},
+      {n:"Finta parado", d:"Finja ir pra um lado — o peso engana de verdade — e saia pro outro. É transferência de peso usada como arma. Convença seu próprio corpo primeiro.", dose:"10 por lado"},
+      {n:"Passo-base do passinho", d:"O suingue de transferência ritmada, solto. Deixa o peso conversar com a batida. Quando trava ou fica duro, quase sempre é peso preso nos dois pés ao mesmo tempo.", dose:"2–3 min livre"},
+      {n:"Aplicação no esporte", d:"Leva a consciência pro treino real: no futevôlei sente a carga sair da perna no ataque; no futebol, na mudança de direção; na dança, na troca de apoio. Anota o que percebeu.", dose:"nota livre"}
+    ]
+  }
+};
+
+function EixoMeter(){
+  const trackRef=useRef(null);
+  const[pos,setPos]=useState(0.5);
+  const[stateLbl,setStateLbl]=useState('arraste o ponto');
+  const dragging=useRef(false);
+  const idle=useRef(true);
+  const sway0=useRef(performance.now());
+
+  const l=Math.round((1-pos)*100), r=100-l;
+  const centered=Math.abs(pos-0.5)<0.06;
+
+  const fromClientX=cx=>{
+    const rect=trackRef.current.getBoundingClientRect();
+    setPos(Math.max(0,Math.min(1,(cx-rect.left)/rect.width)));
+  };
+
+  useEffect(()=>{
+    const reduce=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    const onMove=e=>{ if(dragging.current) fromClientX(e.clientX); };
+    const onUp=()=>{ if(dragging.current){ dragging.current=false; setStateLbl('arraste o ponto'); } };
+    const onTMove=e=>{ if(dragging.current) fromClientX(e.touches[0].clientX); };
+    window.addEventListener('mousemove',onMove);
+    window.addEventListener('mouseup',onUp);
+    window.addEventListener('touchmove',onTMove,{passive:true});
+    window.addEventListener('touchend',onUp);
+    let raf;
+    const loop=t=>{
+      if(idle.current && !dragging.current && !reduce){
+        setPos(0.5+Math.sin((t-sway0.current)/1400)*0.16);
+      }
+      raf=requestAnimationFrame(loop);
+    };
+    if(!reduce) raf=requestAnimationFrame(loop);
+    return()=>{
+      window.removeEventListener('mousemove',onMove);
+      window.removeEventListener('mouseup',onUp);
+      window.removeEventListener('touchmove',onTMove);
+      window.removeEventListener('touchend',onUp);
+      if(raf)cancelAnimationFrame(raf);
+    };
+  },[]);
+
+  const startDrag=cx=>{ idle.current=false; dragging.current=true; setStateLbl('solte pra fixar'); fromClientX(cx); };
+  const center=()=>{
+    idle.current=false;
+    const start=pos, dur=420, t0=performance.now();
+    const anim=t=>{ const k=Math.min(1,(t-t0)/dur), e=1-Math.pow(1-k,3); setPos(start+(0.5-start)*e); if(k<1)requestAnimationFrame(anim); };
+    requestAnimationFrame(anim);
+  };
+
+  return<div className="meter">
+    <div className="meter-head"><span>Centro de gravidade</span><span className="lbl">{stateLbl}</span></div>
+    <div className="track"ref={trackRef}onMouseDown={e=>startDrag(e.clientX)}onTouchStart={e=>startDrag(e.touches[0].clientX)}>
+      <div className="base-line"></div>
+      <div className="tick"style={{left:'12.5%'}}></div>
+      <div className="tick"style={{left:'25%'}}></div>
+      <div className="tick"style={{left:'37.5%'}}></div>
+      <div className="tick center"style={{left:'50%'}}></div>
+      <div className="tick"style={{left:'62.5%'}}></div>
+      <div className="tick"style={{left:'75%'}}></div>
+      <div className="tick"style={{left:'87.5%'}}></div>
+      <div className="foot-lbl l">PÉ ESQ.</div>
+      <div className="foot-lbl r">PÉ DIR.</div>
+      <div className={"dot"+(centered?" centered":"")}style={{left:(pos*100)+'%'}}></div>
+    </div>
+    <div className="meter-read">
+      <div className="read-vals">ESQ <b>{l}%</b> &nbsp;·&nbsp; DIR <b>{r}%</b>{centered&&<span className="c"> — centrado</span>}</div>
+      <button className="btn-center"onClick={center}>centrar</button>
+    </div>
+    <p className="meter-hint">Esse é o gesto que você vai treinar: sentir onde o peso está e movê-lo de propósito. Arraste e repare como o corpo "decide" o apoio. No centro, os dois pés dividem a carga.</p>
+  </div>;
+}
+
+function EixoSection({st,setSt}){
+  const eixo=st.eixo||{sessions:[],fase:1};
+  const sessions=eixo.sessions||[];
+  const fase=eixo.fase||1;
+  const todayStr=TODAY();
+  const dStr=off=>{ const d=new Date(); d.setDate(d.getDate()-off); return localDateStr(d); };
+
+  const streak=useMemo(()=>{
+    let c=0, off=sessions.includes(todayStr)?0:1;
+    while(sessions.includes(dStr(off))){ c++; off++; }
+    return c;
+  },[sessions,todayStr]);
+
+  const setEixo=patch=>setSt(p=>({...p,eixo:{...(p.eixo||{sessions:[],fase:1}),...patch}}));
+  const toggleDay=ds=>{
+    const s=eixo.sessions||[];
+    setEixo({sessions:s.includes(ds)?s.filter(x=>x!==ds):[...s,ds]});
+  };
+
+  const done=sessions.includes(todayStr);
+  const f=EIXO_PHASES[fase];
+
+  return<div className="sec">
+   <div className="eixo">
+    <div className="wrap">
+      <header>
+        <div className="eyebrow">Protocolo de coordenação · <b>transferência de peso</b></div>
+        <h1 className="brand">EI<span>X</span>O</h1>
+        <p className="tagline">A habilidade de levar seu peso de um apoio ao outro com controle. Você não nasceu desengonçado — <em>faltou repetição com atenção</em>. Começa hoje, no dia certo. Parabéns.</p>
+        <EixoMeter/>
+      </header>
+
+      <div className="stats">
+        <div className="stat"><div className="num">{streak}</div><div className="cap">dias seguidos</div></div>
+        <div className="stat"><div className="num euca">{sessions.length}</div><div className="cap">sessões totais</div></div>
+        <div className="stat"><div className="num">{fase}</div><div className="cap">fase atual</div></div>
+      </div>
+
+      <div className="panel">
+        <div className="panel-title">Últimos 14 dias</div>
+        <div className="grid-days">
+          {Array.from({length:14},(_,idx)=>{
+            const i=13-idx, ds=dStr(i), isDone=sessions.includes(ds);
+            return<div key={ds}className={"cell"+(isDone?" done":"")+(i===0?" today":"")}title={ds}onClick={()=>toggleDay(ds)}/>;
+          })}
+        </div>
+        <div className="log-row">
+          <button className={"btn-log"+(done?" done":"")}onClick={()=>toggleDay(todayStr)}>{done?'✓ Sessão de hoje registrada':'Registrar sessão de hoje'}</button>
+          <div className="log-note">Pouco e frequente vence muito e esporádico. 5–15 min por dia já constrói a via motora.</div>
+        </div>
+      </div>
+
+      <div className="section-head">
+        <div className="kick">O treino · 3 fases</div>
+        <h2>Sentir, estabilizar,<br/>colocar em ritmo</h2>
+        <p>A ordem importa. Você não começa pela técnica do esporte — começa pela fundação que faltou. Só avança de fase quando a anterior estiver clara no corpo, não num prazo fixo.</p>
+      </div>
+
+      <div className="phase-tabs">
+        {[[1,'Consciência'],[2,'Estabilidade'],[3,'Ritmo']].map(([p,nome])=>
+          <button key={p}className={"ptab"+(fase===p?" active":"")}onClick={()=>setEixo({fase:p})}><b>Fase {p}</b> · {nome}</button>
+        )}
+      </div>
+
+      <div className="phase">
+        <div className="phase-top">
+          <div className="phase-no">{f.no}</div>
+          <div className="phase-name">{f.nome}</div>
+          <div className="phase-meta">{f.meta.map((m,i)=><span key={i}className="chip"><span className="k">{m[0]}:</span> {m[1]}</span>)}</div>
+        </div>
+        <div className="phase-foco"dangerouslySetInnerHTML={{__html:f.foco}}/>
+        <ol className="exs">
+          {f.exs.map((e,i)=><li key={i}>
+            <span className="n">{String(i+1).padStart(2,'0')}</span>
+            <div>
+              <div className="ex-name">{e.n}</div>
+              <div className="ex-det">{e.d}</div>
+              <span className="ex-dose">{e.dose}</span>
+            </div>
+          </li>)}
+        </ol>
+      </div>
+
+      <div className="rule"><b>Regra única que vale pras três fases:</b> se você está cambaleando ou compensando com o tronco/ombro, vá mais devagar. Controle vem antes de velocidade — sempre.</div>
+
+      <div className="efoot">
+        <b>EIXO</b> — protocolo de transferência de peso e propriocepção.<br/>
+        Descalço sempre que der · disco de equilíbrio entra na Fase 2 · perto de uma parede no começo.<br/>
+        Progresso não é linear: tem dia que trava e de repente destrava. É o cérebro consolidando.
+      </div>
+    </div>
+   </div>
+  </div>;
+}
+
 function App(){
   const[st,setSt]=useState(loadSt);
   const[tab,setTab]=useState('hoje');
@@ -4444,6 +4754,7 @@ function App(){
     crencas:<CrencasSection st={st}setSt={setSt}/>,
     skilltree:<SkillTreeSection st={st}setSt={setSt}/>,
     conquistas:<ConquistasSection st={st}setSt={setSt}/>,
+    eixo:<EixoSection st={st}setSt={setSt}/>,
     config:<ConfigSection st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={manualSync}/>,
   };
 
