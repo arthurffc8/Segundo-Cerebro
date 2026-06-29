@@ -277,6 +277,43 @@ button{cursor:pointer;border:none;outline:none;font-family:var(--ff);transition:
   .eixo .stats .stat:last-child{grid-column:1/-1}
   .eixo .grid-days{grid-template-columns:repeat(7,1fr)}
 }
+
+/* ===================== REELS — feed de evolução ===================== */
+.reels{display:flex;flex-direction:column;}
+.reels-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 14px 10px;}
+.reels-bar .rb-title{font-family:var(--ft);font-size:1.15rem;letter-spacing:.06em;color:var(--ac);line-height:1;}
+.reels-bar .rb-sub{font-size:.68rem;color:var(--tx2);margin-top:4px;max-width:240px;line-height:1.35;}
+.rb-stats{display:flex;gap:14px;flex-shrink:0;}
+.rb-stat{text-align:center;}
+.rb-stat b{display:block;font-family:var(--fm);font-size:1.05rem;color:var(--tx);line-height:1;}
+.rb-stat span{font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--tx3);}
+.reels-feed{overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-top:1px solid var(--bd);}
+.reels-feed::-webkit-scrollbar{display:none;}
+.reel-card{scroll-snap-align:start;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;padding:22px 20px 24px;position:relative;background:var(--card);border-bottom:1px solid var(--bd);animation:fu .25s ease;}
+.reel-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--rc) 14%,transparent) 0%,transparent 58%);}
+.reel-card>*{position:relative;z-index:1;}
+.rc-top{display:flex;justify-content:space-between;align-items:center;font-size:.66rem;}
+.rc-tree{font-family:var(--fm);letter-spacing:.06em;color:var(--rc);text-transform:uppercase;font-weight:700;}
+.rc-meta{display:flex;gap:8px;align-items:center;font-family:var(--fm);color:var(--tx3);}
+.rc-reps{color:var(--tx2);}
+.rc-nivel{border:1px solid var(--bd2);border-radius:20px;padding:2px 8px;}
+.rc-mid{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.rc-kind{font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tx2);margin-bottom:14px;}
+.rc-ai{color:var(--ac);}
+.rc-skill{font-size:.9rem;font-weight:700;color:var(--rc);margin-bottom:8px;}
+.rc-title{font-family:var(--ft);font-weight:400;font-size:clamp(2rem,8.5vw,3rem);line-height:.96;letter-spacing:.02em;text-transform:uppercase;color:var(--tx);}
+.rc-body{margin-top:14px;font-size:1.02rem;line-height:1.5;color:var(--tx2);max-width:540px;}
+.rc-actions{display:flex;gap:10px;}
+.rc-btn{font-family:var(--ff);font-weight:700;font-size:.9rem;border-radius:12px;padding:15px 12px;cursor:pointer;border:1px solid transparent;transition:transform .12s,background .2s,box-shadow .2s,color .2s;}
+.rc-do{flex:2;background:var(--rc);color:#0a0a0a;box-shadow:0 6px 18px color-mix(in srgb,var(--rc) 32%,transparent);}
+.rc-do:hover{transform:translateY(-2px);}
+.rc-do:active{transform:translateY(0);}
+.rc-done{flex:2;background:transparent;color:var(--ok);border-color:var(--ok);cursor:default;}
+.rc-skip{flex:1;background:var(--card3);color:var(--tx2);}
+.rc-skip:hover{color:var(--tx);}
+.reels-sentinel{scroll-snap-align:start;display:flex;align-items:center;justify-content:center;min-height:110px;color:var(--tx3);font-family:var(--fm);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;}
+.reels-empty{padding:48px 24px;text-align:center;color:var(--tx2);line-height:1.6;}
+.reels-empty .re-emoji{font-size:2.4rem;display:block;margin-bottom:12px;}
 </style>
 </head>
 <body>
@@ -815,6 +852,7 @@ const DEF_SKILLTREES=[
 
 const DEF_TABS=[
   {id:'hoje',label:'Hoje',emoji:'🏠',visible:true},
+  {id:'reels',label:'Reels',emoji:'🎞️',visible:true},
   {id:'tarefas',label:'Tarefas',emoji:'✅',visible:true},
   {id:'habitos',label:'Hábitos',emoji:'🔁',visible:true},
   {id:'dashboard',label:'Dashboard',emoji:'📊',visible:true},
@@ -4657,6 +4695,230 @@ function EixoSection({st,setSt}){
   </div>;
 }
 
+// ── REELS — feed de evolução de habilidades ──────────────────────────────────
+function rid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
+
+// Junta todas as skills com o contexto da árvore (paleta, emoji, nível)
+function reelsSkillPool(st){
+  const pool=[];
+  ((st.skilltree&&st.skilltree.trees)||[]).forEach(t=>{
+    const pal=treePalette(t);
+    (t.skills||[]).forEach(s=>{
+      pool.push({
+        skillId:s.id, treeId:t.id, skillNome:s.nome||'Habilidade', treeNome:t.nome||'',
+        emoji:s.emoji||t.emoji||'🎯', treeEmoji:t.emoji||'🌳', pal,
+        nivel:s.nivel||0, maxNivel:s.maxNivel||5, levels:s.levels||[],
+      });
+    });
+  });
+  return pool;
+}
+
+const REEL_TPL=[
+  {type:'acao',title:'5 min deliberados',body:s=>`Separa 5 minutos só pra ${s.skillNome.toLowerCase()}. Sem celular, atenção total no movimento. Qualidade vence quantidade — sempre.`},
+  {type:'acao',title:'10 reps conscientes',body:s=>`Faz 10 repetições de ${s.skillNome.toLowerCase()} bem devagar, sentindo cada detalhe. Repetição com atenção é o que constrói a via.`},
+  {type:'acao',title:'Isola o ponto fraco',body:s=>`Pega a parte mais difícil de ${s.skillNome.toLowerCase()} e repete só ela por 3 minutos. O ganho mora no que incomoda.`},
+  {type:'acao',title:'Grava e revisa',body:s=>`Grava 30s praticando ${s.skillNome.toLowerCase()} e assiste. De fora você enxerga o erro que não sente fazendo.`},
+  {type:'acao',title:'Ensina pra fixar',body:s=>`Explica em voz alta como se faz ${s.skillNome.toLowerCase()}, como se ensinasse alguém. Ensinar expõe o que ainda não domina.`},
+  {type:'aprendizado',title:'O próximo degrau',body:s=>`Teu próximo nível em ${s.skillNome.toLowerCase()}: ${s.next}. Visualiza fazendo isso na cabeça antes de tentar de verdade.`},
+  {type:'aprendizado',title:'Onde você está',body:s=>`Hoje teu ${s.skillNome.toLowerCase()} tá assim: ${s.cur}. Reconhecer o ponto exato já é meio caminho andado.`},
+];
+
+function reelMakeCard(s,tpl){
+  const lv=s.levels||[];
+  const maxed=s.nivel>=s.maxNivel;
+  const cur=lv[s.nivel]||'no começo dessa habilidade';
+  const next=maxed?'já domina — agora é manter afiado e ensinar':(lv[s.nivel+1]||'subir mais um nível de controle');
+  const ctx={...s,cur,next};
+  let title=tpl.title;
+  if(tpl.type==='aprendizado'&&tpl.title==='O próximo degrau'&&maxed)title='Mantém afiado';
+  return{
+    id:rid(),type:tpl.type,title,body:tpl.body(ctx),
+    skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
+    treeEmoji:s.treeEmoji,emoji:s.emoji,pal:s.pal,nivel:s.nivel,maxNivel:s.maxNivel,source:'curado',
+  };
+}
+
+// pondera skills com mais espaço pra crescer (nível baixo aparece mais)
+function reelWeighted(pool){
+  const w=[];
+  pool.forEach(s=>{const room=Math.max(1,(s.maxNivel-s.nivel)+1);for(let i=0;i<room;i++)w.push(s);});
+  return w;
+}
+function reelGenCurated(st,n){
+  const pool=reelsSkillPool(st);
+  if(!pool.length)return[];
+  const w=reelWeighted(pool);
+  const cards=[];let lastKey='';
+  for(let i=0;i<n;i++){
+    const s=w[Math.floor(Math.random()*w.length)];
+    let tpl,g=0;
+    do{tpl=REEL_TPL[Math.floor(Math.random()*REEL_TPL.length)];g++;}while(g<6&&(s.skillId+tpl.title)===lastKey);
+    lastKey=s.skillId+tpl.title;
+    cards.push(reelMakeCard(s,tpl));
+  }
+  return cards;
+}
+
+function reelPickSkills(pool,n){
+  const w=reelWeighted(pool);
+  const picks=[];const used=new Set();let g=0;
+  while(picks.length<Math.min(n,pool.length)&&g<300){
+    g++;const s=w[Math.floor(Math.random()*w.length)];
+    if(!used.has(s.skillId)){used.add(s.skillId);picks.push(s);}
+  }
+  return picks;
+}
+function reelParseJSON(raw){
+  try{const t=aiStrip(raw);const a=t.indexOf('['),b=t.lastIndexOf(']');if(a<0||b<0)return null;return JSON.parse(t.slice(a,b+1));}catch(e){return null;}
+}
+async function reelGenAI(st,n){
+  const pool=reelsSkillPool(st);
+  if(!pool.length)return[];
+  const byName={};pool.forEach(s=>{byName[s.skillNome.toLowerCase()]=s;});
+  const picks=reelPickSkills(pool,n);
+  const list=picks.map(s=>`- ${s.skillNome} (${s.treeNome}, nível ${s.nivel}/${s.maxNivel}; próximo: ${(s.levels&&s.levels[s.nivel+1])||'dominar e ensinar'})`).join('\n');
+  const prompt=`Estas são habilidades minhas que quero evoluir:\n${list}\n\nPara cada uma, crie 1 card curtíssimo estilo "reels": ou uma MICRO-AÇÃO prática que dá pra fazer em 1 a 5 minutos hoje, ou uma MICRO-APRENDIZAGEM (insight rápido e específico). Varie entre os dois tipos. Responda APENAS um array JSON válido, nada fora dele:\n[{"skill":"nome exato da habilidade","type":"acao ou aprendizado","title":"até 4 palavras","body":"1 a 2 frases, máximo 200 caracteres, direto e prático"}]`;
+  let raw;
+  try{raw=await aiCall(AI_SYS_MALANDRO,prompt,1000);}catch(e){return[];}
+  const arr=reelParseJSON(raw);
+  if(!Array.isArray(arr))return[];
+  const out=[];
+  arr.forEach(o=>{
+    if(!o||!o.skill||!o.body)return;
+    const key=String(o.skill).toLowerCase();
+    const s=byName[key]||picks.find(p=>p.skillNome.toLowerCase().includes(key)||key.includes(p.skillNome.toLowerCase()));
+    if(!s)return;
+    out.push({
+      id:rid(),type:o.type==='aprendizado'?'aprendizado':'acao',
+      title:String(o.title||'Micro-passo').slice(0,42),body:String(o.body).slice(0,260),
+      skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
+      treeEmoji:s.treeEmoji,emoji:s.emoji,pal:s.pal,nivel:s.nivel,maxNivel:s.maxNivel,source:'ia',
+    });
+  });
+  return out;
+}
+
+function ReelCard({card,reps,onDone}){
+  const[done,setDone]=useState(false);
+  const advance=el=>{const nx=el&&el.nextElementSibling;if(nx&&nx.classList.contains('reel-card'))nx.scrollIntoView({behavior:'smooth',block:'start'});};
+  return<section className="reel-card"style={{'--rc':card.pal.d}}>
+    <div className="rc-top">
+      <span className="rc-tree">{card.treeEmoji} {card.treeNome}</span>
+      <span className="rc-meta">
+        <span className="rc-nivel">nv {card.nivel}/{card.maxNivel}</span>
+        <span className="rc-reps">{reps>0?`◉ ${reps} prática${reps>1?'s':''}`:'nova'}</span>
+      </span>
+    </div>
+    <div className="rc-mid">
+      <div className="rc-kind">{card.type==='acao'?'⚡ Micro-ação':'🧠 Micro-aprendizado'}{card.source==='ia'&&<span className="rc-ai"> · ✨ IA</span>}</div>
+      <div className="rc-skill">{card.emoji} {card.skillNome}</div>
+      <h3 className="rc-title">{card.title}</h3>
+      <p className="rc-body">{card.body}</p>
+    </div>
+    <div className="rc-actions">
+      {done
+        ?<button className="rc-btn rc-done"disabled>✓ Prática registrada</button>
+        :<button className="rc-btn rc-do"onClick={e=>{onDone(card);setDone(true);advance(e.currentTarget.closest('.reel-card'));}}>✓ Feito</button>}
+      <button className="rc-btn rc-skip"onClick={e=>{advance(e.currentTarget.closest('.reel-card'));}}>Pular ↑</button>
+    </div>
+  </section>;
+}
+
+function ReelsSection({st,setSt}){
+  const reels=st.reels||{done:[]};
+  const done=reels.done||[];
+  const today=TODAY();
+  const todayCount=done.filter(d=>d.date===today).length;
+  const totalReps=done.length;
+  const repsBySkill=useMemo(()=>{const m={};done.forEach(d=>{m[d.skillId]=(m[d.skillId]||0)+1;});return m;},[done]);
+  const streak=useMemo(()=>{
+    const days=new Set(done.map(d=>d.date));
+    let c=0,off=days.has(today)?0:1;
+    const dStr=o=>{const d=new Date();d.setDate(d.getDate()-o);return localDateStr(d);};
+    while(days.has(dStr(off))){c++;off++;}
+    return c;
+  },[done,today]);
+
+  const pool=useMemo(()=>reelsSkillPool(st),[st.skilltree]);
+  const hasSkills=pool.length>0;
+  const[cards,setCards]=useState(()=>reelGenCurated(st,8));
+  const[aiBusy,setAiBusy]=useState(false);
+  const feedRef=useRef(null);
+  const sentinelRef=useRef(null);
+  const[feedH,setFeedH]=useState('70vh');
+
+  // altura do feed = espaço restante abaixo da navbar/barra
+  useEffect(()=>{
+    const calc=()=>{if(feedRef.current){const top=feedRef.current.getBoundingClientRect().top;setFeedH(Math.max(320,window.innerHeight-top-8)+'px');}};
+    calc();window.addEventListener('resize',calc);
+    return()=>window.removeEventListener('resize',calc);
+  },[]);
+
+  // primeira leva da IA (se configurada) — vem na frente
+  useEffect(()=>{
+    if(!hasSkills||!aiReady())return;
+    let cancel=false;setAiBusy(true);
+    reelGenAI(st,6).then(ai=>{if(!cancel&&ai.length)setCards(c=>[...ai,...c]);}).catch(()=>{}).finally(()=>{if(!cancel)setAiBusy(false);});
+    return()=>{cancel=true;};
+  },[]);
+
+  const loadMore=useCallback(async()=>{
+    if(!hasSkills)return;
+    if(aiReady()){
+      setAiBusy(true);
+      try{const ai=await reelGenAI(st,5);setCards(c=>[...c,...(ai.length?ai:reelGenCurated(st,6))]);}
+      catch(e){setCards(c=>[...c,...reelGenCurated(st,6)]);}
+      finally{setAiBusy(false);}
+    }else{
+      setCards(c=>[...c,...reelGenCurated(st,6)]);
+    }
+  },[st,hasSkills]);
+
+  // scroll infinito
+  useEffect(()=>{
+    const el=sentinelRef.current,root=feedRef.current;
+    if(!el||!root)return;
+    const io=new IntersectionObserver(es=>{if(es[0].isIntersecting)loadMore();},{root,rootMargin:'500px'});
+    io.observe(el);
+    return()=>io.disconnect();
+  },[loadMore]);
+
+  const markDone=card=>{
+    setSt(p=>{
+      const r=p.reels||{done:[]};
+      const entry={id:card.id,skillId:card.skillId,treeId:card.treeId,type:card.type,title:card.title,date:TODAY(),ts:Date.now()};
+      return{...p,reels:{...r,done:[...(r.done||[]),entry]}};
+    });
+  };
+
+  if(!hasSkills){
+    return<div className="sec"><div className="reels-empty">
+      <span className="re-emoji">🌳</span>
+      Você ainda não tem habilidades na <b>Skill Tree</b>.<br/>
+      Crie suas árvores e skills lá primeiro — os Reels nascem delas.
+    </div></div>;
+  }
+
+  return<div className="reels">
+    <div className="reels-bar">
+      <div>
+        <div className="rb-title">REELS DE EVOLUÇÃO</div>
+        <div className="rb-sub">Role pra cima. Cada card é um micro-passo numa habilidade sua.</div>
+      </div>
+      <div className="rb-stats">
+        <div className="rb-stat"><b>{todayCount}</b><span>hoje</span></div>
+        <div className="rb-stat"><b>{streak}</b><span>dias</span></div>
+        <div className="rb-stat"><b>{totalReps}</b><span>total</span></div>
+      </div>
+    </div>
+    <div className="reels-feed"ref={feedRef}style={{height:feedH}}>
+      {cards.map(card=><ReelCard key={card.id}card={card}reps={repsBySkill[card.skillId]||0}onDone={markDone}/>)}
+      <div className="reels-sentinel"ref={sentinelRef}>{aiBusy?'✨ gerando mais…':'carregando mais…'}</div>
+    </div>
+  </div>;
+}
+
 function App(){
   const[st,setSt]=useState(loadSt);
   const[tab,setTab]=useState('hoje');
@@ -4744,6 +5006,7 @@ function App(){
 
   const sections={
     hoje:<HojeSection st={st}setSt={setSt}/>,
+    reels:<ReelsSection st={st}setSt={setSt}/>,
     tarefas:<TarefasSection st={st}setSt={setSt}/>,
     habitos:<HabitosSection st={st}setSt={setSt}/>,
     dashboard:<DashboardSection st={st}setSt={setSt}/>,
