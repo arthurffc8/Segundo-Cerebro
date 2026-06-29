@@ -4774,21 +4774,25 @@ function reelsSkillPool(st,treeId){
   return pool;
 }
 
+// Cards feitos pra fazer AGORA, onde você estiver — só mente e atenção (nada físico)
 const REEL_TPL=[
-  {type:'acao',title:'5 min deliberados',body:s=>`Separa 5 minutos só pra ${s.skillNome.toLowerCase()}. Sem celular, atenção total no movimento. Qualidade vence quantidade — sempre.`},
-  {type:'acao',title:'10 reps conscientes',body:s=>`Faz 10 repetições de ${s.skillNome.toLowerCase()} bem devagar, sentindo cada detalhe. Repetição com atenção é o que constrói a via.`},
-  {type:'acao',title:'Isola o ponto fraco',body:s=>`Pega a parte mais difícil de ${s.skillNome.toLowerCase()} e repete só ela por 3 minutos. O ganho mora no que incomoda.`},
-  {type:'acao',title:'Grava e revisa',body:s=>`Grava 30s praticando ${s.skillNome.toLowerCase()} e assiste. De fora você enxerga o erro que não sente fazendo.`},
-  {type:'acao',title:'Ensina pra fixar',body:s=>`Explica em voz alta como se faz ${s.skillNome.toLowerCase()}, como se ensinasse alguém. Ensinar expõe o que ainda não domina.`},
-  {type:'aprendizado',title:'O próximo degrau',body:s=>`Teu próximo nível em ${s.skillNome.toLowerCase()}: ${s.next}. Visualiza fazendo isso na cabeça antes de tentar de verdade.`},
-  {type:'aprendizado',title:'Onde você está',body:s=>`Hoje teu ${s.skillNome.toLowerCase()} tá assim: ${s.cur}. Reconhecer o ponto exato já é meio caminho andado.`},
+  {type:'acao',title:'Filme mental',body:s=>`Fecha os olhos 30s e se assiste fazendo ${s.skillNome.toLowerCase()} perfeito, em câmera lenta. Repara no detalhe, não só no resultado.`},
+  {type:'acao',title:'Ensaio em 1ª pessoa',body:s=>`Imagina ${s.skillNome.toLowerCase()} pelos teus próprios olhos — sente o movimento no corpo, não de fora. Repete 3x na mente, aí onde você tá.`},
+  {type:'acao',title:'Contraste mental',body:s=>`Imagina errando ${s.skillNome.toLowerCase()} feio. Agora imagina acertando redondo. Sente a diferença no corpo — é ela que você vai buscar.`},
+  {type:'acao',title:'Decupa o gesto',body:s=>`Na cabeça, quebra ${s.skillNome.toLowerCase()} em 3 micro-passos e nomeia cada um. O que o cérebro nomeia, ele passa a controlar.`},
+  {type:'acao',title:'Mira o próximo nível',body:s=>`Teu próximo degrau: ${s.next}. Fecha os olhos e se vê já nesse nível por 20s, como se fosse a coisa mais natural.`},
+  {type:'acao',title:'Revive a sensação',body:s=>`Lembra da última vez que ${s.skillNome.toLowerCase()} saiu redondo. Revive a sensação no corpo agora — a memória do acerto também treina.`},
+  {type:'acao',title:'Caça o gatilho',body:s=>`Na mente, acha o instante exato em que ${s.skillNome.toLowerCase()} começa. Ensaia perceber esse gatilho — metade do acerto é ler o momento.`},
+  {type:'aprendizado',title:'Onde você está',body:s=>`Hoje teu ${s.skillNome.toLowerCase()} tá: ${s.cur}. Reconhecer o ponto exato, sem se enganar, já move a agulha.`},
+  {type:'aprendizado',title:'Auto-explica',body:s=>`Explica ${s.skillNome.toLowerCase()} em silêncio pra você mesmo, como se ensinasse alguém. Onde a explicação travar é o que ainda falta dominar.`},
 ];
 
+function reelClean(t){return String(t||'').replace(/[.\s]+$/,'');}
 function reelMakeCard(s,tpl){
   const lv=s.levels||[];
   const maxed=s.nivel>=s.maxNivel;
-  const cur=lv[s.nivel]||'no começo dessa habilidade';
-  const next=maxed?'já domina — agora é manter afiado e ensinar':(lv[s.nivel+1]||'subir mais um nível de controle');
+  const cur=reelClean(lv[s.nivel]||'no começo dessa habilidade');
+  const next=maxed?'já domina — agora é manter afiado e ensinar':reelClean(lv[s.nivel+1]||'subir mais um nível de controle');
   const ctx={...s,cur,next};
   let title=tpl.title;
   if(tpl.type==='aprendizado'&&tpl.title==='O próximo degrau'&&maxed)title='Mantém afiado';
@@ -4838,7 +4842,7 @@ async function reelGenAI(st,n,treeId){
   const byName={};pool.forEach(s=>{byName[s.skillNome.toLowerCase()]=s;});
   const picks=reelPickSkills(pool,n);
   const list=picks.map(s=>`- ${s.skillNome} (${s.treeNome}, nível ${s.nivel}/${s.maxNivel}; próximo: ${(s.levels&&s.levels[s.nivel+1])||'dominar e ensinar'})`).join('\n');
-  const prompt=`Estas são habilidades minhas que quero evoluir:\n${list}\n\nPara cada uma, crie 1 card curtíssimo estilo "reels": ou uma MICRO-AÇÃO prática que dá pra fazer em 1 a 5 minutos hoje, ou uma MICRO-APRENDIZAGEM (insight rápido e específico). Varie entre os dois tipos. Responda APENAS um array JSON válido, nada fora dele:\n[{"skill":"nome exato da habilidade","type":"acao ou aprendizado","title":"até 4 palavras","body":"1 a 2 frases, máximo 200 caracteres, direto e prático"}]`;
+  const prompt=`Estas são habilidades minhas que quero evoluir:\n${list}\n\nQuero cards estilo "reels" que eu consiga fazer AGORA MESMO, em qualquer lugar (sentado, no ônibus, na fila), só com a mente e o celular. Para cada habilidade crie 1 card: ou uma MENTALIZAÇÃO/VISUALIZAÇÃO curta (filme mental em câmera lenta, ensaio em 1ª pessoa, contraste mental acerto-vs-erro, reviver a sensação do acerto, caçar o gatilho do gesto) — tipo "acao"; ou uma SACADA rápida (insight específico que eu reconheço na hora) — tipo "aprendizado". NUNCA peça prática física que precise de bola, espaço, equipamento, gravar vídeo ou suar. Responda APENAS um array JSON válido, nada fora dele:\n[{"skill":"nome exato da habilidade","type":"acao ou aprendizado","title":"até 4 palavras","body":"1 a 2 frases, máximo 200 caracteres, no imperativo, algo pra fazer na hora só com a mente"}]`;
   let raw;
   try{raw=await aiCall(AI_SYS_MALANDRO,prompt,1000);}catch(e){return[];}
   const arr=reelParseJSON(raw);
@@ -4876,7 +4880,7 @@ function reelStorySegments(tree){
     const lv=s.levels||[],nivel=s.nivel||0,maxNivel=s.maxNivel||5,maxed=nivel>=maxNivel;
     return{
       skill:s,skillNome:s.nome||'Habilidade',emoji:s.emoji||tree.emoji,nivel,maxNivel,maxed,
-      cur:lv[nivel]||'no começo',next:maxed?'manter afiado e ensinar':(lv[nivel+1]||'subir mais um nível'),
+      cur:reelClean(lv[nivel]||'no começo'),next:maxed?'manter afiado e ensinar':reelClean(lv[nivel+1]||'subir mais um nível'),
     };
   });
 }
@@ -4892,7 +4896,7 @@ function ReelCard({card,reps,done,onDone,onTrain}){
       </span>
     </div>
     <div className="rc-mid">
-      <div className="rc-kind">{card.type==='acao'?'⚡ Micro-ação':'🧠 Micro-aprendizado'}{card.source==='ia'&&<span className="rc-ai"> · ✨ IA</span>}</div>
+      <div className="rc-kind">{card.type==='acao'?'🧠 Mentalize agora':'💡 Sacada rápida'}{card.source==='ia'&&<span className="rc-ai"> · ✨ IA</span>}</div>
       <div className="rc-skill">{card.emoji} {card.skillNome}</div>
       <h3 className="rc-title">{card.title}</h3>
       <p className="rc-body">{card.body}</p>
@@ -4968,10 +4972,10 @@ function ReelTrainer({target,onClose,onComplete}){
     const nome=(target.skillNome||'a habilidade').toLowerCase();
     const next=target.next||'dominar com naturalidade';
     return[
-      {label:'Prepara',dur:5,inst:`Fica numa posição confortável e solta os ombros. Bora treinar ${nome}.`},
-      {label:'Visualiza',dur:25,inst:`Fecha os olhos e se vê executando ${nome} com perfeição: ${next}. Repete na mente, em câmera lenta.`},
-      {label:'Executa',dur:45,inst:`Agora faz de verdade — devagar e com atenção total. Cada repetição com foco vale por dez no automático.`},
-      {label:'Consolida',dur:10,inst:`Repara no que mudou, mesmo um detalhe. É o cérebro gravando a via nova.`},
+      {label:'Prepara',dur:5,inst:`Fecha os olhos, respira fundo e solta os ombros. Não precisa de espaço nenhum — é tudo na mente. Bora com ${nome}.`},
+      {label:'Visualiza',dur:25,inst:`Se vê fazendo ${nome} com perfeição, de fora, em câmera lenta: ${next}. Repara em cada detalhe do gesto.`},
+      {label:'Ensaia',dur:45,inst:`Agora pela tua própria visão: repete ${nome} na mente em 1ª pessoa, sentindo o movimento no corpo. Quantas repetições conseguir — sem sair do lugar.`},
+      {label:'Consolida',dur:10,inst:`Repara na sensação que ficou, mesmo um detalhe. É o cérebro gravando a via nova só com a imaginação.`},
     ];
   },[target]);
   const[pi,setPi]=useState(0);
