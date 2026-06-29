@@ -314,6 +314,65 @@ button{cursor:pointer;border:none;outline:none;font-family:var(--ff);transition:
 .reels-sentinel{scroll-snap-align:start;display:flex;align-items:center;justify-content:center;min-height:110px;color:var(--tx3);font-family:var(--fm);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;}
 .reels-empty{padding:48px 24px;text-align:center;color:var(--tx2);line-height:1.6;}
 .reels-empty .re-emoji{font-size:2.4rem;display:block;margin-bottom:12px;}
+/* card: ação primária Treinar + secundárias */
+.rc-train{width:100%;background:var(--rc);color:#0a0a0a;font-size:1rem;box-shadow:0 6px 18px color-mix(in srgb,var(--rc) 32%,transparent);}
+.rc-train:hover{transform:translateY(-2px);}
+.rc-train:active{transform:translateY(0);}
+.rc-sub{gap:10px;}
+.rc-do2{flex:2;background:var(--card3);color:var(--tx);border:1px solid var(--bd2);}
+.rc-do2:hover{color:#fff;border-color:var(--rc);}
+/* stories */
+.stories-row{display:flex;gap:13px;overflow-x:auto;scrollbar-width:none;padding:12px 14px 4px;}
+.stories-row::-webkit-scrollbar{display:none;}
+.story{display:flex;flex-direction:column;align-items:center;gap:6px;background:none;border:none;cursor:pointer;flex-shrink:0;width:66px;}
+.story-ring{width:60px;height:60px;border-radius:50%;padding:2.5px;background:conic-gradient(from 210deg,var(--rc),var(--rc2,var(--rc)),var(--rc));display:flex;align-items:center;justify-content:center;transition:transform .15s;}
+.story:hover .story-ring{transform:scale(1.06);}
+.story.seen .story-ring{background:var(--bd3);}
+.story-emoji{width:100%;height:100%;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:1.5rem;border:2px solid var(--bg);}
+.story-name{font-size:.6rem;color:var(--tx2);max-width:64px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-align:center;}
+/* filtros de categoria */
+.reel-filters{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:2px 14px 10px;}
+.reel-filters::-webkit-scrollbar{display:none;}
+.rfil{flex-shrink:0;font-family:var(--ff);font-size:.74rem;font-weight:600;color:var(--tx2);background:var(--card2);border:1px solid var(--bd2);border-radius:30px;padding:7px 13px;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.rfil:hover{color:var(--tx);}
+.rfil.on{color:#0a0a0a;background:var(--rc,var(--ac));border-color:transparent;}
+/* visualizador de stories */
+.sview{position:fixed;inset:0;z-index:600;background:var(--bg);display:flex;flex-direction:column;animation:fi .2s ease;}
+.sview-bars{display:flex;gap:4px;padding:12px 12px 6px;}
+.sview-bar{flex:1;height:3px;border-radius:3px;background:rgba(255,255,255,.22);overflow:hidden;}
+.sview-bar i{display:block;height:100%;background:#fff;width:0;}
+.sview-head{display:flex;align-items:center;gap:10px;padding:6px 14px 0;}
+.sview-emoji{width:34px;height:34px;border-radius:50%;background:var(--card2);display:flex;align-items:center;justify-content:center;font-size:1.1rem;border:2px solid var(--sc);}
+.sview-tname{font-weight:700;font-size:.9rem;color:var(--tx);line-height:1.2;}
+.sview-tname span{display:block;font-size:.62rem;color:var(--tx3);font-weight:400;}
+.sview-x{margin-left:auto;background:none;border:none;color:var(--tx2);font-size:1.3rem;cursor:pointer;padding:4px 8px;}
+.sview-body{flex:1;display:flex;flex-direction:column;justify-content:center;padding:24px 26px;position:relative;cursor:pointer;}
+.sview-body::before{content:"";position:absolute;inset:0;background:radial-gradient(100% 60% at 50% 32%,color-mix(in srgb,var(--sc) 22%,transparent),transparent 70%);pointer-events:none;}
+.sview-body>*{position:relative;}
+.sview-kind{font-family:var(--fm);font-size:.64rem;letter-spacing:.16em;text-transform:uppercase;color:var(--sc);margin-bottom:10px;}
+.sview-skill{font-family:var(--ft);font-size:clamp(2.2rem,10vw,3.4rem);line-height:1;text-transform:uppercase;color:var(--tx);margin-bottom:6px;}
+.sview-nivel{font-family:var(--fm);font-size:.72rem;color:var(--tx2);margin-bottom:18px;}
+.sview-text{font-size:1.1rem;line-height:1.5;color:var(--tx);max-width:560px;}
+.sview-text b{color:var(--sc);}
+.sview-cta{display:flex;gap:10px;padding:0 26px 26px;}
+.sview-train{flex:1;font-family:var(--ff);font-weight:700;font-size:1rem;background:var(--sc);color:#0a0a0a;border:none;border-radius:12px;padding:15px;cursor:pointer;}
+.sview-next{font-family:var(--ff);font-weight:600;background:transparent;color:var(--tx2);border:1px solid var(--bd2);border-radius:12px;padding:15px 18px;cursor:pointer;}
+.sview-next:hover{color:var(--tx);}
+/* treino guiado */
+.trn{position:fixed;inset:0;z-index:610;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 28px;text-align:center;animation:fi .2s ease;}
+.trn-x{position:absolute;top:14px;right:16px;background:none;border:none;color:var(--tx2);font-size:1.4rem;cursor:pointer;}
+.trn-skill{font-family:var(--fm);font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--tc);}
+.trn-ring{position:relative;width:200px;height:200px;}
+.trn-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.trn-num b{font-family:var(--fm);font-size:2.6rem;color:var(--tx);line-height:1;}
+.trn-num span{font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx3);margin-top:4px;}
+.trn-phase{font-family:var(--ft);font-size:2rem;letter-spacing:.04em;text-transform:uppercase;color:var(--tc);}
+.trn-inst{font-size:1.05rem;line-height:1.55;color:var(--tx2);max-width:440px;}
+.trn-ctrl{display:flex;gap:10px;margin-top:4px;}
+.trn-btn{font-family:var(--ff);font-weight:700;font-size:.9rem;border-radius:12px;padding:13px 20px;cursor:pointer;border:1px solid var(--bd2);background:var(--card2);color:var(--tx);}
+.trn-btn:hover{border-color:var(--tc);}
+.trn-btn.main{background:var(--tc);color:#0a0a0a;border-color:transparent;}
+.trn-done{font-family:var(--ft);font-size:2.4rem;color:var(--ok);letter-spacing:.04em;}
 </style>
 </head>
 <body>
@@ -4699,9 +4758,10 @@ function EixoSection({st,setSt}){
 function rid(){return 'r'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);}
 
 // Junta todas as skills com o contexto da árvore (paleta, emoji, nível)
-function reelsSkillPool(st){
+function reelsSkillPool(st,treeId){
   const pool=[];
   ((st.skilltree&&st.skilltree.trees)||[]).forEach(t=>{
+    if(treeId&&treeId!=='all'&&t.id!==treeId)return;
     const pal=treePalette(t);
     (t.skills||[]).forEach(s=>{
       pool.push({
@@ -4733,7 +4793,7 @@ function reelMakeCard(s,tpl){
   let title=tpl.title;
   if(tpl.type==='aprendizado'&&tpl.title==='O próximo degrau'&&maxed)title='Mantém afiado';
   return{
-    id:rid(),type:tpl.type,title,body:tpl.body(ctx),
+    id:rid(),type:tpl.type,title,body:tpl.body(ctx),next,
     skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
     treeEmoji:s.treeEmoji,emoji:s.emoji,pal:s.pal,nivel:s.nivel,maxNivel:s.maxNivel,source:'curado',
   };
@@ -4745,8 +4805,8 @@ function reelWeighted(pool){
   pool.forEach(s=>{const room=Math.max(1,(s.maxNivel-s.nivel)+1);for(let i=0;i<room;i++)w.push(s);});
   return w;
 }
-function reelGenCurated(st,n){
-  const pool=reelsSkillPool(st);
+function reelGenCurated(st,n,treeId){
+  const pool=reelsSkillPool(st,treeId);
   if(!pool.length)return[];
   const w=reelWeighted(pool);
   const cards=[];let lastKey='';
@@ -4772,8 +4832,8 @@ function reelPickSkills(pool,n){
 function reelParseJSON(raw){
   try{const t=aiStrip(raw);const a=t.indexOf('['),b=t.lastIndexOf(']');if(a<0||b<0)return null;return JSON.parse(t.slice(a,b+1));}catch(e){return null;}
 }
-async function reelGenAI(st,n){
-  const pool=reelsSkillPool(st);
+async function reelGenAI(st,n,treeId){
+  const pool=reelsSkillPool(st,treeId);
   if(!pool.length)return[];
   const byName={};pool.forEach(s=>{byName[s.skillNome.toLowerCase()]=s;});
   const picks=reelPickSkills(pool,n);
@@ -4792,6 +4852,7 @@ async function reelGenAI(st,n){
     out.push({
       id:rid(),type:o.type==='aprendizado'?'aprendizado':'acao',
       title:String(o.title||'Micro-passo').slice(0,42),body:String(o.body).slice(0,260),
+      next:(s.levels&&s.levels[s.nivel+1])||'dominar e ensinar',
       skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
       treeEmoji:s.treeEmoji,emoji:s.emoji,pal:s.pal,nivel:s.nivel,maxNivel:s.maxNivel,source:'ia',
     });
@@ -4799,8 +4860,28 @@ async function reelGenAI(st,n){
   return out;
 }
 
-function ReelCard({card,reps,onDone}){
-  const[done,setDone]=useState(false);
+// Árvores (categorias) com nível agregado, pra stories e filtros
+function reelsTrees(st){
+  return((st.skilltree&&st.skilltree.trees)||[]).filter(t=>(t.skills||[]).length).map(t=>{
+    const skills=t.skills||[];
+    const lvl=skills.reduce((a,s)=>a+Math.min(s.nivel||0,s.maxNivel||1),0);
+    const mx=skills.reduce((a,s)=>a+(s.maxNivel||1),0);
+    return{id:t.id,nome:t.nome||'Árvore',emoji:t.emoji||'🌳',pal:treePalette(t),skills,lvl,mx};
+  });
+}
+// Segmentos de um story: skills da árvore priorizando as de nível mais baixo
+function reelStorySegments(tree){
+  const skills=(tree.skills||[]).slice().sort((a,b)=>(((a.nivel||0)-(a.maxNivel||5))-((b.nivel||0)-(b.maxNivel||5))));
+  return skills.slice(0,6).map(s=>{
+    const lv=s.levels||[],nivel=s.nivel||0,maxNivel=s.maxNivel||5,maxed=nivel>=maxNivel;
+    return{
+      skill:s,skillNome:s.nome||'Habilidade',emoji:s.emoji||tree.emoji,nivel,maxNivel,maxed,
+      cur:lv[nivel]||'no começo',next:maxed?'manter afiado e ensinar':(lv[nivel+1]||'subir mais um nível'),
+    };
+  });
+}
+
+function ReelCard({card,reps,done,onDone,onTrain}){
   const advance=el=>{const nx=el&&el.nextElementSibling;if(nx&&nx.classList.contains('reel-card'))nx.scrollIntoView({behavior:'smooth',block:'start'});};
   return<section className="reel-card"style={{'--rc':card.pal.d}}>
     <div className="rc-top">
@@ -4817,12 +4898,119 @@ function ReelCard({card,reps,onDone}){
       <p className="rc-body">{card.body}</p>
     </div>
     <div className="rc-actions">
+      <button className="rc-btn rc-train"onClick={()=>onTrain(card)}>▶ Treinar agora</button>
+    </div>
+    <div className="rc-actions rc-sub">
       {done
-        ?<button className="rc-btn rc-done"disabled>✓ Prática registrada</button>
-        :<button className="rc-btn rc-do"onClick={e=>{onDone(card);setDone(true);advance(e.currentTarget.closest('.reel-card'));}}>✓ Feito</button>}
+        ?<button className="rc-btn rc-done"disabled>✓ Registrado</button>
+        :<button className="rc-btn rc-do2"onClick={e=>{onDone(card);advance(e.currentTarget.closest('.reel-card'));}}>✓ Já fiz</button>}
       <button className="rc-btn rc-skip"onClick={e=>{advance(e.currentTarget.closest('.reel-card'));}}>Pular ↑</button>
     </div>
   </section>;
+}
+
+// Linha de stories (estilo Instagram) — uma bolinha por árvore de skill
+function ReelStories({trees,seen,onOpen}){
+  return<div className="stories-row">
+    {trees.map(t=><button key={t.id}className={"story"+(seen.includes(t.id)?" seen":"")}style={{'--rc':t.pal.d,'--rc2':t.pal.s}}onClick={()=>onOpen(t)}>
+      <span className="story-ring"><span className="story-emoji">{t.emoji}</span></span>
+      <span className="story-name">{t.nome}</span>
+    </button>)}
+  </div>;
+}
+
+// Visualizador de stories fullscreen — barras de progresso, auto-avanço, toque
+function ReelStoryViewer({tree,segments,onClose,onTrain,onSeen}){
+  const DUR=6000;
+  const segs=segments.length?segments:[{skillNome:tree.nome,emoji:tree.emoji,nivel:0,maxNivel:0,next:'',cur:'',maxed:false}];
+  const[idx,setIdx]=useState(0);
+  const[prog,setProg]=useState(0);
+  const[paused,setPaused]=useState(false);
+  const seg=segs[Math.min(idx,segs.length-1)];
+  const finish=useCallback(()=>{onSeen&&onSeen(tree.id);onClose&&onClose();},[onSeen,onClose,tree.id]);
+  const next=useCallback(()=>{setIdx(i=>{if(i+1>=segs.length){Promise.resolve().then(finish);return i;}return i+1;});},[segs.length,finish]);
+  const prev=()=>setIdx(i=>Math.max(0,i-1));
+  useEffect(()=>{setProg(0);},[idx]);
+  useEffect(()=>{
+    if(paused)return;
+    const STEP=50,inc=STEP/DUR;
+    const iv=setInterval(()=>{setProg(p=>{const np=p+inc;if(np>=1){clearInterval(iv);Promise.resolve().then(next);return 1;}return np;});},STEP);
+    return()=>clearInterval(iv);
+  },[idx,paused,next]);
+  const onBody=e=>{const x=e.clientX,w=window.innerWidth||360;if(x<w*0.32)prev();else next();};
+  return<div className="sview"style={{'--sc':tree.pal.d}}>
+    <div className="sview-bars">
+      {segs.map((s,i)=><div key={i}className="sview-bar"><i style={{width:(i<idx?100:i===idx?prog*100:0)+'%'}}/></div>)}
+    </div>
+    <div className="sview-head">
+      <span className="sview-emoji">{tree.emoji}</span>
+      <span className="sview-tname">{tree.nome}<span>árvore {tree.lvl||0}/{tree.mx||0}</span></span>
+      <button className="sview-x"onClick={onClose}>✕</button>
+    </div>
+    <div className="sview-body"onClick={onBody}>
+      <div className="sview-kind">{seg.maxed?'🏅 Dominado':'🎯 Próximo passo'}</div>
+      <div className="sview-skill">{seg.emoji} {seg.skillNome}</div>
+      <div className="sview-nivel">nível {seg.nivel}/{seg.maxNivel}</div>
+      <div className="sview-text">{seg.maxed
+        ?<>Você já domina <b>{seg.skillNome.toLowerCase()}</b>. Agora é manter afiado e ensinar — ensinar consolida.</>
+        :<>Pra subir de nível em <b>{seg.skillNome.toLowerCase()}</b>: {seg.next}</>}</div>
+    </div>
+    <div className="sview-cta">
+      <button className="sview-train"onClick={e=>{e.stopPropagation();onTrain(seg);}}>▶ Treinar essa</button>
+      <button className="sview-next"onClick={e=>{e.stopPropagation();next();}}>Próximo ›</button>
+    </div>
+  </div>;
+}
+
+// Treino guiado no celular — visualização + execução cronometrada
+function ReelTrainer({target,onClose,onComplete}){
+  const PHASES=useMemo(()=>{
+    const nome=(target.skillNome||'a habilidade').toLowerCase();
+    const next=target.next||'dominar com naturalidade';
+    return[
+      {label:'Prepara',dur:5,inst:`Fica numa posição confortável e solta os ombros. Bora treinar ${nome}.`},
+      {label:'Visualiza',dur:25,inst:`Fecha os olhos e se vê executando ${nome} com perfeição: ${next}. Repete na mente, em câmera lenta.`},
+      {label:'Executa',dur:45,inst:`Agora faz de verdade — devagar e com atenção total. Cada repetição com foco vale por dez no automático.`},
+      {label:'Consolida',dur:10,inst:`Repara no que mudou, mesmo um detalhe. É o cérebro gravando a via nova.`},
+    ];
+  },[target]);
+  const[pi,setPi]=useState(0);
+  const[left,setLeft]=useState(PHASES[0].dur);
+  const[paused,setPaused]=useState(false);
+  const[finished,setFinished]=useState(false);
+  const fired=useRef(false);
+  useEffect(()=>{setLeft(PHASES[pi].dur);},[pi,PHASES]);
+  useEffect(()=>{
+    if(paused||finished)return;
+    const iv=setInterval(()=>{setLeft(s=>{if(s<=1){clearInterval(iv);if(pi+1>=PHASES.length)setFinished(true);else setPi(p=>p+1);return 0;}return s-1;});},1000);
+    return()=>clearInterval(iv);
+  },[pi,paused,finished,PHASES]);
+  useEffect(()=>{if(finished&&!fired.current){fired.current=true;onComplete&&onComplete(target);}},[finished,onComplete,target]);
+  const cur=PHASES[pi],frac=cur?left/cur.dur:0,R=90,C=2*Math.PI*R;
+  return<div className="trn"style={{'--tc':target.pal?target.pal.d:'var(--ac)'}}>
+    <button className="trn-x"onClick={onClose}>✕</button>
+    {finished?<>
+      <div className="trn-skill">{target.emoji} {target.skillNome}</div>
+      <div className="trn-done">✓ Treino concluído</div>
+      <div className="trn-inst">Prática registrada. Pouco e frequente — você acabou de reforçar a via motora dessa habilidade.</div>
+      <button className="trn-btn main"onClick={onClose}>Voltar ao feed</button>
+    </>:<>
+      <div className="trn-skill">{target.emoji} {target.skillNome}</div>
+      <div className="trn-ring">
+        <svg width="200"height="200">
+          <circle cx="100"cy="100"r={R}fill="none"stroke="var(--bd)"strokeWidth="8"/>
+          <circle cx="100"cy="100"r={R}fill="none"stroke="var(--tc)"strokeWidth="8"strokeLinecap="round"strokeDasharray={C}strokeDashoffset={C*(1-frac)}style={{transition:'stroke-dashoffset 1s linear'}}/>
+        </svg>
+        <div className="trn-num"><b>{left}</b><span>seg</span></div>
+      </div>
+      <div className="trn-phase">{cur.label}</div>
+      <div className="trn-inst">{cur.inst}</div>
+      <div className="trn-ctrl">
+        <button className="trn-btn"onClick={()=>setPaused(p=>!p)}>{paused?'▶ Retomar':'⏸ Pausar'}</button>
+        <button className="trn-btn"onClick={()=>{if(pi+1>=PHASES.length)setFinished(true);else setPi(pi+1);}}>Pular fase ›</button>
+      </div>
+    </>}
+  </div>;
 }
 
 function ReelsSection({st,setSt}){
@@ -4840,40 +5028,49 @@ function ReelsSection({st,setSt}){
     return c;
   },[done,today]);
 
-  const pool=useMemo(()=>reelsSkillPool(st),[st.skilltree]);
-  const hasSkills=pool.length>0;
-  const[cards,setCards]=useState(()=>reelGenCurated(st,8));
+  const trees=useMemo(()=>reelsTrees(st),[st.skilltree]);
+  const hasSkills=trees.length>0;
+  const seenToday=(reels.stories&&reels.stories[today])||[];
+
+  const[filter,setFilter]=useState('all');
+  const[cards,setCards]=useState(()=>reelGenCurated(st,8,'all'));
   const[aiBusy,setAiBusy]=useState(false);
+  const[completed,setCompleted]=useState(()=>new Set());
+  const[story,setStory]=useState(null);
+  const[trainer,setTrainer]=useState(null);
   const feedRef=useRef(null);
   const sentinelRef=useRef(null);
   const[feedH,setFeedH]=useState('70vh');
 
-  // altura do feed = espaço restante abaixo da navbar/barra
+  // altura do feed = espaço restante abaixo de stories/barra/filtros
   useEffect(()=>{
     const calc=()=>{if(feedRef.current){const top=feedRef.current.getBoundingClientRect().top;setFeedH(Math.max(320,window.innerHeight-top-8)+'px');}};
     calc();window.addEventListener('resize',calc);
     return()=>window.removeEventListener('resize',calc);
-  },[]);
+  },[story,trainer]);
 
-  // primeira leva da IA (se configurada) — vem na frente
+  // (re)gera o feed pro filtro atual — curado na hora + IA na frente, se houver
   useEffect(()=>{
-    if(!hasSkills||!aiReady())return;
+    if(!hasSkills)return;
+    setCards(reelGenCurated(st,8,filter));
+    if(feedRef.current)feedRef.current.scrollTop=0;
+    if(!aiReady())return;
     let cancel=false;setAiBusy(true);
-    reelGenAI(st,6).then(ai=>{if(!cancel&&ai.length)setCards(c=>[...ai,...c]);}).catch(()=>{}).finally(()=>{if(!cancel)setAiBusy(false);});
+    reelGenAI(st,6,filter).then(ai=>{if(!cancel&&ai.length)setCards(c=>[...ai,...c]);}).catch(()=>{}).finally(()=>{if(!cancel)setAiBusy(false);});
     return()=>{cancel=true;};
-  },[]);
+  },[filter]);
 
   const loadMore=useCallback(async()=>{
     if(!hasSkills)return;
     if(aiReady()){
       setAiBusy(true);
-      try{const ai=await reelGenAI(st,5);setCards(c=>[...c,...(ai.length?ai:reelGenCurated(st,6))]);}
-      catch(e){setCards(c=>[...c,...reelGenCurated(st,6)]);}
+      try{const ai=await reelGenAI(st,5,filter);setCards(c=>[...c,...(ai.length?ai:reelGenCurated(st,6,filter))]);}
+      catch(e){setCards(c=>[...c,...reelGenCurated(st,6,filter)]);}
       finally{setAiBusy(false);}
     }else{
-      setCards(c=>[...c,...reelGenCurated(st,6)]);
+      setCards(c=>[...c,...reelGenCurated(st,6,filter)]);
     }
-  },[st,hasSkills]);
+  },[st,hasSkills,filter]);
 
   // scroll infinito
   useEffect(()=>{
@@ -4884,13 +5081,24 @@ function ReelsSection({st,setSt}){
     return()=>io.disconnect();
   },[loadMore]);
 
-  const markDone=card=>{
+  const logPractice=o=>{
     setSt(p=>{
       const r=p.reels||{done:[]};
-      const entry={id:card.id,skillId:card.skillId,treeId:card.treeId,type:card.type,title:card.title,date:TODAY(),ts:Date.now()};
+      const entry={id:rid(),skillId:o.skillId,treeId:o.treeId,type:o.type||'acao',title:o.title||'Treino guiado',date:TODAY(),ts:Date.now()};
       return{...p,reels:{...r,done:[...(r.done||[]),entry]}};
     });
   };
+  const completeCard=card=>{logPractice(card);setCompleted(s=>{const n=new Set(s);n.add(card.id);return n;});};
+  const markStorySeen=treeId=>{
+    setSt(p=>{
+      const r=p.reels||{done:[]};const stories={...(r.stories||{})};const day=TODAY();
+      const set=new Set(stories[day]||[]);set.add(treeId);stories[day]=[...set];
+      return{...p,reels:{...r,stories}};
+    });
+  };
+  const openTrainerCard=card=>setTrainer({skillNome:card.skillNome,next:card.next,pal:card.pal,emoji:card.emoji,skillId:card.skillId,treeId:card.treeId,type:card.type,title:card.title,cardId:card.id});
+  const openTrainerSeg=(seg,tree)=>setTrainer({skillNome:seg.skillNome,next:seg.next,pal:tree.pal,emoji:seg.emoji,skillId:seg.skill.id,treeId:tree.id,type:'acao',title:'Treino guiado'});
+  const onTrainerDone=t=>{logPractice(t);if(t.cardId)setCompleted(s=>{const n=new Set(s);n.add(t.cardId);return n;});};
 
   if(!hasSkills){
     return<div className="sec"><div className="reels-empty">
@@ -4901,10 +5109,11 @@ function ReelsSection({st,setSt}){
   }
 
   return<div className="reels">
+    <ReelStories trees={trees}seen={seenToday}onOpen={t=>setStory(t)}/>
     <div className="reels-bar">
       <div>
         <div className="rb-title">REELS DE EVOLUÇÃO</div>
-        <div className="rb-sub">Role pra cima. Cada card é um micro-passo numa habilidade sua.</div>
+        <div className="rb-sub">Toque um story ou role o feed. Cada card treina uma skill sua.</div>
       </div>
       <div className="rb-stats">
         <div className="rb-stat"><b>{todayCount}</b><span>hoje</span></div>
@@ -4912,10 +5121,16 @@ function ReelsSection({st,setSt}){
         <div className="rb-stat"><b>{totalReps}</b><span>total</span></div>
       </div>
     </div>
+    <div className="reel-filters">
+      <button className={"rfil"+(filter==='all'?' on':'')}onClick={()=>setFilter('all')}>🌀 Todas</button>
+      {trees.map(t=><button key={t.id}className={"rfil"+(filter===t.id?' on':'')}style={{'--rc':t.pal.d}}onClick={()=>setFilter(t.id)}>{t.emoji} {t.nome}</button>)}
+    </div>
     <div className="reels-feed"ref={feedRef}style={{height:feedH}}>
-      {cards.map(card=><ReelCard key={card.id}card={card}reps={repsBySkill[card.skillId]||0}onDone={markDone}/>)}
+      {cards.map(card=><ReelCard key={card.id}card={card}reps={repsBySkill[card.skillId]||0}done={completed.has(card.id)}onDone={completeCard}onTrain={openTrainerCard}/>)}
       <div className="reels-sentinel"ref={sentinelRef}>{aiBusy?'✨ gerando mais…':'carregando mais…'}</div>
     </div>
+    {story&&<ReelStoryViewer tree={story}segments={reelStorySegments(story)}onClose={()=>setStory(null)}onSeen={markStorySeen}onTrain={seg=>{const t=story;setStory(null);openTrainerSeg(seg,t);}}/>}
+    {trainer&&<ReelTrainer target={trainer}onClose={()=>setTrainer(null)}onComplete={onTrainerDone}/>}
   </div>;
 }
 
