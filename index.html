@@ -2296,7 +2296,7 @@ function TarefasSection({st,setSt}){
               <span style={{flex:1,fontSize:'.8rem',color:it.done?'var(--tx3)':'var(--tx2)',textDecoration:it.done?'line-through':'none',wordBreak:'break-word'}}>{it.text}</span>
               <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}onClick={()=>delItem(l.id,it.id)}>×</button>
             </div>)}
-            <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter')addItem(l.id);}}placeholder="+ item (Enter)"style={{fontSize:'.78rem',padding:'5px 8px',marginTop:6}}/>
+            <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="+ item (Enter)"style={{fontSize:'.78rem',padding:'5px 8px',marginTop:6}}/>
           </div>;
         })}
         <button onClick={addList}style={{minWidth:120,flex:'0 0 120px',alignSelf:'flex-start',background:'none',border:'1px dashed var(--bd2)',borderRadius:8,color:'var(--tx3)',fontSize:'.8rem',cursor:'pointer',padding:'14px 8px'}}>+ Nova lista</button>
@@ -2727,7 +2727,7 @@ function FacilitacaoTab({st,setSt}){
               <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(g.id,tipo,item.id)}>×</button>
             </div>)}
             <div className="fc g6 mt4">
-              <input value={inputs[k]||''}onChange={e=>setInputs(p=>({...p,[k]:e.target.value}))}onKeyDown={e=>e.key==='Enter'&&addItem(g.id,tipo)}placeholder="Adicionar item..."style={{fontSize:'.8rem',padding:'6px 10px'}}/>
+              <input value={inputs[k]||''}onChange={e=>setInputs(p=>({...p,[k]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(g.id,tipo);}}}placeholder="Adicionar item..."style={{fontSize:'.8rem',padding:'6px 10px'}}/>
               <button className="btn btn-ac"style={{padding:'6px 10px',flexShrink:0}}onClick={()=>addItem(g.id,tipo)}>+</button>
             </div>
           </div>;
@@ -2885,7 +2885,7 @@ function NoteModal({open,onClose,onSave,init,cats}){
         <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(item.id)}>×</button>
       </div>)}
       <div className="fc g6 mt4">
-        <input value={newItem}onChange={e=>setNewItem(e.target.value)}onKeyDown={e=>e.key==='Enter'&&addItem()}placeholder="Novo item... (Enter)"/>
+        <input value={newItem}onChange={e=>setNewItem(e.target.value)}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem();}}}placeholder="Novo item... (Enter)"/>
         <button className="btn btn-ac"style={{padding:'6px 10px',flexShrink:0}}onClick={addItem}>+</button>
       </div>
     </Fld>}
@@ -3026,7 +3026,7 @@ function AnotacoesSection({st,setSt}){
         </div>)}
       </div>
       <div className="fc g6 mb8">
-        <input value={newCat.name}onChange={e=>setNewCat(p=>({...p,name:e.target.value}))}onKeyDown={e=>e.key==='Enter'&&addCat()}placeholder="Nova categoria..."/>
+        <input value={newCat.name}onChange={e=>setNewCat(p=>({...p,name:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addCat();}}}placeholder="Nova categoria..."/>
         <div className="fc g4"style={{flexWrap:'wrap',flexShrink:0}}>
           {CAT_COLORS.map(col=><div key={col}className={`swatch${newCat.color===col?' on':''}`}style={{background:col,width:20,height:20}}onClick={()=>setNewCat(p=>({...p,color:col}))}/>)}
         </div>
@@ -4461,7 +4461,7 @@ function CfgCats({st,setSt}){
       <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>del(c.id)}>🗑</button>
     </div>)}
     <div className="fc g8 mt8">
-      <input value={nm}onChange={e=>setNm(e.target.value)}onKeyDown={e=>e.key==='Enter'&&add()}placeholder="Nova categoria..."style={{flex:1}}/>
+      <input value={nm}onChange={e=>setNm(e.target.value)}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();add();}}}placeholder="Nova categoria..."style={{flex:1}}/>
       <select value={cor}onChange={e=>setCor(e.target.value)}style={{width:'auto',padding:'8px 6px'}}>
         {COLS.map(c=><option key={c}value={c}>{c}</option>)}
       </select>
