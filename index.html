@@ -2091,6 +2091,42 @@ function HojeSection({st,setSt}){
 
   return<div className="sec">
     {focusOpen&&<FocusMode st={st}onClose={()=>setFocusOpen(false)}/>}
+
+    {/* Tarefas do dia */}
+    <div className="sch">
+      <div className="sch-t">Tarefas de Hoje</div>
+      <button className="btn btn-ac"onClick={()=>{setEditTask(null);setTaskModal(true);}}>+ Tarefa</button>
+    </div>
+    {todayTasks.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'12px 0'}}>Sem tarefas para hoje. Adicione uma!</div>}
+    {todayTasks.map(t=><div key={t.id}className={`tsk-row${t.done?' done':''}`}>
+      <Chk on={t.done}onChange={()=>toggleTask(t.id)}/>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:'.88rem',fontWeight:600,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx2)':'var(--tx)'}}>{t.title}</div>
+        <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
+          <CatTag catId={t.cat}cats={st.categories}/>
+          <PrioTag p={t.prio}/>
+          <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>+{t.weight}pts</span>
+        </div>
+      </div>
+      <button className="btn-ic"onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
+    </div>)}
+
+    {/* Hábitos */}
+    <div className="sch mt12">
+      <div className="sch-t">Hábitos de Hoje</div>
+    </div>
+    {activeHabits.map(h=>{
+      const done=!!(dayLog[h.id]);
+      return<div key={h.id}className="hab-row"style={{borderColor:done?h.color+'33':'var(--bd)',opacity:h.active?1:.5}}>
+        <span style={{fontSize:'1.2rem'}}>{h.emoji}</span>
+        <div style={{flex:1}}>
+          <div style={{fontWeight:600,fontSize:'.88rem',textDecoration:done?'line-through':'none',color:done?'var(--tx2)':'var(--tx)'}}>{h.name}</div>
+          <div style={{fontSize:'.7rem',fontFamily:'var(--fm)',color:h.color}}>+{h.weight}pts</div>
+        </div>
+        <Chk on={done}onChange={()=>toggleHabit(h.id)}/>
+      </div>;
+    })}
+
     {/* Score strip */}
     <div className="card mb14"style={{background:'var(--card)',borderColor:'var(--ac2)'}}>
       <div className="fcb"style={{marginBottom:10}}>
@@ -2145,41 +2181,6 @@ function HojeSection({st,setSt}){
     <div style={{padding:'10px 14px',background:'var(--ac1)',border:'1px solid var(--ac2)',borderRadius:'var(--r)',marginBottom:'14px',fontStyle:'italic',fontSize:'.85rem',color:'var(--ac)',lineHeight:1.5}}>
       "{frase}"
     </div>
-
-    {/* Tarefas do dia */}
-    <div className="sch">
-      <div className="sch-t">Tarefas de Hoje</div>
-      <button className="btn btn-ac"onClick={()=>{setEditTask(null);setTaskModal(true);}}>+ Tarefa</button>
-    </div>
-    {todayTasks.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'12px 0'}}>Sem tarefas para hoje. Adicione uma!</div>}
-    {todayTasks.map(t=><div key={t.id}className={`tsk-row${t.done?' done':''}`}>
-      <Chk on={t.done}onChange={()=>toggleTask(t.id)}/>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{fontSize:'.88rem',fontWeight:600,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx2)':'var(--tx)'}}>{t.title}</div>
-        <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
-          <CatTag catId={t.cat}cats={st.categories}/>
-          <PrioTag p={t.prio}/>
-          <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>+{t.weight}pts</span>
-        </div>
-      </div>
-      <button className="btn-ic"onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
-    </div>)}
-
-    {/* Hábitos */}
-    <div className="sch mt12">
-      <div className="sch-t">Hábitos de Hoje</div>
-    </div>
-    {activeHabits.map(h=>{
-      const done=!!(dayLog[h.id]);
-      return<div key={h.id}className="hab-row"style={{borderColor:done?h.color+'33':'var(--bd)',opacity:h.active?1:.5}}>
-        <span style={{fontSize:'1.2rem'}}>{h.emoji}</span>
-        <div style={{flex:1}}>
-          <div style={{fontWeight:600,fontSize:'.88rem',textDecoration:done?'line-through':'none',color:done?'var(--tx2)':'var(--tx)'}}>{h.name}</div>
-          <div style={{fontSize:'.7rem',fontFamily:'var(--fm)',color:h.color}}>+{h.weight}pts</div>
-        </div>
-        <Chk on={done}onChange={()=>toggleHabit(h.id)}/>
-      </div>;
-    })}
 
     <TaskModal open={taskModal}onClose={()=>{setTaskModal(false);setEditTask(null);}}onSave={saveTask}init={editTask}cats={st.categories}/>
   </div>;
@@ -2297,8 +2298,8 @@ function TarefasSection({st,setSt}){
               <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}onClick={()=>delItem(l.id,it.id)}>×</button>
             </div>)}
             <div className="fc g4" style={{marginTop:6}}>
-              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="+ item (Enter)"style={{fontSize:'.78rem',padding:'5px 8px',flex:1,marginTop:0}}/>
-              <button className="btn btn-ac"onClick={()=>addItem(l.id)}style={{padding:'5px 10px',fontSize:'.78rem',flexShrink:0}}>+</button>
+              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="Novo item..."style={{fontSize:'.78rem',padding:'5px 8px',flex:1,marginTop:0}}/>
+              <button className="btn btn-ac"onClick={()=>addItem(l.id)}style={{padding:'5px 10px',fontSize:'.75rem',flexShrink:0,whiteSpace:'nowrap'}}>Adicionar</button>
             </div>
           </div>;
         })}
