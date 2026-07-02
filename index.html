@@ -2296,7 +2296,10 @@ function TarefasSection({st,setSt}){
               <span style={{flex:1,fontSize:'.8rem',color:it.done?'var(--tx3)':'var(--tx2)',textDecoration:it.done?'line-through':'none',wordBreak:'break-word'}}>{it.text}</span>
               <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}onClick={()=>delItem(l.id,it.id)}>×</button>
             </div>)}
-            <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="+ item (Enter)"style={{fontSize:'.78rem',padding:'5px 8px',marginTop:6}}/>
+            <div className="fc g4" style={{marginTop:6}}>
+              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="+ item (Enter)"style={{fontSize:'.78rem',padding:'5px 8px',flex:1,marginTop:0}}/>
+              <button className="btn btn-ac"onClick={()=>addItem(l.id)}style={{padding:'5px 10px',fontSize:'.78rem',flexShrink:0}}>+</button>
+            </div>
           </div>;
         })}
         <button onClick={addList}style={{minWidth:120,flex:'0 0 120px',alignSelf:'flex-start',background:'none',border:'1px dashed var(--bd2)',borderRadius:8,color:'var(--tx3)',fontSize:'.8rem',cursor:'pointer',padding:'14px 8px'}}>+ Nova lista</button>
