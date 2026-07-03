@@ -373,6 +373,32 @@ button{cursor:pointer;border:none;outline:none;font-family:var(--ff);transition:
 .trn-btn:hover{border-color:var(--tc);}
 .trn-btn.main{background:var(--tc);color:#0a0a0a;border-color:transparent;}
 .trn-done{font-family:var(--ft);font-size:2.4rem;color:var(--ok);letter-spacing:.04em;}
+
+/* ===================== REDESIGN LAYOUT ===================== */
+@keyframes fadeslide{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.layout-container{max-width:800px;margin:0 auto;width:100%;}
+.layout-redesign .sec{max-width:100%;margin:0;padding:28px 18px;width:100%;animation:fadeslide .35s ease;}
+.layout-redesign .navbar{background:rgba(10,10,10,.82);border-bottom:none;backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);}
+.layout-redesign .nav-header{max-width:800px;margin:0 auto;width:100%;padding:7px 14px;}
+.layout-redesign .nav-tabs{max-width:800px;margin:0 auto;width:100%;justify-content:center;gap:0;padding:0 4px;}
+.layout-redesign .tab-btn{padding:7px 10px;font-size:.72rem;border-radius:8px 8px 0 0;border-bottom:none;}
+.layout-redesign .tab-btn.on{background:var(--ac1);color:var(--ac);}
+.layout-redesign .tab-btn:hover{background:var(--ac1);}
+.layout-redesign .card{border-radius:14px;box-shadow:0 2px 16px rgba(0,0,0,.18);transition:transform .2s,box-shadow .2s;}
+.layout-redesign .card:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(0,0,0,.28);}
+.layout-redesign .hab-row,.layout-redesign .tsk-row{border-radius:10px;}
+.layout-redesign .sch{margin-bottom:18px;}
+.layout-redesign .sch-t{font-size:1.1rem;}
+.layout-redesign .modal{border-radius:16px;}
+.layout-redesign .stabs{padding-bottom:14px;justify-content:center;}
+.layout-redesign .fld label{font-size:.65rem;}
+/* RPG theme */
+.theme-rpg{--bg:#0a0a0a;--card:#141110;--card2:#1C1814;--card3:#28221B;--bd:#362D1D;--bd2:rgba(212,175,55,.08);--bd3:rgba(212,175,55,.18);--tx:#EDE4D3;--tx2:#EDE4D3aa;--tx3:#EDE4D366;--tx4:#EDE4D333;--r:6px;}
+.theme-rpg .card{border-color:#4A3D2A;box-shadow:0 1px 0 rgba(212,175,55,.05);}
+.theme-rpg .fld label{color:#B6AB98;}
+.theme-rpg .sch-t{font-family:var(--serif);letter-spacing:.06em;}
+.theme-rpg .tab-btn.on{background:linear-gradient(180deg,rgba(212,175,55,.12),transparent);border-bottom-color:#D4AF37;color:#D4AF37;}
+.theme-rpg .btn-ac{background:linear-gradient(135deg,#D4AF37,#B8962E);color:#0a0a0a;}
 </style>
 </head>
 <body>
@@ -935,7 +961,7 @@ function makeInit(){
     config:{
       accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
-      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,
+      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',
     },
     categories:DEF_CATS,
     tasks:[
@@ -1240,26 +1266,41 @@ function ClassAvatar({cls,locked,size,baseImg,mini}){
 
 function applyTheme(config){
   const r=document.documentElement.style;
+  const html=document.documentElement;
   const theme=THEMES.find(t=>t.id===config.themeId)||THEMES[0];
   const ac=config.accentOverride||theme.ac;
   r.setProperty('--ac',ac);
   r.setProperty('--ac1',ac+'22');
   r.setProperty('--ac2',ac+'44');
-  r.setProperty('--bg',theme.bg);
-  r.setProperty('--card',theme.card);
-  r.setProperty('--card2',theme.card2);
-  r.setProperty('--bd',theme.bd);
-  // Layered borders: progressively more visible (white overlay on dark bg)
-  r.setProperty('--bd2','rgba(255,255,255,0.10)');
-  r.setProperty('--bd3','rgba(255,255,255,0.18)');
-  // Text color
-  const tx=config.textColor||'#f0f0f0';
-  r.setProperty('--tx',tx);
-  r.setProperty('--tx2',tx+'aa');
-  r.setProperty('--tx3',tx+'66');
-  r.setProperty('--tx4',tx+'33');
+  if(config.themeStyle==='rpg'){
+    r.setProperty('--bg','#0a0a0a');
+    r.setProperty('--card','#141110');
+    r.setProperty('--card2','#1C1814');
+    r.setProperty('--bd','#362D1D');
+    r.setProperty('--bd2','rgba(212,175,55,0.08)');
+    r.setProperty('--bd3','rgba(212,175,55,0.18)');
+    r.setProperty('--tx','#EDE4D3');
+    r.setProperty('--tx2','#EDE4D3aa');
+    r.setProperty('--tx3','#EDE4D366');
+    r.setProperty('--tx4','#EDE4D333');
+    r.setProperty('--r','6px');
+  }else{
+    r.setProperty('--bg',theme.bg);
+    r.setProperty('--card',theme.card);
+    r.setProperty('--card2',theme.card2);
+    r.setProperty('--bd',theme.bd);
+    r.setProperty('--bd2','rgba(255,255,255,0.10)');
+    r.setProperty('--bd3','rgba(255,255,255,0.18)');
+    const tx=config.textColor||'#f0f0f0';
+    r.setProperty('--tx',tx);
+    r.setProperty('--tx2',tx+'aa');
+    r.setProperty('--tx3',tx+'66');
+    r.setProperty('--tx4',tx+'33');
+    r.setProperty('--r','8px');
+  }
   const fs={small:'13px',medium:'14px',large:'15px'};
   r.setProperty('--fs',fs[config.fontSize]||'14px');
+  html.classList.toggle('theme-rpg',config.themeStyle==='rpg');
 }
 
 // ── UI PRIMITIVES ────────────────────────────────────────────────────────────
@@ -1761,7 +1802,7 @@ function SyncDot({fbUser,syncStatus}){
   </div>;
 }
 
-function Navbar({cur,onChange,st,fbUser,syncStatus}){
+function Navbar({cur,onChange,st,fbUser,syncStatus,layoutMode}){
   const tabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
   const xp=useMemo(()=>calcTotalXP(st),[st.skilltree]);
   const info=getLevelInfo(xp);
@@ -4386,6 +4427,17 @@ function CfgAparencia({st,setCfg,setSt}){
       </div>
     </div>
     <div className="cfg-s">
+      <div className="cfg-t">Layout</div>
+      <div className="fc g10"><Tog on={st.config.layoutMode==='redesign'}onChange={()=>setCfg('layoutMode',st.config.layoutMode==='redesign'?'classic':'redesign')}/><span style={{fontSize:'.85rem',color:'var(--tx2)'}}>{st.config.layoutMode==='redesign'?'Redesign (moderno)':'Clássico'}</span></div>
+    </div>
+    <div className="cfg-s">
+      <div className="cfg-t">Estilo de tema</div>
+      <div className="fc g10">
+        <button className="btn"style={{background:st.config.themeStyle!=='rpg'?'var(--ac)':'var(--card2)',border:`1px solid ${st.config.themeStyle!=='rpg'?'var(--ac)':'var(--bd2)'}`,color:st.config.themeStyle!=='rpg'?'#000':'var(--tx2)',fontSize:'.78rem',padding:'6px 14px'}}onClick={()=>setCfg('themeStyle','modern')}>🧊 Moderno</button>
+        <button className="btn"style={{background:st.config.themeStyle==='rpg'?'var(--ac)':'var(--card2)',border:`1px solid ${st.config.themeStyle==='rpg'?'var(--ac)':'var(--bd2)'}`,color:st.config.themeStyle==='rpg'?'#000':'var(--tx2)',fontSize:'.78rem',padding:'6px 14px'}}onClick={()=>setCfg('themeStyle','rpg')}>⚔️ RPG</button>
+      </div>
+    </div>
+    <div className="cfg-s">
       <div className="cfg-t">Animações</div>
       <div className="fc g10"><Tog on={st.config.animations!==false}onChange={()=>setCfg('animations',!st.config.animations)}/><span style={{fontSize:'.85rem',color:'var(--tx2)'}}>{st.config.animations!==false?'Ativadas':'Desativadas'}</span></div>
     </div>
@@ -5249,9 +5301,12 @@ function App(){
   const story=st.aiClassStory;
   const storyCls=story?CLASSES.find(c=>c.id===story.classId):null;
 
-  return<div>
-    <Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}/>
-    {sections[visibleTab]||null}
+  const layoutMode=st.config.layoutMode||'classic';
+  return<div className={layoutMode==='redesign'?'layout-redesign':''}>
+    <Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}layoutMode={layoutMode}/>
+    <div className={layoutMode==='redesign'?'layout-container':''}>
+      {sections[visibleTab]||null}
+    </div>
     {story&&storyCls&&<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)setSt(p=>({...p,aiClassStory:null}));}}>
       <div className="modal"style={{textAlign:'center',maxWidth:380,border:`1px solid ${storyCls.cor}66`,boxShadow:`0 0 30px ${storyCls.cor}44`}}>
         <div style={{fontFamily:'var(--serif)',fontSize:'.66rem',letterSpacing:'.16em',textTransform:'uppercase',color:storyCls.cor,marginBottom:12}}>Nova Classe Desbloqueada</div>
