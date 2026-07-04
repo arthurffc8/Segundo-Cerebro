@@ -2265,6 +2265,7 @@ function TarefasSection({st,setSt}){
   function addItem(lid){const txt=(listInput[lid]||'').trim();if(!txt)return;setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:[...l.items,{id:uid(),text:txt,done:false}]}:l)}));setListInput(s=>({...s,[lid]:''}));}
   function togItem(lid,iid){setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:l.items.map(it=>it.id===iid?{...it,done:!it.done}:it)}:l)}));}
   function delItem(lid,iid){setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:l.items.filter(it=>it.id!==iid)}:l)}));}
+  function moveItem(lid,iid,dir){setSt(p=>({...p,taskLists:p.taskLists.map(l=>{if(l.id!==lid)return l;const items=[...l.items];const i=items.findIndex(it=>it.id===iid);const j=i+dir;if(j<0||j>=items.length)return l;[items[i],items[j]]=[items[j],items[i]];return{...l,items};})}));}
 
   // ── QUADRO SEMANAL ──
   const DLBL=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
@@ -2333,7 +2334,9 @@ function TarefasSection({st,setSt}){
               <button className="btn-ic"style={{color:'var(--er)',flexShrink:0}}onClick={()=>delList(l.id)}>×</button>
             </div>
             {l.items.length>0&&<div style={{fontSize:'.62rem',fontFamily:'var(--fm)',color:doneN===l.items.length?'#22c55e':'var(--tx3)',marginBottom:6}}>☑ {doneN}/{l.items.length}</div>}
-            {l.items.map(it=><div key={it.id}className="fc g8"style={{padding:'4px 0'}}>
+            {l.items.map((it,i)=><div key={it.id}className="fc g4"style={{padding:'3px 0'}}>
+              <button className="btn-ic"style={{color:'var(--tx4)',fontSize:'.7rem',padding:1,opacity:i===0?0.15:1,cursor:i===0?'default':'pointer'}}disabled={i===0}onClick={()=>moveItem(l.id,it.id,-1)}>▲</button>
+              <button className="btn-ic"style={{color:'var(--tx4)',fontSize:'.7rem',padding:1,opacity:i===l.items.length-1?0.15:1,cursor:i===l.items.length-1?'default':'pointer'}}disabled={i===l.items.length-1}onClick={()=>moveItem(l.id,it.id,1)}>▼</button>
               <Chk on={it.done}onChange={()=>togItem(l.id,it.id)}/>
               <span style={{flex:1,fontSize:'.8rem',color:it.done?'var(--tx3)':'var(--tx2)',textDecoration:it.done?'line-through':'none',wordBreak:'break-word'}}>{it.text}</span>
               <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}onClick={()=>delItem(l.id,it.id)}>×</button>
