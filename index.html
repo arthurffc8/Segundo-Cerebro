@@ -2543,8 +2543,10 @@ function DashboardSection({st,setSt}){
   const[yr,setYr]=useState(now.getFullYear());
   const[mo,setMo]=useState(now.getMonth()+1);
   const[chartMode,setChartMode]=useState('linha');
+  const[analiseMode,setAnaliseMode]=useState('geral');
   const td=TODAY();
   const mNames=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  const dNames=['Domingo','Segunda','Terça','Quarta','Quinta','Sexta','Sábado'];
   const scores=getMonthScores(st,yr,mo);
   const totalTasks=st.tasks.filter(t=>t.date.startsWith(monthKey(yr,mo))).length;
   const doneTasks=st.tasks.filter(t=>t.date.startsWith(monthKey(yr,mo))&&t.done).length;
@@ -2567,13 +2569,34 @@ function DashboardSection({st,setSt}){
 
   // Day of week failure pattern
   const dayFails=Array(7).fill(0);
+  const dayScores=Array(7).fill(0);
+  const dayCounts=Array(7).fill(0);
   scores.forEach(d=>{
-    if(d.score===0){
-      const dow=new Date(d.date+'T12:00:00').getDay();
-      dayFails[dow]++;
-    }
+    const dow=new Date(d.date+'T12:00:00').getDay();
+    if(d.score===0)dayFails[dow]++;
+    else{dayScores[dow]+=d.score;dayCounts[dow]++;}
   });
+  const avgDayScores=dayScores.map((s,i)=>(dayCounts[i]>0?Math.round(s/dayCounts[i]):0));
   const worstDay=dayFails.indexOf(Math.max(...dayFails));
+  const bestDayOfWeek=avgDayScores.indexOf(Math.max(...avgDayScores));
+  
+  // Tasks by category
+  const tasksByCat=useMemo(()=>{
+    const cats={};
+    st.tasks.filter(t=>t.date.startsWith(monthKey(yr,mo))).forEach(t=>{
+      const c=t.cat||'sem-categoria';
+      if(!cats[c])cats[c]={name:c,total:0,done:0};
+      cats[c].total++;
+      if(t.done)cats[c].done++;
+    });
+    // Map to category names
+    const namedCats={};
+    Object.keys(cats).forEach(k=>{
+      const catInfo=st.categories.find(c=>c.id===k);
+      namedCats[k]={...cats[k],displayName:catInfo?catInfo.name:k,color:catInfo?catInfo.color:'#888'};
+    });
+    return Object.values(namedCats);
+  },[st.tasks,st.categories,yr,mo]);
 
   function exp(){
     const data={period:`${mNames[mo-1]} ${yr}`,avgScore,bestDay,daysActive:daysWithData,tasksCompleted:doneTasks,habits:habitsProgress.map(h=>({name:h.name,done:h.done,goal:h.monthlyGoal,pct:h.pct+'%'}))};
@@ -2594,61 +2617,117 @@ function DashboardSection({st,setSt}){
       <button className="btn btn-gh"style={{fontSize:'.75rem'}}onClick={exp}>⬇ Exportar</button>
     </div>
 
-    {/* Metric cards */}
-    <div className="g2c mb14">
-      <div className="mcrd"><div className="mval">{todayScore}</div><div className="mlbl">Score hoje</div></div>
-      <div className="mcrd"><div className="mval">{avgScore}</div><div className="mlbl">Média do mês</div></div>
-      <div className="mcrd"><div className="mval">{bestDay}</div><div className="mlbl">Melhor dia</div></div>
-      <div className="mcrd"><div className="mval">{doneTasks}/{totalTasks}</div><div className="mlbl">Tarefas</div></div>
+    {/* Abas de análise */}
+    <div className="stabs mb14">
+      <button className={`stab${analiseMode==='geral'?' on':''}`}onClick={()=>setAnaliseMode('geral')}>📊 Visão Geral</button>
+      <button className={`stab${analiseMode==='categorias'?' on':''}`}onClick={()=>setAnaliseMode('categorias')}>🏷️ Categorias</button>
+      <button className={`stab${analiseMode==='padroes'?' on':''}`}onClick={()=>setAnaliseMode('padroes')}>🔍 Padrões</button>
     </div>
 
-    {/* Chart */}
-    {(()=>{
-      const accent=st.config.accentOverride||(THEMES.find(t=>t.id===st.config.themeId)||THEMES[0]).ac;
-      const MODES=[{k:'linha',l:'📈 Linha'},{k:'barras',l:'📊 Barras'},{k:'heatmap',l:'🗓 Calendário'}];
-      return<div className="card mb14">
-        <div className="fcb mb10">
-          <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em'}}>Score por dia — {mNames[mo-1]}</div>
-          <div className="fc g4">
-            {MODES.map(m=><button key={m.k}onClick={()=>setChartMode(m.k)}style={{padding:'3px 9px',borderRadius:12,fontSize:'.68rem',fontWeight:700,cursor:'pointer',border:`1px solid ${chartMode===m.k?accent:'var(--bd2)'}`,background:chartMode===m.k?accent+'22':'none',color:chartMode===m.k?accent:'var(--tx3)',transition:'all .15s'}}>{m.l}</button>)}
-          </div>
-        </div>
-        {chartMode==='linha'&&<>
-          <LineChart data={scores}accent={accent}/>
-          <div style={{display:'flex',justifyContent:'space-between',marginTop:'4px',fontSize:'.65rem',color:'var(--tx3)',fontFamily:'var(--fm)'}}>
-            <span>1</span><span>{Math.floor(totalDays/2)}</span><span>{totalDays}</span>
-          </div>
-        </>}
-        {chartMode==='barras'&&<BarChart data={scores}accent={accent}/>}
-        {chartMode==='heatmap'&&<HeatmapChart data={scores}accent={accent}yr={yr}mo={mo}/>}
-      </div>;
-    })()}
-
-    {/* % conclusão + padrão */}
-    <div className="g2c mb14">
-      <div className="card">
-        <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Atividade do mês</div>
-        <div style={{fontFamily:'var(--fm)',fontSize:'1.4rem',fontWeight:700,color:'var(--ac)'}}>{pctMonth}%</div>
-        <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>{daysWithData} de {totalDays} dias</div>
+    {analiseMode==='geral'&&<>
+      {/* Metric cards */}
+      <div className="g2c mb14">
+        <div className="mcrd"><div className="mval">{todayScore}</div><div className="mlbl">Score hoje</div></div>
+        <div className="mcrd"><div className="mval">{avgScore}</div><div className="mlbl">Média do mês</div></div>
+        <div className="mcrd"><div className="mval">{bestDay}</div><div className="mlbl">Melhor dia</div></div>
+        <div className="mcrd"><div className="mval">{doneTasks}/{totalTasks}</div><div className="mlbl">Tarefas</div></div>
       </div>
-      <div className="card">
-        <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Padrão de falha</div>
-        <div style={{fontFamily:'var(--fm)',fontSize:'1.1rem',fontWeight:700,color:'#ef4444'}}>{DAYS_LABEL[worstDay]}</div>
-        <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>é o dia mais difícil</div>
-      </div>
-    </div>
 
-    {/* Habits progress */}
-    <div className="card">
-      <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'12px',textTransform:'uppercase',letterSpacing:'.07em'}}>Progresso dos hábitos</div>
-      {habitsProgress.map(h=><div key={h.id}style={{marginBottom:'10px'}}>
-        <div className="fcb mb4">
-          <span style={{fontSize:'.82rem',fontWeight:500}}>{h.emoji} {h.name}</span>
-          <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:h.color}}>{h.done}/{h.monthlyGoal} ({h.pct}%)</span>
+      {/* Chart */}
+      {(()=>{
+        const accent=st.config.accentOverride||(THEMES.find(t=>t.id===st.config.themeId)||THEMES[0]).ac;
+        const MODES=[{k:'linha',l:'📈 Linha'},{k:'barras',l:'📊 Barras'},{k:'heatmap',l:'🗓 Calendário'}];
+        return<div className="card mb14">
+          <div className="fcb mb10">
+            <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em'}}>Score por dia — {mNames[mo-1]}</div>
+            <div className="fc g4">
+              {MODES.map(m=><button key={m.k}onClick={()=>setChartMode(m.k)}style={{padding:'3px 9px',borderRadius:12,fontSize:'.68rem',fontWeight:700,cursor:'pointer',border:`1px solid ${chartMode===m.k?accent:'var(--bd2)'}`,background:chartMode===m.k?accent+'22':'none',color:chartMode===m.k?accent:'var(--tx3)',transition:'all .15s'}}>{m.l}</button>)}
+            </div>
+          </div>
+          {chartMode==='linha'&&<>
+            <LineChart data={scores}accent={accent}/>
+            <div style={{display:'flex',justifyContent:'space-between',marginTop:'4px',fontSize:'.65rem',color:'var(--tx3)',fontFamily:'var(--fm)'}}>
+              <span>1</span><span>{Math.floor(totalDays/2)}</span><span>{totalDays}</span>
+            </div>
+          </>}
+          {chartMode==='barras'&&<BarChart data={scores}accent={accent}/>}
+          {chartMode==='heatmap'&&<HeatmapChart data={scores}accent={accent}yr={yr}mo={mo}/>}
+        </div>;
+      })()}
+
+      {/* % conclusão + padrão */}
+      <div className="g2c mb14">
+        <div className="card">
+          <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Atividade do mês</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'1.4rem',fontWeight:700,color:'var(--ac)'}}>{pctMonth}%</div>
+          <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>{daysWithData} de {totalDays} dias</div>
         </div>
-        <PBar val={h.done}max={h.monthlyGoal}color={h.color}/>
-      </div>)}
-    </div>
+        <div className="card">
+          <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Padrão de falha</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'1.1rem',fontWeight:700,color:'#ef4444'}}>{DAYS_LABEL[worstDay]}</div>
+          <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>é o dia mais difícil</div>
+        </div>
+      </div>
+
+      {/* Habits progress */}
+      <div className="card">
+        <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'12px',textTransform:'uppercase',letterSpacing:'.07em'}}>Progresso dos hábitos</div>
+        {habitsProgress.map(h=><div key={h.id}style={{marginBottom:'10px'}}>
+          <div className="fcb mb4">
+            <span style={{fontSize:'.82rem',fontWeight:500}}>{h.emoji} {h.name}</span>
+            <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:h.color}}>{h.done}/{h.monthlyGoal} ({h.pct}%)</span>
+          </div>
+          <PBar val={h.done}max={h.monthlyGoal}color={h.color}/>
+        </div>)}
+      </div>
+    </>}
+
+    {analiseMode==='categorias'&&<>
+      {/* Distribuição de tarefas por categoria */}
+      <div className="card mb14">
+        <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'12px',textTransform:'uppercase',letterSpacing:'.07em'}}>Tarefas por Categoria</div>
+        {tasksByCat.length===0?<div style={{color:'var(--tx3)',padding:'20px',textAlign:'center'}}>Nenhuma tarefa este mês</div>:
+          tasksByCat.map((cat,i)=>{
+            const pct=cat.total>0?Math.round((cat.done/cat.total)*100):0;
+            return<div key={i}style={{marginBottom:'12px'}}>
+              <div className="fcb mb4">
+                <span style={{fontSize:'.82rem',fontWeight:500}}><span style={{display:'inline-block',width:'10px',height:'10px',borderRadius:'50%',background:cat.color,marginRight:'6px'}}></span>{cat.displayName}</span>
+                <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:cat.color}}>{cat.done}/{cat.total} ({pct}%)</span>
+              </div>
+              <PBar val={cat.done}max={cat.total}color={cat.color}/>
+            </div>;
+          })
+        }
+      </div>
+    </>}
+
+    {analiseMode==='padroes'&&<>
+      <div className="g2c mb14">
+        <div className="card">
+          <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Dia mais produtivo</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'1.1rem',fontWeight:700,color:'#22c55e'}}>{dNames[bestDayOfWeek]}</div>
+          <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>Média: {avgDayScores[bestDayOfWeek]} pts</div>
+        </div>
+        <div className="card">
+          <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'8px'}}>Dia mais difícil</div>
+          <div style={{fontFamily:'var(--fm)',fontSize:'1.1rem',fontWeight:700,color:'#ef4444'}}>{DAYS_LABEL[worstDay]}</div>
+          <div style={{fontSize:'.72rem',color:'var(--tx2)'}}>{dayFails[worstDay]} falhas este mês</div>
+        </div>
+      </div>
+      
+      {/* Média de score por dia da semana */}
+      <div className="card mb14">
+        <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',marginBottom:'12px',textTransform:'uppercase',letterSpacing:'.07em'}}>Média por dia da semana</div>
+        <div style={{display:'grid',gridTemplateColumns:'repeat(7,1fr)',gap:'8px'}}>
+          {dNames.map((nome,i)=>(
+            <div key={i}style={{textAlign:'center',padding:'8px 4px',borderRadius:'8px',background:avgDayScores[i]>0?'var(--card2)':'var(--card)',border:'1px solid var(--bd)'}}>
+              <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:'4px'}}>{nome.slice(0,3)}</div>
+              <div style={{fontFamily:'var(--fm)',fontSize:'1rem',fontWeight:'700',color:avgDayScores[i]>0?'var(--ac)':'var(--tx3)'}}>{avgDayScores[i]}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </>}
 
     {/* 🧬 Análise do Sistema */}
     <InsightCard st={st}yr={yr}mo={mo}/>
