@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Segundo Cérebro</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&family=Press+Start+2P&family=Space+Grotesk:wght@300;700&family=Unbounded:wght@400;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&family=Press+Start+2P&family=Space+Grotesk:wght@300;700&family=Unbounded:wght@400;900&family=VT323&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
 <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
@@ -472,6 +472,17 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .theme-rpg .sch-t{font-family:var(--serif);letter-spacing:.06em;}
 .theme-rpg .tab-btn.on{background:linear-gradient(180deg,rgba(212,175,55,.12),transparent);border-bottom-color:#D4AF37;color:#D4AF37;}
 .theme-rpg .btn-ac{background:linear-gradient(135deg,#D4AF37,#B8962E);color:#0a0a0a;}
+/* Terminal theme — CRT scanline + glow */
+.theme-terminal{--bg:#000;--card:#080808;--card2:#111;--bd:#1f1f1f;--tx:#00ff41;--tx2:#00d639aa;--tx3:#00ff4155;}
+.theme-terminal body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;background:repeating-linear-gradient(0deg,rgba(0,255,65,.06) 0 1px,transparent 1px 3px);mix-blend-mode:screen;}
+.theme-terminal .card,.theme-terminal .tab-btn,.theme-terminal .btn{text-shadow:0 0 6px rgba(0,255,65,.55);}
+.theme-terminal .tab-btn.on{background:rgba(0,255,65,.1);color:#00ff41;border-bottom-color:#00ff41;text-shadow:0 0 10px rgba(0,255,65,.9);}
+.theme-terminal .btn-ac{background:#00ff41;color:#000;text-shadow:none;box-shadow:0 0 18px rgba(0,255,65,.55);}
+/* Bauhaus theme — geometric, sharp, primary */
+.theme-bauhaus{--bg:#f4f1ea;--card:#ffffff;--card2:#ece7dc;--bd:#000;--tx:#000;--tx2:#1a1a1a;--tx3:#6b6b6b;}
+.theme-bauhaus .card{border-width:2px;border-radius:0;}
+.theme-bauhaus .btn-ac{background:#d62828;color:#fff;box-shadow:4px 4px 0 #000;border-radius:0;}
+.theme-bauhaus .tab-btn.on{background:#f4c430;color:#000;border-bottom:3px solid #d62828;}
 </style>
 </head>
 <body>
@@ -633,6 +644,34 @@ const THEMES=[
   {id:'nord', name:'Nord', emoji:'🔵', bg:'#1e2030', card:'#252b40', card2:'#2e3554', bd:'#404c6e', ac:'#81a1c1', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none',
     desc:'Inverno escandinavo. Cores frias, foco longo.',
     vibes:['frio','sereno','nórdico']},
+  // ── NOVOS TEMAS (inspirados nos preferidos + estilos novos) ────────────────
+  {id:'catppuccin', name:'Catppuccin', emoji:'🌸', bg:'#1e1e2e', card:'#28283d', card2:'#313244', bd:'#45475a', ac:'#cba6f7', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'10px', sh:'none',
+    desc:'Paleta pastel sobre noite profunda. A queridinha dos devs modernos.',
+    vibes:['pastel','macio','dev']},
+  {id:'gruvbox', name:'Gruvbox', emoji:'🌵', bg:'#282828', card:'#32302f', card2:'#3c3836', bd:'#504945', ac:'#d8a656', ff:"'JetBrains Mono', monospace", ft:"'Unbounded'", r:'2px', sh:'none',
+    desc:'Âmbar quente sobre carvão. Retro dos anos 70, com alma de terminal.',
+    vibes:['âmbar','retro','terminal']},
+  {id:'emerald', name:'Emerald', emoji:'🌲', bg:'#0e1613', card:'#14201c', card2:'#1a2a24', bd:'#2c4036', ac:'#58b086', ff:"'Inter', sans-serif", ft:"'Bebas Neue'", r:'10px', sh:'none',
+    desc:'Floresta profunda. Verde esmeralda sobre quase-preto. Foco selvagem.',
+    vibes:['selvagem','verde','natureza']},
+  {id:'rosepine', name:'Rosé Pine', emoji:'🌹', bg:'#191724', card:'#1f1d2e', card2:'#26233a', bd:'#403d52', ac:'#ebbcba', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'12px', sh:'none',
+    desc:'Rosa antigo sobre violeta noturno. Poético, calmo, elegante.',
+    vibes:['rosa','poético','suave']},
+  {id:'everforest', name:'Everforest', emoji:'🍃', bg:'#1a2019', card:'#232a22', card2:'#2d352b', bd:'#465241', ac:'#a7c080', ff:"'Inter', sans-serif", ft:"'Bebas Neue'", r:'6px', sh:'none',
+    desc:'Verde musgo com terra. Silêncio de floresta depois da chuva.',
+    vibes:['musgo','calmo','natural']},
+  {id:'solarized', name:'Solarized', emoji:'☀️', bg:'#002b36', card:'#073642', card2:'#0a4250', bd:'#2a5a64', ac:'#b58900', ff:"'JetBrains Mono', monospace", ft:"'Unbounded'", r:'2px', sh:'none',
+    desc:'Azul petróleo clássico com âmbar solar. Ergonômico por design.',
+    vibes:['clássico','ergonômico','dev']},
+  {id:'kanagawa', name:'Kanagawa', emoji:'🗻', bg:'#1f1f28', card:'#282833', card2:'#363646', bd:'#54546d', ac:'#c3b27a', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none',
+    desc:'Inspirado na Grande Onda. Tinta sumiê e ouro envelhecido.',
+    vibes:['japonês','sumiê','zen']},
+  {id:'terminal', name:'Terminal', emoji:'🖥️', bg:'#000000', card:'#080808', card2:'#111111', bd:'#1f1f1f', ac:'#00ff41', ff:"'VT323', monospace", ft:"'VT323'", r:'0px', sh:'0 0 18px rgba(0,255,65,.18)', bdw:'1px',
+    desc:'CRT verde fósforo. Boot de mainframe. Nostalgia hacker pura.',
+    vibes:['CRT','hacker','retro']},
+  {id:'bauhaus', name:'Bauhaus', emoji:'🔶', bg:'#f4f1ea', card:'#ffffff', card2:'#ece7dc', bd:'#000000', ac:'#d62828', tx:'#000000', tx2:'#1a1a1a', tx3:'#6b6b6b', ff:"'Space Grotesk', sans-serif", ft:"'Unbounded'", r:'0px', sh:'4px 4px 0px #000000', bdw:'2px',
+    desc:'Form follows function. Vermelho, preto, bege. Geometria e função.',
+    vibes:['geométrico','claro','ousado']},
 ];
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
@@ -1392,6 +1431,9 @@ function applyTheme(config){
   r.setProperty('--fs',fs[config.fontSize]||'14px');
   
   html.classList.toggle('glass-mode',!!theme.glass);
+  // Apply theme-id class (theme-terminal, theme-bauhaus, ...) for theme-specific CSS
+  [...html.classList].forEach(c=>{if(c.startsWith('theme-'))html.classList.remove(c);});
+  html.classList.add('theme-'+theme.id);
 }
 
 // ── UI PRIMITIVES ────────────────────────────────────────────────────────────
