@@ -132,6 +132,75 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .tsk-row.done { opacity:.4; transform: scale(0.98); }
 /* status btn */
 .st-btn { padding:5px 9px; border-radius:5px; font-size:.75rem; font-weight:600; cursor:pointer; transition:all .15s; border: var(--bdw) solid var(--bd2); }
+
+/* ── SKILL TREE — foco do dia, radar, ritual, histórico ── */
+/* Focus banner (skill do dia) */
+.st-focus{position:relative;margin-bottom:14px;padding:16px 18px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg, rgba(11,21,34,.92), rgba(19,38,61,.88));border:1px solid rgba(245,217,140,.35);box-shadow:0 0 24px -6px rgba(245,217,140,.35), inset 0 0 40px rgba(245,217,140,.06);}
+.st-focus::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 0% 50%, rgba(245,217,140,.18), transparent 65%);pointer-events:none;}
+.st-focus::after{content:"";position:absolute;left:-50%;top:-50%;width:200%;height:200%;background:conic-gradient(from 0deg, transparent, rgba(245,217,140,.12), transparent 30%);animation:st-focus-spin 14s linear infinite;opacity:.5;pointer-events:none;}
+@keyframes st-focus-spin{to{transform:rotate(360deg);}}
+.st-focus>*{position:relative;z-index:1;}
+.st-focus-eyebrow{font-family:var(--serif);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:#F5D98C;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.st-focus-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:#F5D98C;box-shadow:0 0 10px #F5D98C;animation:pulse 1.6s ease-in-out infinite;}
+.st-focus-grid{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;}
+.st-focus-node{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;background:radial-gradient(circle at 50% 32%, #F5D98C, #D18B1F);box-shadow:0 0 24px rgba(245,217,140,.55), inset 0 2px 4px rgba(255,255,255,.25);animation:st-focus-pulse 2.2s ease-in-out infinite;}
+@keyframes st-focus-pulse{0%,100%{box-shadow:0 0 24px rgba(245,217,140,.55), inset 0 2px 4px rgba(255,255,255,.25);}50%{box-shadow:0 0 38px rgba(245,217,140,.85), inset 0 2px 4px rgba(255,255,255,.3);}}
+.st-focus-info h4{font-family:var(--serif);font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;color:#FFF1B3;margin:0 0 4px;}
+.st-focus-info p{font-family:var(--serif);font-size:.72rem;color:#9FB3C8;line-height:1.5;margin:0;font-style:italic;}
+.st-focus-cta{display:flex;flex-direction:column;gap:6px;}
+.st-focus-cta button{padding:6px 10px;border-radius:6px;font-family:var(--serif);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(245,217,140,.4);background:rgba(245,217,140,.08);color:#F5D98C;font-weight:700;transition:all .15s;}
+.st-focus-cta button:hover{background:rgba(245,217,140,.2);box-shadow:0 0 10px rgba(245,217,140,.35);}
+.st-focus-cta button.primary{background:#F5D98C;color:#0B1522;border-color:transparent;}
+.st-focus-cta button.primary:hover{filter:brightness(1.08);}
+.st-focus-streak{font-family:var(--fm);font-size:.68rem;color:#F5D98C;letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-top:6px;}
+
+/* Radar chart */
+.st-radar-wrap{position:relative;padding:18px 16px;margin-bottom:16px;border-radius:10px;background:linear-gradient(135deg,#1D314A,#13263D);border:1px solid #2B394C;}
+.st-radar-title{font-family:var(--serif);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;color:#F5D98C;margin-bottom:10px;text-align:center;}
+.st-radar{display:flex;justify-content:center;align-items:center;}
+.st-radar-legend{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:12px;}
+.st-radar-legend-item{display:flex;align-items:center;gap:6px;font-family:var(--serif);font-size:.62rem;letter-spacing:.08em;text-transform:uppercase;color:#9FB3C8;}
+.st-radar-legend-dot{width:8px;height:8px;border-radius:50%;}
+
+/* Level-up ritual overlay */
+.st-ritual{position:fixed;inset:0;z-index:620;display:flex;flex-direction:column;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 40%, #1D314A 0%, #0B1522 60%, #000 100%);animation:fi .3s ease;padding:32px 28px;text-align:center;overflow:hidden;}
+.st-ritual::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at 50% 50%, rgba(245,217,140,.25), transparent 60%);animation:st-ritual-pulse 2.4s ease-in-out infinite;pointer-events:none;}
+@keyframes st-ritual-pulse{0%,100%{opacity:.55;transform:scale(1);}50%{opacity:1;transform:scale(1.08);}}
+.st-ritual>*{position:relative;z-index:1;}
+.st-ritual-eyebrow{font-family:var(--serif);font-size:.72rem;letter-spacing:.32em;text-transform:uppercase;color:#F5D98C;margin-bottom:16px;animation:st-ritual-slide .6s ease;} 
+.st-ritual-node{width:140px;height:140px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:4rem;background:radial-gradient(circle at 50% 32%, #FFF1B3, #F5D98C 40%, #D18B1F);box-shadow:0 0 60px rgba(245,217,140,.85), 0 0 120px rgba(245,217,140,.4), inset 0 4px 8px rgba(255,255,255,.4);animation:st-ritual-pop .7s cubic-bezier(.34,1.56,.64,1) .15s both;}
+@keyframes st-ritual-pop{0%{transform:scale(0);opacity:0;}60%{transform:scale(1.15);opacity:1;}100%{transform:scale(1);opacity:1;}}
+@keyframes st-ritual-slide{from{opacity:0;transform:translateY(-10px);}to{opacity:1;transform:none;}}
+.st-ritual-skill{font-family:var(--serif);font-size:1.4rem;letter-spacing:.1em;text-transform:uppercase;color:#FFF1B3;margin-top:18px;text-shadow:0 0 20px rgba(245,217,140,.65);}
+.st-ritual-level{font-family:var(--fm);font-size:2.2rem;font-weight:700;color:#F5D98C;margin:6px 0 4px;letter-spacing:.06em;text-shadow:0 0 24px rgba(245,217,140,.8);}
+.st-ritual-level-sub{font-family:var(--serif);font-size:.7rem;letter-spacing:.18em;text-transform:uppercase;color:#9FB3C8;margin-bottom:22px;}
+.st-ritual-narrative{font-family:var(--serif);font-style:italic;font-size:1.05rem;line-height:1.6;color:#EDE4D3;max-width:520px;margin:0 auto 24px;padding:18px 22px;border-left:2px solid #F5D98C;background:rgba(245,217,140,.05);border-radius:0 6px 6px 0;}
+.st-ritual-criteria{max-width:520px;margin:0 auto 20px;padding:12px 16px;border:1px solid rgba(245,217,140,.25);border-radius:8px;background:rgba(19,38,61,.5);}
+.st-ritual-criteria-title{font-family:var(--serif);font-size:.66rem;letter-spacing:.16em;text-transform:uppercase;color:#F5D98C;margin-bottom:8px;}
+.st-ritual-criteria p{margin:0;font-size:.88rem;line-height:1.5;color:#EDE4D3;font-style:italic;}
+.st-ritual-cta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.st-ritual-cta button{padding:12px 22px;border-radius:8px;font-family:var(--serif);font-weight:700;font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:none;transition:transform .15s,filter .15s;}
+.st-ritual-cta button.primary{background:linear-gradient(135deg,#F5D98C,#D18B1F);color:#0B1522;box-shadow:0 8px 24px -6px rgba(245,217,140,.55);}
+.st-ritual-cta button.primary:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.st-ritual-cta button.ghost{background:transparent;color:#9FB3C8;border:1px solid #44566D;}
+.st-ritual-cta button.ghost:hover{color:#F5D98C;border-color:#F5D98C;}
+
+/* Skill hint (popover sobre o nó) */
+.st-hint{position:absolute;bottom:100%;left:50%;transform:translate(-50%,-6px);width:220px;padding:10px 12px;border-radius:8px;background:rgba(11,21,34,.98);border:1px solid rgba(245,217,140,.4);box-shadow:0 10px 30px -8px rgba(0,0,0,.65), 0 0 16px rgba(245,217,140,.2);z-index:50;pointer-events:none;animation:st-hint-in .22s ease;font-family:var(--serif);}
+@keyframes st-hint-in{from{opacity:0;transform:translate(-50%,2px);}to{opacity:1;transform:translate(-50%,-6px);}}
+.st-hint::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:6px solid transparent;border-top-color:rgba(245,217,140,.4);}
+.st-hint-eyebrow{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#F5D98C;margin-bottom:4px;}
+.st-hint-text{font-size:.78rem;color:#EDE4D3;line-height:1.45;font-style:italic;}
+.st-hint-empty{font-size:.72rem;color:#5C6B7C;font-style:italic;text-align:center;}
+
+/* Practice history (no modal) */
+.st-history{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);}
+.st-history-title{font-family:var(--serif);font-size:.65rem;letter-spacing:.14em;text-transform:uppercase;color:#F5D98C;margin-bottom:8px;text-align:center;}
+.st-history-list{display:flex;flex-direction:column;gap:4px;max-height:140px;overflow-y:auto;padding-right:4px;}
+.st-history-item{display:flex;align-items:center;gap:8px;padding:5px 9px;border-radius:6px;background:rgba(245,217,140,.04);border:1px solid rgba(245,217,140,.1);font-size:.74rem;color:#EDE4D3;}
+.st-history-date{font-family:var(--fm);font-size:.6rem;color:#9FB3C8;letter-spacing:.06em;text-transform:uppercase;flex-shrink:0;}
+.st-history-type{font-size:.58rem;padding:1px 6px;border-radius:10px;background:rgba(245,217,140,.15);color:#F5D98C;text-transform:uppercase;letter-spacing:.08em;flex-shrink:0;}
+.st-history-empty{font-size:.72rem;color:#5C6B7C;text-align:center;font-style:italic;padding:12px 0;}
 /* section header */
 .sch { display:flex; align-items:center; justify-content:space-between; margin-bottom:18px; }
 .sch-t { font-family: var(--ft); font-size:1.5rem; font-weight:700; text-transform: uppercase; letter-spacing: 0.05em; }
@@ -3925,7 +3994,195 @@ function Laurel({color}){
   </svg>;
 }
 
-function SkillNode({skill,pal,selected,stl,onClick}){
+// ── SKILL TREE — helpers para foco do dia, radar, ritual, histórico ───────────
+// Calcula os vértices do radar de maestria (um por árvore)
+function skillRadar(trees,cx,cy,R){
+  const n=trees.length;
+  if(n<3)return{points:'',items:[]};
+  const items=trees.map(t=>{
+    const lv=t.skills.reduce((a,s)=>a+Math.min(s.nivel||0,s.maxNivel||1),0);
+    const mx=t.skills.reduce((a,s)=>a+(s.maxNivel||1),0);
+    const pct=mx?lv/mx:0;
+    const pal=treePalette(t);
+    return{...t,pct,pal};
+  });
+  const pts=items.map((it,i)=>{
+    const ang=(i/n)*Math.PI*2 - Math.PI/2;
+    const r=R*(0.15+it.pct*0.85);
+    return{x:cx+r*Math.cos(ang),y:cy+r*Math.sin(ang)};
+  });
+  return{points:pts.map(p=>`${p.x},${p.y}`).join(' '),items,pts};
+}
+
+// Escolhe 1 skill por dia (rotação determinística) ponderada por espaço pra crescer
+function pickFocusSkill(st,treeId){
+  const pool=[];
+  const trees=((st.skilltree&&st.skilltree.trees)||[]).filter(t=>!treeId||t.id===treeId);
+  trees.forEach(t=>(t.skills||[]).forEach(s=>{
+    const room=Math.max(1,(s.maxNivel||1)-(s.nivel||0));
+    for(let i=0;i<room;i++)pool.push({skill:s,tree:t});
+  }));
+  if(!pool.length)return null;
+  const d=new Date();
+  const seed=(d.getFullYear()*10000)+(d.getMonth()*100)+(d.getDate());
+  return pool[seed%pool.length];
+}
+
+// Histórico de prática de uma skill via dados do Reels
+function skillPracticeHistory(st,skillId,limit){
+  const done=((st.reels&&st.reels.done)||[]).filter(d=>d.skillId===skillId).sort((a,b)=>(b.ts||0)-(a.ts||0));
+  return done.slice(0,limit||8);
+}
+
+// Streak de prática da skill (dias consecutivos)
+function skillStreak(st,skillId){
+  const done=(st.reels&&st.reels.done)||[];
+  const days=new Set(done.filter(d=>d.skillId===skillId).map(d=>d.date));
+  let c=0,off=days.has(TODAY())?0:1;
+  const dStr=o=>{const d=new Date();d.setDate(d.getDate()-o);return localDateStr(d);};
+  while(days.has(dStr(off))){c++;off++;}
+  return c;
+}
+
+// Streak do foco do dia (quantos dias seguidos ele apareceu como foco e foi praticado)
+function focusStreak(st,treeId){
+  let c=0;
+  for(let off=0;off<60;off++){
+    const d=new Date();d.setDate(d.getDate()-off);
+    const seed=(d.getFullYear()*10000)+(d.getMonth()*100)+d.getDate();
+    const pool=[];
+    ((st.skilltree&&st.skilltree.trees)||[]).filter(t=>!treeId||t.id===treeId).forEach(t=>(t.skills||[]).forEach(s=>{
+      const room=Math.max(1,(s.maxNivel||1)-(s.nivel||0));
+      for(let i=0;i<room;i++)pool.push({skillId:s.id});
+    }));
+    if(!pool.length)break;
+    const pick=pool[seed%pool.length];
+    const dateStr=localDateStr(d);
+    const practiced=((st.reels&&st.reels.done)||[]).some(p=>p.skillId===pick.skillId&&p.date===dateStr);
+    if(!practiced)break;
+    c++;
+  }
+  return c;
+}
+
+// Gera narrativa épica de level-up via IA (malandro)
+async function skillRitualNarrative(skill,tree,newLevel){
+  if(!aiReady())return null;
+  const criterion=(skill.levels&&skill.levels[newLevel])||'novo patamar';
+  const prompt=`Acabei de subir para o nível ${newLevel} em "${skill.nome}" (da área "${tree.nome}"). O critério desse nível é: "${criterion}". Escreve uma narrativa épica e curta (2 a 3 frases, máximo 160 caracteres) celebrando essa evolução no estilo RPG/malandro, exaltando o que esse novo patamar representa — sem repetir a palavra "nível". Usa 2ª pessoa ("você" ou "tu").`;
+  try{
+    const t=await aiCall(AI_SYS_MALANDRO,prompt,250);
+    return t?aiStrip(t):null;
+  }catch(e){return null;}
+}
+
+// Banner de foco do dia
+function SkillFocusBanner({st,tree,onOpenSkill,onGoReel}){
+  const pick=useMemo(()=>pickFocusSkill(st,tree&&tree.id),[st,tree&&tree.id]);
+  const streak=useMemo(()=>focusStreak(st,tree&&tree.id),[st,tree&&tree.id]);
+  if(!pick)return null;
+  const s=pick.skill,t=pick.tree;
+  const pal=treePalette(t);
+  const lv=s.nivel||0,mx=s.maxNivel||1;
+  const nextDesc=lv>=mx?'Já dominada — hora de manter afiado e ensinar.':((s.levels&&s.levels[lv+1])||'Mais um degrau pra subir.');
+  return<div className="st-focus">
+    <div className="st-focus-eyebrow">🎯 Foco do dia</div>
+    <div className="st-focus-grid">
+      <div className="st-focus-node"style={{background:`radial-gradient(circle at 50% 32%, ${pal.d}, ${pal.s})`,boxShadow:`0 0 24px ${pal.d}88, inset 0 2px 4px rgba(255,255,255,.25)`}}>{s.emoji||t.emoji}</div>
+      <div className="st-focus-info">
+        <h4>{s.nome}</h4>
+        <p>{t.emoji} {t.nome} · nível {lv}/{mx} · {nextDesc}</p>
+      </div>
+      <div className="st-focus-cta">
+        <button className="primary"onClick={()=>onOpenSkill(s.id)}>Ver skill</button>
+        <button onClick={onGoReel}>Treinar → Reels</button>
+      </div>
+    </div>
+    {streak>=1&&<div className="st-focus-streak">🔥 {streak} dia{streak>1?'s':''} de foco praticado</div>}
+  </div>;
+}
+
+// Radar de maestria entre todas as árvores
+function SkillRadar({trees}){
+  const SIZE=260,CX=SIZE/2,CY=SIZE/2,R=SIZE/2-24;
+  const data=useMemo(()=>skillRadar(trees,CX,CY,R),[trees]);
+  if(trees.length<3)return null;
+  const rings=[0.25,0.5,0.75,1];
+  return<div className="st-radar-wrap">
+    <div className="st-radar-title">Equilíbrio entre áreas</div>
+    <div className="st-radar">
+      <svg width={SIZE}height={SIZE}viewBox={`0 0 ${SIZE} ${SIZE}`}>
+        {/* rings */}
+        {rings.map(k=>{
+          const rr=R*k;
+          const pts=trees.map((_,i)=>{
+            const a=(i/trees.length)*Math.PI*2-Math.PI/2;
+            return`${CX+rr*Math.cos(a)},${CY+rr*Math.sin(a)}`;
+          }).join(' ');
+          return<polygon key={k}points={pts}fill="none"stroke="rgba(159,179,200,.18)"strokeWidth="1"/>;
+        })}
+        {/* axis lines */}
+        {trees.map((_,i)=>{
+          const a=(i/trees.length)*Math.PI*2-Math.PI/2;
+          return<line key={i}x1={CX}y1={CY}x2={CX+R*Math.cos(a)}y2={CY+R*Math.sin(a)}stroke="rgba(159,179,200,.14)"strokeWidth="1"/>;
+        })}
+        {/* polygon */}
+        <polygon points={data.points}fill="rgba(245,217,140,.18)"stroke="#F5D98C"strokeWidth="1.5"style={{filter:'drop-shadow(0 0 8px rgba(245,217,140,.45))'}}/>
+        {/* dots + emoji labels */}
+        {data.items.map((it,i)=>{
+          const pt=data.pts[i];
+          const a=(i/trees.length)*Math.PI*2-Math.PI/2;
+          const lx=CX+(R+14)*Math.cos(a),ly=CY+(R+14)*Math.sin(a);
+          return<g key={it.id}>
+            <circle cx={pt.x}cy={pt.y}r={4}fill={it.pal.d}style={{filter:`drop-shadow(0 0 4px ${it.pal.d})`}}/>
+            <text x={lx}y={ly+4}textAnchor="middle"fontSize="14"style={{userSelect:'none'}}>{it.emoji}</text>
+          </g>;
+        })}
+      </svg>
+    </div>
+    <div className="st-radar-legend">
+      {data.items.map(it=><div key={it.id}className="st-radar-legend-item">
+        <span className="st-radar-legend-dot"style={{background:it.pal.d}}/>
+        {it.nome} · {Math.round(it.pct*100)}%
+      </div>)}
+    </div>
+  </div>;
+}
+
+// Ritual de level-up (overlay épico)
+function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
+  const [narr,setNarr]=useState(null);
+  const [busy,setBusy]=useState(true);
+  useEffect(()=>{
+    let cancel=false;
+    setBusy(true);
+    skillRitualNarrative(skill,tree,newLevel).then(t=>{if(!cancel){setNarr(t);setBusy(false);}}).catch(()=>{if(!cancel)setBusy(false);});
+    return()=>{cancel=true;};
+  },[skill,tree,newLevel]);
+  const criterion=(skill.levels&&skill.levels[newLevel])||'';
+  const pal=treePalette(tree);
+  return<div className="st-ritual"onClick={e=>{if(e.target===e.currentTarget)onClose();}}>
+    <div className="st-ritual-eyebrow">✦ Level Up ✦</div>
+    <div className="st-ritual-node">{skill.emoji||tree.emoji}</div>
+    <div className="st-ritual-skill"style={{color:pal.d,textShadow:`0 0 20px ${pal.d}`}}>{skill.nome}</div>
+    <div className="st-ritual-level">Nível {newLevel}</div>
+    <div className="st-ritual-level-sub">{tree.emoji} {tree.nome}</div>
+    <div className="st-ritual-narrative">
+      {busy?<span style={{color:'#9FB3C8'}}>✨ escrevendo a saga...</span>:(narr||<span style={{color:'#9FB3C8'}}>Você subiu mais um degrau. O caminho continua.</span>)}
+    </div>
+    {criterion&&<div className="st-ritual-criteria">
+      <div className="st-ritual-criteria-title">O que você conquistou</div>
+      <p>“{criterion}”</p>
+    </div>}
+    <div className="st-ritual-cta">
+      <button className="primary"onClick={onClose}>Seguir a jornada</button>
+      <button className="ghost"onClick={onGoReel}>Treinar essa skill →</button>
+    </div>
+  </div>;
+}
+
+
+function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const S=stl||DEF_STYLE;
   const g=S.glow||1;
   const bl=(n)=>Math.round(n*g); // blur escalado pelo brilho
@@ -3939,12 +4196,12 @@ function SkillNode({skill,pal,selected,stl,onClick}){
   // anel de progresso (destaque sobre trilho metálico)
   const ring=started?`conic-gradient(${d} ${pct}%, ${TRACK} ${pct}%)`:TRACK;
   // fundo suave (halo) atrás do nó
-  const halo=started?`radial-gradient(circle, ${d}66, ${d}00 70%)`:'radial-gradient(circle, rgba(68,86,109,.30), rgba(68,86,109,0) 70%)';
+  const halo=started?`radial-gradient(circle, ${d}66, ${d}00 70%)`:focus?`radial-gradient(circle, ${d}44, ${d}00 70%)`:'radial-gradient(circle, rgba(68,86,109,.30), rgba(68,86,109,0) 70%)';
   // moldura (rim de pedra/metal) ao redor — pode ser desligada
-  const frameBg=!S.moldura?'transparent':started?`radial-gradient(circle at 50% 34%, ${d}2e, ${s}16)`:'radial-gradient(circle at 50% 34%, #20364F, #11223A)';
-  const frameBorder=!S.moldura?'transparent':selected||maxed?'#FFF1B3':started?d+'99':'#33455B';
+  const frameBg=!S.moldura?'transparent':started?`radial-gradient(circle at 50% 34%, ${d}2e, ${s}16)`:focus?`radial-gradient(circle at 50% 34%, ${d}1a, ${s}0a)`:'radial-gradient(circle at 50% 34%, #20364F, #11223A)';
+  const frameBorder=!S.moldura?'transparent':selected||maxed?'#FFF1B3':focus?d+'cc':started?d+'99':'#33455B';
   const stoneShadow=S.moldura?`inset 0 1px 2px rgba(255,255,255,.10), inset 0 -2px 5px rgba(0,0,0,.45)`:'';
-  const outerGlow=selected?`0 0 ${bl(20)}px ${d}aa`:maxed?`0 0 ${bl(14)}px ${d}88`:started?`0 0 ${bl(9)}px ${d}44`:'';
+  const outerGlow=selected?`0 0 ${bl(20)}px ${d}aa`:focus?`0 0 ${bl(18)}px ${d}99`:maxed?`0 0 ${bl(14)}px ${d}88`:started?`0 0 ${bl(9)}px ${d}44`:'';
   const frameGlow=[stoneShadow,outerGlow].filter(Boolean).join(', ')||'none';
   // entalhes/ticks no rim (estilo medalhão)
   const studColor=started?d:'#44566D';
@@ -3952,20 +4209,23 @@ function SkillNode({skill,pal,selected,stl,onClick}){
   // glow do anel interno
   let ringGlow;
   if(selected)ringGlow=`0 0 ${bl(14)}px ${d}`;
+  else if(focus)ringGlow=`0 0 ${bl(12)}px ${d}99`;
   else if(maxed)ringGlow=`0 0 ${bl(11)}px ${d}cc`;
   else if(started)ringGlow=`0 0 ${bl(7)}px ${d}66`;
   else ringGlow='none';
   // aura: borda fina brilhante que cresce a cada nível
   const auraD=72+lv*(S.auraStep||5);
-  return<div className="skill-node"onClick={onClick}>
-    <div className="skill-halo"style={{background:halo,opacity:selected?1:started?.9:.5}}/>
+  // hint do próximo passo (aparece ao selecionar)
+  const nextHint=maxed?'Já dominada. Mantém afiado e ensina.':(skill.levels&&skill.levels[lv+1])||null;
+  return<div className="skill-node"onClick={onClick}style={{position:'relative'}}>
+    <div className="skill-halo"style={{background:halo,opacity:selected?1:focus?.85:started?.9:.5}}/>
     {maxed&&S.louros&&<div className="skill-laurel"><Laurel color={d}/></div>}
+    {focus&&<div style={{position:'absolute',width:auraD+24,height:auraD+24,borderRadius:'50%',left:'50%',top:35,transform:'translate(-50%,-50%)',zIndex:0,border:`1px dashed ${d}`,opacity:.45,animation:'st-focus-spin 24s linear infinite',pointerEvents:'none'}}/>}
     {started&&<div style={{position:'absolute',width:auraD,height:auraD,borderRadius:'50%',left:'50%',top:35,transform:'translate(-50%,-50%)',zIndex:0,border:`1.5px solid ${d}`,opacity:0.22+(lv/max)*0.55,boxShadow:`0 0 ${bl(4+lv*4)}px ${d}, inset 0 0 ${bl(3+lv*2)}px ${d}55`,pointerEvents:'none',transition:'all .3s ease'}}/>}
     <div className="skill-frame"style={{background:frameBg,border:`1px solid ${frameBorder}`,boxShadow:frameGlow,transition:'box-shadow .2s,border-color .2s'}}>
       {S.entalhes&&<div className="skill-studs"style={{background:studs,WebkitMaskImage:'radial-gradient(transparent 62%, #000 65%)',maskImage:'radial-gradient(transparent 62%, #000 65%)',opacity:started?0.85:0.45}}/>}
       <div className="skill-ring"style={{background:ring,padding:started?3:2,boxShadow:ringGlow}}>
         <div className="skill-core"style={{background:started?`radial-gradient(circle at 50% 32%, ${d}, ${s})`:'linear-gradient(145deg,#1D314A,#13263D)'}}>
-          {/* ícone escuro sobre fundo dourado quando ativo */}
           <span style={{opacity:started?0.82:0.32,filter:started?'brightness(0)':'grayscale(1) brightness(.85)'}}>{skill.emoji}</span>
         </div>
       </div>
@@ -3975,16 +4235,33 @@ function SkillNode({skill,pal,selected,stl,onClick}){
       color:maxed?'#FFF1B3':started?d:'#5C6B7C',
       border:`1px solid ${maxed?'#FFF1B3':started?d:'#44566D'}`
     }}>{lv}/{max}</div>
-    <div className="skill-name"style={{color:started?d:'#5C6B7C'}}>{skill.nome}</div>
+    {practiced&&<div style={{position:'absolute',top:2,right:2,width:10,height:10,borderRadius:'50%',background:'#22c55e',border:'2px solid #0B1522',boxShadow:'0 0 6px #22c55e',zIndex:3}}/>}
+    <div className="skill-name"style={{color:started?d:focus?'#FFF1B3':'#5C6B7C'}}>{skill.nome}</div>
+    {selected&&<div className="st-hint">
+      {nextHint
+        ?<><div className="st-hint-eyebrow">Próximo passo (nv {lv+1})</div><div className="st-hint-text">{nextHint}</div></>
+        :<div className="st-hint-empty">{maxed?'✓ Dominada. Hora de ensinar.':'Adicione critérios pra saber o que falta.'}</div>
+      }
+    </div>}
   </div>;
 }
 
-function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete}){
+function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoReel}){
   if(!skill)return null;
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const mastery=lv>=max?'✓ Dominado':lv===0?'Não iniciado':'Em progresso';
   const sBtn=(en)=>({width:48,height:48,borderRadius:'50%',background:en?cor+'22':'var(--card2)',border:`1px solid ${en?cor+'66':'var(--bd2)'}`,color:en?cor:'var(--tx4)',fontSize:'1.6rem',fontWeight:700,cursor:en?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0});
+  // detecta level-up (quando lv aumenta) — dispara ritual
+  const prevLvRef=useRef(lv);
+  const[ritual,setRitual]=useState(null);
+  useEffect(()=>{
+    if(lv>prevLvRef.current){setRitual({newLevel:lv,skill,tree});}
+    prevLvRef.current=lv;
+  },[lv,skill,tree]);
+  // histórico e streak
+  const history=useMemo(()=>skillPracticeHistory(st,skill.id,8),[st,skill.id]);
+  const streak=useMemo(()=>skillStreak(st,skill.id),[st,skill.id]);
   return<Modal open onClose={onClose}title={`${skill.emoji} ${skill.nome}`}>
     {skill.desc?<p style={{fontSize:'.85rem',color:'var(--tx2)',lineHeight:1.5,marginBottom:14}}>{skill.desc}</p>:null}
     <div className="fc"style={{justifyContent:'center',gap:24,margin:'4px 0 14px'}}>
@@ -3998,6 +4275,7 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete}){
     <div style={{height:7,background:'rgba(255,255,255,.07)',borderRadius:4,overflow:'hidden',marginBottom:10}}>
       <div style={{height:'100%',width:(lv/max*100)+'%',background:lv>=max?'#22c55e':cor,borderRadius:4,transition:'width .3s'}}/>
     </div>
+    {streak>=1&&<div style={{textAlign:'center',fontSize:'.72rem',color:'#F5D98C',marginBottom:10,fontFamily:'var(--fm)',letterSpacing:'.12em',textTransform:'uppercase'}}>🔥 Streak de {streak} dia{streak>1?'s':''}</div>}
     {skill.levels&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
       <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>📏 Critérios por Nível</div>
       <div style={{maxHeight:160,overflowY:'auto',display:'flex',flexDirection:'column',gap:2,paddingRight:4}}>
@@ -4009,11 +4287,28 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete}){
         ))}
       </div>
     </div>}
-    <div style={{textAlign:'center',fontSize:'.68rem',color:'var(--tx3)',marginBottom:14}}>⚡ Cada nível vale <b style={{color:cor}}>+{XP_PER_SKILL_LEVEL} XP</b> no seu nível (aba Missão)</div>
+    {/* Histórico de prática (do Reels) */}
+    <div className="st-history">
+      <div className="st-history-title">⚡ Histórico de prática</div>
+      {history.length===0
+        ?<div className="st-history-empty">Ainda não praticou. Vá pros Reels e treine essa skill.</div>
+        :<div className="st-history-list">
+          {history.map(h=><div key={h.id}className="st-history-item">
+            <span className="st-history-date">{ptDate(h.date)}</span>
+            <span className="st-history-type">{h.type||'treino'}</span>
+            <span style={{flex:1,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{h.title||'Treino guiado'}</span>
+          </div>)}
+        </div>}
+    </div>
+    <div style={{textAlign:'center',fontSize:'.68rem',color:'var(--tx3)',marginTop:12,marginBottom:14}}>⚡ Cada nível vale <b style={{color:cor}}>+{XP_PER_SKILL_LEVEL} XP</b> no seu nível (aba Missão)</div>
     <Btns>
       <button className="btn btn-gh"onClick={onEdit}>✏️ Editar</button>
-      <button className="btn"style={{background:'rgba(239,68,68,.12)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)'}}onClick={onDelete}>🗑 Remover</button>
+      <button className="btn btn-ac"style={{flex:1}}onClick={()=>{onClose();onGoReel&&onGoReel(skill.id);}}>▶ Treinar nos Reels</button>
+      <button className="btn"style={{background:'rgba(239,68,68,.12)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)'}}onClick={onDelete}>🗑</button>
     </Btns>
+    {ritual&&tree&&<SkillRitual skill={ritual.skill}tree={ritual.tree}newLevel={ritual.newLevel}
+      onClose={()=>setRitual(null)}
+      onGoReel={()=>{setRitual(null);onClose();onGoReel&&onGoReel(skill.id);}}/>}
   </Modal>;
 }
 
@@ -4136,7 +4431,7 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
   </div>;
 }
 
-function SkillTreeSection({st,setSt}){
+function SkillTreeSection({st,setSt,setTab}){
   const trees=(st.skilltree&&st.skilltree.trees)||[];
   const stl=readStyle(st);
   const[sel,setSel]=useState(trees[0]?trees[0].id:null);
@@ -4147,6 +4442,24 @@ function SkillTreeSection({st,setSt}){
   const[skillPreset,setSkillPreset]=useState(null);
   const[treeModal,setTreeModal]=useState(false);
   const[editTree,setEditTree]=useState(null);
+  const[showRadar,setShowRadar]=useState(false);
+  // Foco do dia + prática de hoje
+  const focusPick=useMemo(()=>pickFocusSkill(st,sel),[st,sel]);
+  const focusSkillId=focusPick?focusPick.skill.id:null;
+  const today=TODAY();
+  const practicedToday=useMemo(()=>new Set(((st.reels&&st.reels.done)||[]).filter(d=>d.date===today).map(d=>d.skillId)),[st.reels,today]);
+  const openSkillModalFor=id=>{
+    const s=trees.flatMap(t=>t.skills).find(x=>x.id===id);
+    if(s){setNodeSel(id);}
+  };
+  const goReelsFor=useCallback((skillId)=>{
+    if(setTab){
+      // filtra o Reels pela árvore da skill (se possível) e muda de aba
+      const treeOfSkill=trees.find(t=>(t.skills||[]).some(s=>s.id===skillId));
+      setTab('reels');
+      if(treeOfSkill){try{sessionStorage.setItem('sc-reels-prefilter',treeOfSkill.id);}catch(e){}}
+    }
+  },[setTab,trees]);
 
   function setTrees(updater){
     setSt(p=>{
@@ -4257,6 +4570,7 @@ function SkillTreeSection({st,setSt}){
         </div>
         <div className="fc g4">
           <button className="btn-ic"style={{color:pal.d,fontSize:'.9rem'}}onClick={addSubcat}title="Nova subcategoria (coluna)">➕</button>
+          <button className="btn-ic"style={{color:showRadar?pal.d:'#5C6B7C'}}onClick={()=>setShowRadar(v=>!v)}title="Radar de maestria">🧭</button>
           <button className="btn-ic"style={{color:showStyle?pal.d:'#5C6B7C'}}onClick={()=>setShowStyle(v=>!v)}title="Personalizar visual">🎨</button>
           <button className="btn-ic"style={{color:pal.d}}onClick={()=>{setEditTree(tree);setTreeModal(true);}}>✏️</button>
         </div>
@@ -4269,6 +4583,12 @@ function SkillTreeSection({st,setSt}){
         <div style={{height:'100%',width:pct+'%',background:`linear-gradient(90deg,${pal.s},${pal.d})`,borderRadius:4,transition:'width .5s ease',boxShadow:`0 0 8px ${pal.d}`}}/>
       </div>
     </div>
+
+    {/* Foco do dia */}
+    {focusSkillId&&<SkillFocusBanner st={st}tree={tree}onOpenSkill={openSkillModalFor}onGoReel={()=>goReelsFor(focusSkillId)}/>}
+
+    {/* Radar de maestria */}
+    {showRadar&&<SkillRadar trees={trees}/>}
 
     {/* Painel de personalização */}
     {showStyle&&<SkillStylePanel stl={stl}setStyle={setStyle}applyPreset={applyPreset}/>}
@@ -4298,7 +4618,7 @@ function SkillTreeSection({st,setSt}){
             {Array.from({length:maxTier},(_,i)=>{
               const t=i+1,items=col.byTier[t]||[];
               return<div key={t}style={{position:'relative',zIndex:1,height:120,display:'flex',alignItems:'center',justifyContent:'center',gap:12}}>
-                {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}onClick={()=>setNodeSel(s.id)}/>)}
+                {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}focus={s.id===focusSkillId}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
               </div>;
             })}
             {!isOrphan&&<div style={{position:'relative',zIndex:1,height:42,display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -4313,7 +4633,7 @@ function SkillTreeSection({st,setSt}){
     <div style={{textAlign:'center',fontFamily:'var(--serif)',fontSize:'.62rem',letterSpacing:'.05em',color:'#44566D',marginTop:12}}>Coluna = subcategoria · linha = prateleira (várias por fileira) · "+" adiciona habilidade · "➕" no topo cria subcategoria</div>
 
     {/* Modais */}
-    {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}
+    {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}st={st}tree={tree}onGoReel={goReelsFor}
       onClose={()=>setNodeSel(null)}
       onLevel={d=>setLevel(tree.id,liveSkill.id,d)}
       onEdit={()=>{setEditSkill(liveSkill);setSkillPreset(null);setNodeSel(null);setSkillModal(true);}}
@@ -5602,7 +5922,7 @@ function App(){
     financas:<FinancasSection st={st}setSt={setSt}/>,
     missao:<MissaoSection st={st}setSt={setSt}/>,
     crencas:<CrencasSection st={st}setSt={setSt}/>,
-    skilltree:<SkillTreeSection st={st}setSt={setSt}/>,
+    skilltree:<SkillTreeSection st={st}setSt={setSt}setTab={setTab}/>,
     conquistas:<ConquistasSection st={st}setSt={setSt}/>,
     eixo:<EixoSection st={st}setSt={setSt}/>,
     config:<ConfigSection st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={manualSync}/>,
