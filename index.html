@@ -156,10 +156,41 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .note-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;}
 .note-card:hover .note-actions{opacity:1;}
 /* theme preset card */
-.theme-card{border:2px solid var(--bd2);border-radius:10px;padding:10px;cursor:pointer;transition:all .18s;text-align:center;}
-.theme-card.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac);}
-.theme-prev{height:36px;border-radius:6px;margin-bottom:6px;display:flex;align-items:flex-end;padding:4px;gap:3px;}
+.theme-card{position:relative;border:2px solid var(--bd2);border-radius:16px;padding:12px;cursor:pointer;transition:all .22s;text-align:left;overflow:hidden;background:var(--card);}
+.theme-card::after{content:"";position:absolute;inset:0;pointer-events:none;border-radius:14px;box-shadow:0 0 0 0 transparent;transition:box-shadow .22s;}
+.theme-card:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--ac) 40%,var(--bd2));}
+.theme-card.on{border-color:var(--ac);box-shadow:0 10px 30px -8px color-mix(in srgb,var(--ac) 45%,transparent),0 0 0 1px var(--ac);}
+.theme-card.on::after{box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--ac) 40%,transparent);}
+.theme-card .tc-badge{position:absolute;top:10px;right:10px;font-family:var(--fm);font-size:.56rem;letter-spacing:.16em;text-transform:uppercase;color:var(--ac);font-weight:700;opacity:0;transition:opacity .2s;}
+.theme-card.on .tc-badge{opacity:1;}
+.theme-prev{height:74px;border-radius:10px;margin-bottom:10px;display:flex;align-items:stretch;padding:8px;gap:6px;position:relative;overflow:hidden;}
+.theme-prev-sidebar{width:18px;border-radius:4px;display:flex;flex-direction:column;gap:3px;padding:4px 2px;}
+.theme-prev-sidebar i{width:8px;height:8px;border-radius:2px;display:block;}
+.theme-prev-main{flex:1;display:flex;flex-direction:column;gap:4px;}
+.theme-prev-head{height:8px;border-radius:3px;opacity:.85;}
+.theme-prev-line{height:3px;border-radius:2px;opacity:.4;}
+.theme-prev-btn{align-self:flex-start;margin-top:auto;padding:3px 10px;border-radius:3px;font-size:.5rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0a0a0a;}
 .theme-dot{width:10px;height:10px;border-radius:50%;}
+.tc-name{font-size:.88rem;font-weight:700;color:var(--tx);margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.tc-desc{font-size:.65rem;color:var(--tx3);line-height:1.4;margin-bottom:6px;}
+.tc-vibes{display:flex;flex-wrap:wrap;gap:4px;}
+.tc-vibe{font-size:.58rem;letter-spacing:.08em;text-transform:uppercase;color:var(--tx2);background:color-mix(in srgb,var(--ac) 8%,var(--card2));border:1px solid var(--bd2);border-radius:20px;padding:2px 8px;font-family:var(--fm);}
+/* current theme hero banner */
+.theme-current{position:relative;margin-bottom:18px;padding:22px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg,var(--card) 0%,var(--card2) 100%);border:1px solid var(--bd);}
+.theme-current::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 80% at 100% 0%,color-mix(in srgb,var(--ac) 22%,transparent),transparent 60%);pointer-events:none;}
+.theme-current>*{position:relative;}
+.tc-eyebrow{font-family:var(--fm);font-size:.62rem;letter-spacing:.22em;text-transform:uppercase;color:var(--ac);margin-bottom:10px;}
+.tc-cur-grid{display:grid;grid-template-columns:1fr 200px;gap:20px;align-items:center;}
+@media (max-width:560px){.tc-cur-grid{grid-template-columns:1fr;}}
+.tc-cur-info h3{font-family:var(--ft);font-size:1.6rem;letter-spacing:.04em;text-transform:uppercase;margin:0 0 6px;color:var(--tx);}
+.tc-cur-info p{font-size:.88rem;color:var(--tx2);line-height:1.5;margin:0 0 10px;font-style:italic;}
+.tc-cur-mock{aspect-ratio:9/16;border-radius:14px;padding:10px;display:flex;flex-direction:column;gap:6px;box-shadow:0 10px 30px -10px rgba(0,0,0,.55),inset 0 1px 0 rgba(255,255,255,.08);max-width:200px;justify-self:end;}
+.tc-cur-mock .m-nav{height:14px;border-radius:4px;display:flex;align-items:center;gap:4px;padding:0 6px;}
+.tc-cur-mock .m-nav i{width:8px;height:4px;border-radius:2px;opacity:.55;}
+.tc-cur-mock .m-body{flex:1;display:flex;flex-direction:column;gap:5px;padding:4px;}
+.tc-cur-mock .m-card{border-radius:6px;padding:6px;display:flex;flex-direction:column;gap:3px;flex:1;}
+.tc-cur-mock .m-card i{height:3px;border-radius:2px;opacity:.45;}
+.tc-cur-mock .m-card .m-btn{align-self:flex-start;width:50%;height:10px;border-radius:3px;margin-top:auto;}
 /* skill tree — templo RPG premium (navy + ouro) */
 .st-screen{background:linear-gradient(180deg,#0B1522,#13263D 55%,#0B1522);}
 .st-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;}
@@ -291,48 +322,78 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 }
 
 /* ===================== REELS — feed de evolução ===================== */
-.reels{display:flex;flex-direction:column;}
-.reels-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:12px 14px 10px;}
-.reels-bar .rb-title{font-family:var(--ft);font-size:1.15rem;letter-spacing:.06em;color:var(--ac);line-height:1;}
-.reels-bar .rb-sub{font-size:.68rem;color:var(--tx2);margin-top:4px;max-width:240px;line-height:1.35;}
-.rb-stats{display:flex;gap:14px;flex-shrink:0;}
+.reels{display:flex;flex-direction:column;position:relative;}
+.reels::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(80% 35% at 50% 0%,color-mix(in srgb,var(--ac) 10%,transparent),transparent 65%),radial-gradient(60% 40% at 100% 100%,color-mix(in srgb,var(--ac) 8%,transparent),transparent 70%);z-index:0;}
+.reels>*{position:relative;z-index:1;}
+.reels-bar{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;padding:18px 18px 12px;border-bottom:1px solid var(--bd);}
+.reels-bar .rb-title{font-family:var(--ft);font-size:1.4rem;letter-spacing:.08em;color:var(--ac);line-height:1;text-shadow:0 0 22px color-mix(in srgb,var(--ac) 45%,transparent);}
+.reels-bar .rb-sub{font-size:.74rem;color:var(--tx2);margin-top:6px;max-width:260px;line-height:1.4;font-style:italic;}
+.rb-stats{display:flex;gap:16px;flex-shrink:0;}
 .rb-stat{text-align:center;}
-.rb-stat b{display:block;font-family:var(--fm);font-size:1.05rem;color:var(--tx);line-height:1;}
-.rb-stat span{font-size:.56rem;text-transform:uppercase;letter-spacing:.12em;color:var(--tx3);}
+.rb-stat b{display:block;font-family:var(--fm);font-size:1.2rem;color:var(--tx);line-height:1;text-shadow:0 0 14px color-mix(in srgb,var(--ac) 40%,transparent);}
+.rb-stat span{font-size:.58rem;text-transform:uppercase;letter-spacing:.14em;color:var(--tx3);}
+.rb-stat.fire b{color:#f97316;text-shadow:0 0 18px rgba(249,115,22,.55);}
+
+/* HERO — desafio mental do dia */
+.reel-hero{position:relative;margin:14px 16px 6px;padding:22px 22px 20px;border-radius:18px;overflow:hidden;background:linear-gradient(135deg, color-mix(in srgb,var(--ac) 22%,var(--card)) 0%, var(--card) 60%);border:1px solid color-mix(in srgb,var(--ac) 35%,var(--bd));box-shadow:0 10px 40px -10px color-mix(in srgb,var(--ac) 38%,transparent),inset 0 1px 0 color-mix(in srgb,#fff 12%,transparent);animation:fu .4s ease;}
+.reel-hero::before{content:"";position:absolute;inset:-40%;background:conic-gradient(from 45deg,color-mix(in srgb,var(--ac) 14%,transparent),transparent 30%,color-mix(in srgb,var(--ac) 10%,transparent) 55%,transparent 70%,color-mix(in srgb,var(--ac) 14%,transparent));animation:hero-spin 18s linear infinite;opacity:.6;pointer-events:none;}
+.reel-hero::after{content:"";position:absolute;inset:1px;border-radius:17px;background:linear-gradient(160deg,color-mix(in srgb,var(--card) 88%,transparent),color-mix(in srgb,var(--card) 98%,transparent));pointer-events:none;}
+.reel-hero>*{position:relative;z-index:1;}
+.rh-eyebrow{font-family:var(--fm);font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--ac);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.rh-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--ac);box-shadow:0 0 10px var(--ac);animation:pulse 1.6s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.78);}}
+@keyframes hero-spin{to{transform:rotate(360deg);}}
+.rh-title{font-family:var(--ft);font-size:clamp(1.8rem,7vw,2.5rem);line-height:.95;letter-spacing:.03em;text-transform:uppercase;color:var(--tx);margin-bottom:12px;}
+.rh-body{font-size:1.02rem;line-height:1.55;color:var(--tx);max-width:560px;font-style:italic;margin-bottom:14px;}
+.rh-cta{display:flex;align-items:center;gap:10px;font-family:var(--fm);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--ac);font-weight:700;}
+.rh-cta .rh-arrow{display:inline-block;animation:rh-slide 1.4s ease-in-out infinite;}
+@keyframes rh-slide{0%,100%{transform:translateX(0);opacity:.7;}50%{transform:translateX(6px);opacity:1;}}
+
 .reels-feed{overflow-y:auto;scroll-snap-type:y mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;border-top:1px solid var(--bd);}
 .reels-feed::-webkit-scrollbar{display:none;}
-.reel-card{scroll-snap-align:start;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:16px;padding:22px 20px 24px;position:relative;background:var(--card);border-bottom:1px solid var(--bd);animation:fu .25s ease;}
-.reel-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 70% at 50% 0%,color-mix(in srgb,var(--rc) 14%,transparent) 0%,transparent 58%);}
+.reel-card{scroll-snap-align:start;min-height:100%;box-sizing:border-box;display:flex;flex-direction:column;gap:18px;padding:28px 22px 26px;position:relative;background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 6%,var(--card)),var(--card) 30%);border-bottom:1px solid var(--bd);animation:fu .35s ease;overflow:hidden;}
+.reel-card::before{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(140% 80% at 50% -5%,color-mix(in srgb,var(--rc) 22%,transparent) 0%,transparent 55%),radial-gradient(80% 50% at 100% 100%,color-mix(in srgb,var(--rc) 10%,transparent),transparent 70%);}
+.reel-card::after{content:"";position:absolute;left:-30%;top:-30%;width:160%;height:160%;pointer-events:none;background:conic-gradient(from 0deg,transparent,color-mix(in srgb,var(--rc) 8%,transparent),transparent 40%);opacity:.35;animation:hero-spin 24s linear infinite;}
 .reel-card>*{position:relative;z-index:1;}
-.rc-top{display:flex;justify-content:space-between;align-items:center;font-size:.66rem;}
-.rc-tree{font-family:var(--fm);letter-spacing:.06em;color:var(--rc);text-transform:uppercase;font-weight:700;}
+.rc-top{display:flex;justify-content:space-between;align-items:center;font-size:.68rem;}
+.rc-tree{font-family:var(--fm);letter-spacing:.1em;color:var(--rc);text-transform:uppercase;font-weight:700;text-shadow:0 0 14px color-mix(in srgb,var(--rc) 45%,transparent);}
 .rc-meta{display:flex;gap:8px;align-items:center;font-family:var(--fm);color:var(--tx3);}
 .rc-reps{color:var(--tx2);}
-.rc-nivel{border:1px solid var(--bd2);border-radius:20px;padding:2px 8px;}
-.rc-mid{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
-.rc-kind{font-family:var(--fm);font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--tx2);margin-bottom:14px;}
+.rc-nivel{border:1px solid var(--bd2);border-radius:20px;padding:3px 10px;}
+.rc-mid{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;gap:4px;}
+.rc-hook{font-family:var(--ft);font-size:.82rem;letter-spacing:.06em;color:var(--rc);opacity:.9;text-transform:uppercase;margin-bottom:2px;}
+.rc-kind{font-family:var(--fm);font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;color:var(--tx2);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.rc-kind::before{content:"";width:18px;height:1px;background:var(--rc);}
 .rc-ai{color:var(--ac);}
-.rc-skill{font-size:.9rem;font-weight:700;color:var(--rc);margin-bottom:8px;}
-.rc-title{font-family:var(--ft);font-weight:400;font-size:clamp(2rem,8.5vw,3rem);line-height:.96;letter-spacing:.02em;text-transform:uppercase;color:var(--tx);}
-.rc-body{margin-top:14px;font-size:1.02rem;line-height:1.5;color:var(--tx2);max-width:540px;}
+.rc-skill{font-family:var(--ft);font-size:1.05rem;font-weight:400;letter-spacing:.04em;text-transform:uppercase;color:var(--rc);margin-bottom:4px;opacity:.85;}
+.rc-title{font-family:var(--ft);font-weight:400;font-size:clamp(2.3rem,10vw,3.6rem);line-height:.94;letter-spacing:.02em;text-transform:uppercase;color:var(--tx);text-shadow:0 2px 30px color-mix(in srgb,var(--rc) 30%,transparent);}
+.rc-body{margin-top:16px;font-size:1.1rem;line-height:1.58;color:var(--tx);max-width:560px;}
+.rc-body b{color:var(--rc);font-weight:700;}
+.rc-cta{margin-top:18px;display:inline-flex;align-items:center;gap:8px;font-family:var(--fm);font-size:.68rem;letter-spacing:.18em;text-transform:uppercase;color:var(--tx3);}
+.rc-cta .rc-arrow{animation:rh-slide 1.4s ease-in-out infinite;color:var(--rc);}
+.rc-identity{font-family:var(--serif,var(--ft));font-style:italic;font-size:clamp(1.6rem,6.5vw,2.3rem);line-height:1.1;color:var(--tx);margin-top:12px;text-align:left;border-left:3px solid var(--rc);padding-left:16px;}
+.rc-identity b{color:var(--rc);font-weight:700;font-style:normal;}
+.rc-paradox{font-family:var(--serif,var(--ft));font-size:clamp(1.35rem,5.5vw,1.9rem);line-height:1.2;color:var(--tx);margin:14px 0;font-style:italic;}
+.rc-paradox .rc-vs{display:inline-block;color:var(--rc);font-style:normal;font-weight:800;margin:0 8px;letter-spacing:.1em;}
+.rc-trigger-when{font-family:var(--ft);font-size:1.15rem;letter-spacing:.04em;text-transform:uppercase;color:var(--tx2);margin-top:8px;}
+.rc-trigger-then{font-family:var(--ft);font-size:clamp(1.7rem,6.5vw,2.4rem);letter-spacing:.03em;text-transform:uppercase;color:var(--rc);line-height:1;margin-top:6px;text-shadow:0 2px 18px color-mix(in srgb,var(--rc) 40%,transparent);}
+.rc-question{font-family:var(--serif,var(--ft));font-size:clamp(1.7rem,7vw,2.6rem);line-height:1.08;color:var(--tx);font-weight:400;margin:8px 0 14px;}
+.rc-question b{color:var(--rc);}
+.rc-answer{font-size:1rem;line-height:1.6;color:var(--tx2);max-width:540px;font-style:italic;}
 .rc-actions{display:flex;gap:10px;}
-.rc-btn{font-family:var(--ff);font-weight:700;font-size:.9rem;border-radius:12px;padding:15px 12px;cursor:pointer;border:1px solid transparent;transition:transform .12s,background .2s,box-shadow .2s,color .2s;}
-.rc-do{flex:2;background:var(--rc);color:#0a0a0a;box-shadow:0 6px 18px color-mix(in srgb,var(--rc) 32%,transparent);}
-.rc-do:hover{transform:translateY(-2px);}
-.rc-do:active{transform:translateY(0);}
+.rc-btn{font-family:var(--ff);font-weight:700;font-size:.92rem;border-radius:14px;padding:16px 12px;cursor:pointer;border:1px solid transparent;transition:transform .14s,background .2s,box-shadow .2s,color .2s,filter .2s;}
+.rc-train{width:100%;background:linear-gradient(135deg,var(--rc),color-mix(in srgb,#000 14%,var(--rc)));color:#0a0a0a;font-size:1.02rem;letter-spacing:.04em;box-shadow:0 10px 28px -6px color-mix(in srgb,var(--rc) 55%,transparent),inset 0 1px 0 rgba(255,255,255,.25);}
+.rc-train:hover{transform:translateY(-2px);filter:brightness(1.08);}
+.rc-train:active{transform:translateY(0);}
+.rc-sub{gap:10px;}
+.rc-do2{flex:2;background:color-mix(in srgb,var(--rc) 8%,var(--card3));color:var(--tx);border:1px solid color-mix(in srgb,var(--rc) 28%,var(--bd2));}
+.rc-do2:hover{color:#fff;border-color:var(--rc);background:color-mix(in srgb,var(--rc) 14%,var(--card3));}
 .rc-done{flex:2;background:transparent;color:var(--ok);border-color:var(--ok);cursor:default;}
 .rc-skip{flex:1;background:var(--card3);color:var(--tx2);}
 .rc-skip:hover{color:var(--tx);}
 .reels-sentinel{scroll-snap-align:start;display:flex;align-items:center;justify-content:center;min-height:110px;color:var(--tx3);font-family:var(--fm);font-size:.68rem;letter-spacing:.12em;text-transform:uppercase;}
 .reels-empty{padding:48px 24px;text-align:center;color:var(--tx2);line-height:1.6;}
 .reels-empty .re-emoji{font-size:2.4rem;display:block;margin-bottom:12px;}
-/* card: ação primária Treinar + secundárias */
-.rc-train{width:100%;background:var(--rc);color:#0a0a0a;font-size:1rem;box-shadow:0 6px 18px color-mix(in srgb,var(--rc) 32%,transparent);}
-.rc-train:hover{transform:translateY(-2px);}
-.rc-train:active{transform:translateY(0);}
-.rc-sub{gap:10px;}
-.rc-do2{flex:2;background:var(--card3);color:var(--tx);border:1px solid var(--bd2);}
-.rc-do2:hover{color:#fff;border-color:var(--rc);}
 /* stories */
 .stories-row{display:flex;gap:13px;overflow-x:auto;scrollbar-width:none;padding:12px 14px 4px;}
 .stories-row::-webkit-scrollbar{display:none;}
@@ -523,35 +584,55 @@ const BG_LVL={
 const THEMES=[
   {
     id:'claude', name:'Claude', emoji:'🟠', bg:'#0a0a0a', card:'#141414', card2:'#1c1c1c', bd:'#282828', ac:'#FF6B00',
-    ff:"'Inter', sans-serif", ft:"'Bebas Neue'", r:'10px', sh:'none'
+    ff:"'Inter', sans-serif", ft:"'Bebas Neue'", r:'10px', sh:'none',
+    desc:'Escuro, sóbrio, com laranja vibrante. Pra quem pensa em sistema e não em hype.',
+    vibes:['foco','sóbrio','sistema'],
   },
   {
     id:'minimal', name:'Minimalista', emoji:'⚪', bg:'#f8f9fa', card:'#ffffff', card2:'#f1f3f5', bd:'#dee2e6', ac:'#212529',
-    ff:"'Inter', sans-serif", ft:"'Inter'", r:'4px', sh:'0 2px 10px rgba(0,0,0,0.05)', tx:'#212529', tx2:'#495057', tx3:'#adb5bd'
+    ff:"'Inter', sans-serif", ft:"'Inter'", r:'4px', sh:'0 2px 10px rgba(0,0,0,0.05)', tx:'#212529', tx2:'#495057', tx3:'#adb5bd',
+    desc:'Claro, limpo, sem distrações. A mente respira quando a tela respira.',
+    vibes:['clean','zen','leve'],
   },
   {
     id:'cyberpunk', name:'Cyberpunk', emoji:'🔮', bg:'#0d0221', card:'#120a2e', card2:'#18103a', bd:'#ff2d78', ac:'#00f0ff',
-    ff:"'JetBrains Mono', monospace", ft:"'Unbounded'", r:'0px', sh:'3px 3px 0px #ff2d78', bdw:'2px'
+    ff:"'JetBrains Mono', monospace", ft:"'Unbounded'", r:'0px', sh:'3px 3px 0px #ff2d78', bdw:'2px',
+    desc:'Roxo profundo + neon ciano. Pra quem vive de noite e constrói de madrugada.',
+    vibes:['neon','hacker','noite'],
   },
   {
     id:'academia', name:'Dark Academia', emoji:'📜', bg:'#1a1412', card:'#261f1d', card2:'#2d2522', bd:'#4a3b35', ac:'#c4a484',
-    ff:"'Cinzel', serif", ft:"'Cinzel'", r:'2px', sh:'none', bdw:'1px'
+    ff:"'Cinzel', serif", ft:"'Cinzel'", r:'2px', sh:'none', bdw:'1px',
+    desc:'Biblioteca antiga, papel envelhecido, tinta sépia. Pra quem pensa em latim.',
+    vibes:['clássico','literário','sépia'],
   },
   {
     id:'retro', name:'Retro 8-bit', emoji:'🕹️', bg:'#0f380f', card:'#306230', card2:'#8bac0f', bd:'#0f380f', ac:'#9bbc0f',
-    ff:"'Press Start 2P', cursive", ft:"'Press Start 2P'", r:'0px', sh:'none', bdw:'4px'
+    ff:"'Press Start 2P', cursive", ft:"'Press Start 2P'", r:'0px', sh:'none', bdw:'4px',
+    desc:'Game Boy verde fosforescente. Saudade dos 8 bits que nunca vivemos.',
+    vibes:['pixel','nostalgia','game boy'],
   },
   {
     id:'brutalist', name:'Brutalista', emoji:'🗿', bg:'#ffffff', card:'#ffffff', card2:'#eeeeee', bd:'#000000', ac:'#ffff00',
-    ff:"'Space Grotesk', sans-serif", ft:"'Unbounded'", r:'0px', sh:'6px 6px 0px #000000', bdw:'3px', tx:'#000000'
+    ff:"'Space Grotesk', sans-serif", ft:"'Unbounded'", r:'0px', sh:'6px 6px 0px #000000', bdw:'3px', tx:'#000000',
+    desc:'Borda preta grossa, fundo branco, zero concessão. Brutal e honesto.',
+    vibes:['cru','ousado','direto'],
   },
   {
     id:'glass', name:'Glassmorphism', emoji:'💎', bg:'#0f172a', card:'rgba(30, 41, 59, 0.7)', card2:'rgba(51, 65, 85, 0.5)', bd:'rgba(255, 255, 255, 0.1)', ac:'#38bdf8',
-    ff:"'Inter', sans-serif", ft:"'Inter'", r:'20px', sh:'0 8px 32px 0 rgba(0,0,0,0.37)', glass:true
+    ff:"'Inter', sans-serif", ft:"'Inter'", r:'20px', sh:'0 8px 32px 0 rgba(0,0,0,0.37)', glass:true,
+    desc:'Vidro fosco sobre céu profundo. Moderno, elegante, translúcido.',
+    vibes:['vidro','moderno','etéreo'],
   },
-  {id:'dracula',   name:'Drácula',      emoji:'🧛', bg:'#1e1f29', card:'#282a36', card2:'#313341', bd:'#44475a', ac:'#bd93f9', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none'},
-  {id:'tokyonight',name:'Tokyo Night',  emoji:'🌃', bg:'#16161e', card:'#1a1b26', card2:'#1f2335', bd:'#292e42', ac:'#7aa2f7', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none'},
-  {id:'nord',      name:'Nord',         emoji:'🔵', bg:'#1e2030', card:'#252b40', card2:'#2e3554', bd:'#404c6e', ac:'#81a1c1', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none'},
+  {id:'dracula', name:'Drácula', emoji:'🧛', bg:'#1e1f29', card:'#282a36', card2:'#313341', bd:'#44475a', ac:'#bd93f9', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none',
+    desc:'Noite roxa com acento fantasma. Clássico dos devs que gostam de sombra.',
+    vibes:['noturno','roxo','dev']},
+  {id:'tokyonight', name:'Tokyo Night', emoji:'🌃', bg:'#16161e', card:'#1a1b26', card2:'#1f2335', bd:'#292e42', ac:'#7aa2f7', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none',
+    desc:'Tóquio às 3 da manhã. Neon azul, calma e código.',
+    vibes:['urbano','azul','noturno']},
+  {id:'nord', name:'Nord', emoji:'🔵', bg:'#1e2030', card:'#252b40', card2:'#2e3554', bd:'#404c6e', ac:'#81a1c1', ff:"'DM Sans'", ft:"'Bebas Neue'", r:'8px', sh:'none',
+    desc:'Inverno escandinavo. Cores frias, foco longo.',
+    vibes:['frio','sereno','nórdico']},
 ];
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
@@ -4473,21 +4554,57 @@ function CfgAparencia({st,setCfg,setSt}){
   }
   const curTheme=THEMES.find(t=>t.id===st.config.themeId)||THEMES[0];
   const activeAc=st.config.accentOverride||curTheme.ac;
+  // mini mockup reutilizável do app usando cores do tema
+  const ThemeMock=({t,big=false})=>{
+    return<div className="theme-prev"style={{background:t.bg,border:`1px solid ${t.bd}`,borderRadius:t.r,fontFamily:t.ff,height:big?170:74}}>
+      <div className="theme-prev-sidebar"style={{background:t.card2,border:`1px solid ${t.bd}`}}>
+        {[0,1,2].map(i=><i key={i}style={{background:i===1?t.ac:t.bd}}/>)}
+      </div>
+      <div className="theme-prev-main">
+        <div className="theme-prev-head"style={{background:t.card,border:`1px solid ${t.bd}`}}/>
+        <div className="theme-prev-line"style={{background:t.tx||t.card2,width:'78%'}}/>
+        <div className="theme-prev-line"style={{background:t.tx||t.card2,width:'55%'}}/>
+        <div style={{display:'flex',gap:4,marginTop:'auto'}}>
+          <div className="theme-prev-btn"style={{background:t.ac,borderRadius:t.r,fontFamily:t.ft,fontSize:big?'.6rem':'.44rem'}}>{t.emoji}</div>
+        </div>
+      </div>
+    </div>;
+  };
   return<div>
-    {/* Theme presets */}
-    <div className="cfg-s">
-      <div className="cfg-t">Tema visual (Personalidade)</div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(110px,1fr))',gap:'10px'}}>
-        {THEMES.map(t=><div key={t.id}className={`theme-card${st.config.themeId===t.id?' on':''}`}onClick={()=>setTheme(t.id)}
-          style={{fontFamily:t.ff, borderRadius:t.r, border: `2px solid ${st.config.themeId===t.id?t.ac:'var(--bd2)'}`, boxShadow: t.sh}}>
-          {/* Mini preview */}
-          <div className="theme-prev"style={{background:t.bg,border:`1px solid ${t.bd}`,borderRadius:t.r}}>
-            <div style={{flex:1,height:'100%',background:t.card,borderRadius:t.r}}/>
-            <div className="theme-dot"style={{background:t.ac}}/>
+    {/* Current theme hero */}
+    <div className="theme-current">
+      <div className="tc-eyebrow">Tema ativo agora</div>
+      <div className="tc-cur-grid">
+        <div className="tc-cur-info">
+          <h3>{curTheme.emoji} {curTheme.name}</h3>
+          <p>{curTheme.desc}</p>
+          <div className="tc-vibes">
+            {(curTheme.vibes||[]).map(v=><span key={v}className="tc-vibe">{v}</span>)}
           </div>
-          <div style={{fontSize:'.75rem',fontWeight:700,marginBottom:'2px'}}>{t.emoji} {t.name}</div>
-          <div style={{fontSize:'.6rem',color:'var(--tx3)',fontFamily:'sans-serif'}}>Style: {t.id}</div>
-        </div>)}
+        </div>
+        <ThemeMock t={curTheme}big={true}/>
+      </div>
+    </div>
+    {/* Theme gallery */}
+    <div className="cfg-s">
+      <div className="cfg-t">Galeria de temas (Personalidade)</div>
+      <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
+        Escolhe o clima que combina com teu momento. Cada tema muda tipografia, paleta e vibe — não só as cores.
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(170px,1fr))',gap:'14px'}}>
+        {THEMES.map(t=>{
+          const on=st.config.themeId===t.id;
+          return<div key={t.id}className={`theme-card${on?' on':''}`}onClick={()=>setTheme(t.id)}
+            style={{fontFamily:t.ff, borderRadius:t.r, borderColor: on?t.ac:'var(--bd2)', boxShadow: t.sh}}>
+            <span className="tc-badge">ATIVO</span>
+            <ThemeMock t={t}/>
+            <div className="tc-name">{t.emoji} {t.name}</div>
+            <div className="tc-desc">{t.desc}</div>
+            <div className="tc-vibes">
+              {(t.vibes||[]).slice(0,3).map(v=><span key={v}className="tc-vibe">{v}</span>)}
+            </div>
+          </div>;
+        })}
       </div>
     </div>
     {/* Accent color override */}
@@ -4898,17 +5015,51 @@ function reelsSkillPool(st,treeId){
 }
 
 // Cards feitos pra fazer AGORA, onde você estiver — só mente e atenção (nada físico)
+// Cada card traz uma MENTALIZAÇÃO OBRIGATÓRIA — o usuário precisa parar e viver aquilo.
 const REEL_TPL=[
-  {type:'acao',title:'Filme mental',body:s=>`Fecha os olhos 30s e se assiste fazendo ${s.skillNome.toLowerCase()} perfeito, em câmera lenta. Repara no detalhe, não só no resultado.`},
-  {type:'acao',title:'Ensaio em 1ª pessoa',body:s=>`Imagina ${s.skillNome.toLowerCase()} pelos teus próprios olhos — sente o movimento no corpo, não de fora. Repete 3x na mente, aí onde você tá.`},
-  {type:'acao',title:'Contraste mental',body:s=>`Imagina errando ${s.skillNome.toLowerCase()} feio. Agora imagina acertando redondo. Sente a diferença no corpo — é ela que você vai buscar.`},
-  {type:'acao',title:'Decupa o gesto',body:s=>`Na cabeça, quebra ${s.skillNome.toLowerCase()} em 3 micro-passos e nomeia cada um. O que o cérebro nomeia, ele passa a controlar.`},
-  {type:'acao',title:'Mira o próximo nível',body:s=>`Teu próximo degrau: ${s.next}. Fecha os olhos e se vê já nesse nível por 20s, como se fosse a coisa mais natural.`},
-  {type:'acao',title:'Revive a sensação',body:s=>`Lembra da última vez que ${s.skillNome.toLowerCase()} saiu redondo. Revive a sensação no corpo agora — a memória do acerto também treina.`},
-  {type:'acao',title:'Caça o gatilho',body:s=>`Na mente, acha o instante exato em que ${s.skillNome.toLowerCase()} começa. Ensaia perceber esse gatilho — metade do acerto é ler o momento.`},
-  {type:'aprendizado',title:'Onde você está',body:s=>`Hoje teu ${s.skillNome.toLowerCase()} tá: ${s.cur}. Reconhecer o ponto exato, sem se enganar, já move a agulha.`},
-  {type:'aprendizado',title:'Auto-explica',body:s=>`Explica ${s.skillNome.toLowerCase()} em silêncio pra você mesmo, como se ensinasse alguém. Onde a explicação travar é o que ainda falta dominar.`},
+  // ── AÇÃO (mentalizações guiadas) ────────────────────────────────────────
+  {type:'acao',title:'Filme mental',hook:'Fecha os olhos. A câmera começa a girar.',body:s=>`Por 30s, se assiste fazendo ${s.skillNome.toLowerCase()} perfeito, em câmera lenta. Repara num detalhe só — o detalhe é o que muda tudo.`},
+  {type:'acao',title:'Ensaio em 1ª pessoa',hook:'Não é de fora. É pelos teus olhos.',body:s=>`Vive ${s.skillNome.toLowerCase()} por dentro do teu corpo, agora. Sente o movimento 3x seguidas, aí mesmo onde você tá.`},
+  {type:'acao',title:'Contraste mental',hook:'Primeiro o erro. Depois o acerto redondo.',body:s=>`Imagina errando ${s.skillNome.toLowerCase()} feio. Agora imagina acertando. A diferença que teu corpo sente entre os dois é a bússola.`},
+  {type:'acao',title:'Decupa o gesto',hook:'3 micro-passos. É isso que o cérebro grava.',body:s=>`Na cabeça, quebra ${s.skillNome.toLowerCase()} em 3 passos e dá nome a cada um. O que o cérebro nomeia, ele passa a controlar.`},
+  {type:'acao',title:'Mira o próximo nível',hook:'Teu próximo degrau tem uma cara.',body:s=>`O próximo passo em ${s.skillNome.toLowerCase()} é: ${s.next}. Se vê já nesse nível por 20s, como se fosse teu.`},
+  {type:'acao',title:'Revive a sensação',hook:'A memória do acerto também treina.',body:s=>`Lembra da última vez que ${s.skillNome.toLowerCase()} saiu redondo. Traz a sensação pro corpo agora — ela é teu mapa.`},
+  {type:'acao',title:'Caça o gatilho',hook:'Metade do acerto é ler o instante.',body:s=>`Acha na mente o momento exato em que ${s.skillNome.toLowerCase()} começa. Ensaia reconhecer esse gatilho antes de agir.`},
+  // ── APRENDIZADO (sacadas) ───────────────────────────────────────────────
+  {type:'aprendizado',title:'Onde você está',hook:'Sem se enganar — é isso que move a agulha.',body:s=>`Hoje teu ${s.skillNome.toLowerCase()} tá: ${s.cur}. Nomear o ponto exato é metade do caminho.`},
+  {type:'aprendizado',title:'Auto-explica',hook:'Onde a explicação trava, falta domínio.',body:s=>`Explica ${s.skillNome.toLowerCase()} em silêncio pra você mesmo, como se ensinasse alguém. O travamento revela o que falta.`},
+  // ── IDENTIDADE (ancorar quem eu estou me tornando) ──────────────────────
+  {type:'identidade',title:'Eu sou alguém que',hook:'Identidade antes de resultado.',body:s=>`Eu sou alguém que ${s.skillNome.toLowerCase()} todo dia — e cada repetição é um voto pra essa identidade. Hoje, mais um.`},
+  {type:'identidade',title:'Prova pra mim mesmo',hook:'O cérebro acredita no que tu faz.',body:s=>`Cada vez que pratico ${s.skillNome.toLowerCase()}, meu cérebro grava: "esse cara é dos que fazem." A prova é a prática.`},
+  {type:'identidade',title:'Quem eu seria?',hook:'Se já tivesse dominado, o que faria agora?',body:s=>`Se eu já fosse mestre em ${s.skillNome.toLowerCase()}, como agiria nos próximos 5 minutos? Age assim — começa pela postura.`},
+  // ── PROVOCAÇÃO (pergunta que queima) ────────────────────────────────────
+  {type:'provocacao',title:'Pergunta que queima',hook:'Responde antes de pular.',body:s=>`Se você levasse ${s.skillNome.toLowerCase()} a sério de verdade nos próximos 30 dias, quem você seria? Fecha os olhos e encara essa imagem.`},
+  {type:'provocacao',title:'Mentira que eu conto',hook:'Toda desculpa esconde uma escolha.',body:s=>`Qual é a desculpa mais usada pra não praticar ${s.skillNome.toLowerCase()} hoje? E se ela for só uma história que você conta?`},
+  {type:'provocacao',title:'O que custa mais?',hook:'Curto prazo confortável, longo prazo vazio.',body:s=>`O que custa mais: 2 minutos ensaiando ${s.skillNome.toLowerCase()} agora, ou 1 ano no mesmo nível? Sente o peso dessa escolha.`},
+  // ── GATILHO MENTAL (se… então…) ─────────────────────────────────────────
+  {type:'gatilho',title:'Quando… então…',hook:'Cria o protocolo agora, na mente.',body:s=>`Quando eu sentir preguiça de ${s.skillNome.toLowerCase()}, então eu fecho os olhos por 10s e faço um ensaio mental. Só isso. O protocolo vence a vontade.`},
+  {type:'gatilho',title:'Se travar, faz isso',hook:'O plano B mental sempre na mão.',body:s=>`Se travar na hora de ${s.skillNome.toLowerCase()}, a regra é: quebra em 2 passos e faz só o primeiro. Movimento gera clareza.`},
+  // ── PARADOXO (quebra de crença) ─────────────────────────────────────────
+  {type:'paradoxo',title:'Paradoxo do domínio',hook:'Duas verdades que parecem opostas.',body:s=>`Pra dominar ${s.skillNome.toLowerCase()}, você precisa treinar sem pressa — mas com urgência. A pressa é inimiga. A urgência é aliada.`},
+  {type:'paradoxo',title:'Menos é mais',hook:'Intensidade sem consistência é ilusão.',body:s=>`5 minutos de ${s.skillNome.toLowerCase()} todo dia batem 2 horas esporádicas. Frequência constrói o caminho neural — não intensidade.`},
 ];
+
+// Desafio mental diário (hero no topo) — rotaciona sozinho
+const REEL_DAILY_CHALLENGES=[
+  {title:'Desafio mental de hoje',body:'Hoje, antes de qualquer decisão importante, para 3s e se pergunta: "o meu eu de 1 ano aprovaria essa escolha?"'},
+  {title:'Missão invisível',body:'Hoje faz 1 coisa pequena que o teu eu do futuro vai agradecer. Ninguém vai ver. Isso basta.'},
+  {title:'Teste do espelho',body:'Hoje à noite, no espelho, te faz a pergunta: "O que eu evitei fazer hoje que o meu eu melhor faria?"'},
+  {title:'Protocolo do mínimo',body:'Se a motivação sumir hoje, o protocolo é: 2 minutos. Só 2. O mínimo viável mantém o sistema vivo.'},
+  {title:'Caça ao gatilho',body:'Hoje observa o momento exato em que tua vontade de desistir aparece. Nomeia ele. Escreve o gatilho. É metade da vitória.'},
+  {title:'Ensaio da identidade',body:'Antes de dormir, revive por 60s a versão mais forte de você. Não a de hoje — a que você tá construindo.'},
+  {title:'Contraste mental',body:'Hoje, antes de uma tarefa difícil, imagina você travando. Depois imagina você fluindo. A diferença é o treino.'},
+  {title:'Pergunta de poder',body:'Se só te restassem 6 meses de vida no ritmo atual, o que você mudaria essa semana? Começa por aí.'},
+];
+
+function reelDailyChallenge(){
+  const d=new Date();const idx=(d.getFullYear()*1000+d.getMonth()*31+d.getDate())%REEL_DAILY_CHALLENGES.length;
+  return REEL_DAILY_CHALLENGES[idx];
+}
 
 function reelClean(t){return String(t||'').replace(/[.\s]+$/,'');}
 function reelMakeCard(s,tpl){
@@ -4920,7 +5071,7 @@ function reelMakeCard(s,tpl){
   let title=tpl.title;
   if(tpl.type==='aprendizado'&&tpl.title==='O próximo degrau'&&maxed)title='Mantém afiado';
   return{
-    id:rid(),type:tpl.type,title,body:tpl.body(ctx),next,
+    id:rid(),type:tpl.type,title,hook:tpl.hook||'',body:tpl.body(ctx),next,
     skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
     treeEmoji:s.treeEmoji,emoji:s.emoji,pal:s.pal,nivel:s.nivel,maxNivel:s.maxNivel,source:'curado',
   };
@@ -4965,19 +5116,23 @@ async function reelGenAI(st,n,treeId){
   const byName={};pool.forEach(s=>{byName[s.skillNome.toLowerCase()]=s;});
   const picks=reelPickSkills(pool,n);
   const list=picks.map(s=>`- ${s.skillNome} (${s.treeNome}, nível ${s.nivel}/${s.maxNivel}; próximo: ${(s.levels&&s.levels[s.nivel+1])||'dominar e ensinar'})`).join('\n');
-  const prompt=`Estas são habilidades minhas que quero evoluir:\n${list}\n\nQuero cards estilo "reels" que eu consiga fazer AGORA MESMO, em qualquer lugar (sentado, no ônibus, na fila), só com a mente e o celular. Para cada habilidade crie 1 card: ou uma MENTALIZAÇÃO/VISUALIZAÇÃO curta (filme mental em câmera lenta, ensaio em 1ª pessoa, contraste mental acerto-vs-erro, reviver a sensação do acerto, caçar o gatilho do gesto) — tipo "acao"; ou uma SACADA rápida (insight específico que eu reconheço na hora) — tipo "aprendizado". NUNCA peça prática física que precise de bola, espaço, equipamento, gravar vídeo ou suar. Responda APENAS um array JSON válido, nada fora dele:\n[{"skill":"nome exato da habilidade","type":"acao ou aprendizado","title":"até 4 palavras","body":"1 a 2 frases, máximo 200 caracteres, no imperativo, algo pra fazer na hora só com a mente"}]`;
+  const types=['acao','aprendizado','identidade','provocacao','gatilho','paradoxo'].join(', ');
+  const prompt=`Estas são habilidades minhas que quero evoluir:\n${list}\n\nCrie cards estilo "reels" de mentalização que eu possa fazer AGORA MESMO (no ônibus, na fila, sentado), só com a mente. Tipos válidos: ${types}.\n- acao: visualização curta (filme mental, ensaio 1ª pessoa, contraste acerto-vs-erro, reviver sensação do acerto, caçar gatilho)\n- aprendizado: sacada rápida / insight\n- identidade: afirmação que ancora quem estou virando (ex.: "Eu sou alguém que...")\n- provocacao: pergunta que queima e obriga a encarar uma verdade\n- gatilho: protocolo "quando X, então Y" mental\n- paradoxo: duas verdades que parecem opostas mas coexistem\nNUNCA peça prática física (bola, espaço, equipamento, gravar vídeo). CADA card precisa ter um "hook" de 1 frase curta (até 50 chars) que prende antes do título. Responda APENAS um array JSON:\n[{"skill":"nome exato","type":"tipo","hook":"até 50 chars","title":"até 4 palavras","body":"1 a 2 frases, máx 200 chars, imperativo"}]`;
   let raw;
   try{raw=await aiCall(AI_SYS_MALANDRO,prompt,1000);}catch(e){return[];}
   const arr=reelParseJSON(raw);
   if(!Array.isArray(arr))return[];
+  const allowed=new Set(['acao','aprendizado','identidade','provocacao','gatilho','paradoxo']);
   const out=[];
   arr.forEach(o=>{
     if(!o||!o.skill||!o.body)return;
     const key=String(o.skill).toLowerCase();
     const s=byName[key]||picks.find(p=>p.skillNome.toLowerCase().includes(key)||key.includes(p.skillNome.toLowerCase()));
     if(!s)return;
+    const t=allowed.has(o.type)?o.type:'acao';
     out.push({
-      id:rid(),type:o.type==='aprendizado'?'aprendizado':'acao',
+      id:rid(),type:t,
+      hook:String(o.hook||'').slice(0,60),
       title:String(o.title||'Micro-passo').slice(0,42),body:String(o.body).slice(0,260),
       next:(s.levels&&s.levels[s.nivel+1])||'dominar e ensinar',
       skillId:s.skillId,treeId:s.treeId,skillNome:s.skillNome,treeNome:s.treeNome,
@@ -5010,6 +5165,46 @@ function reelStorySegments(tree){
 
 function ReelCard({card,reps,done,onDone,onTrain}){
   const advance=el=>{const nx=el&&el.nextElementSibling;if(nx&&nx.classList.contains('reel-card'))nx.scrollIntoView({behavior:'smooth',block:'start'});};
+  const kindMap={
+    acao:{ic:'🧠',label:'Mentalize agora'},
+    aprendizado:{ic:'💡',label:'Sacada rápida'},
+    identidade:{ic:'🪞',label:'Ancore a identidade'},
+    provocacao:{ic:'🔥',label:'Pergunta que queima'},
+    gatilho:{ic:'⚡',label:'Gatilho mental'},
+    paradoxo:{ic:'∞',label:'Paradoxo'},
+  };
+  const k=kindMap[card.type]||kindMap.acao;
+  const renderMid=()=>{
+    switch(card.type){
+      case 'identidade':
+        return<>
+          <div className="rc-identity">{card.body}</div>
+          <div className="rc-cta">Repita em silêncio 3x <span className="rc-arrow">→</span></div>
+        </>;
+      case 'provocacao':
+        return<>
+          <div className="rc-question">{card.body}</div>
+          <div className="rc-cta">Fecha os olhos. Responde antes de continuar <span className="rc-arrow">→</span></div>
+        </>;
+      case 'gatilho':
+        return<>
+          <div className="rc-trigger-when">quando…</div>
+          <div className="rc-trigger-then">{card.body}</div>
+          <div className="rc-cta">Decora o protocolo. Ele vai te salvar <span className="rc-arrow">→</span></div>
+        </>;
+      case 'paradoxo':
+        return<>
+          <div className="rc-paradox">{card.body.split(/(\s—\s|\s-\s|\.\s|\.\s*$)/).map((p,i)=>i%2===0?<span key={i}>{p}</span>:<span key={i} className="rc-vs">{p}</span>)}</div>
+          <div className="rc-cta">Deixa as duas verdades coexistirem na mente por 15s <span className="rc-arrow">→</span></div>
+        </>;
+      default:
+        return<>
+          <h3 className="rc-title">{card.title}</h3>
+          <p className="rc-body">{card.body}</p>
+          <div className="rc-cta">Para. Fecha os olhos. Faz agora <span className="rc-arrow">→</span></div>
+        </>;
+    }
+  };
   return<section className="reel-card"style={{'--rc':card.pal.d}}>
     <div className="rc-top">
       <span className="rc-tree">{card.treeEmoji} {card.treeNome}</span>
@@ -5019,10 +5214,10 @@ function ReelCard({card,reps,done,onDone,onTrain}){
       </span>
     </div>
     <div className="rc-mid">
-      <div className="rc-kind">{card.type==='acao'?'🧠 Mentalize agora':'💡 Sacada rápida'}{card.source==='ia'&&<span className="rc-ai"> · ✨ IA</span>}</div>
+      {card.hook&&<div className="rc-hook">{card.hook}</div>}
+      <div className="rc-kind">{k.ic} {k.label}{card.source==='ia'&&<span className="rc-ai"> · ✨ IA</span>}</div>
       <div className="rc-skill">{card.emoji} {card.skillNome}</div>
-      <h3 className="rc-title">{card.title}</h3>
-      <p className="rc-body">{card.body}</p>
+      {renderMid()}
     </div>
     <div className="rc-actions">
       <button className="rc-btn rc-train"onClick={()=>onTrain(card)}>▶ Treinar agora</button>
@@ -5227,6 +5422,8 @@ function ReelsSection({st,setSt}){
   const openTrainerSeg=(seg,tree)=>setTrainer({skillNome:seg.skillNome,next:seg.next,pal:tree.pal,emoji:seg.emoji,skillId:seg.skill.id,treeId:tree.id,type:'acao',title:'Treino guiado'});
   const onTrainerDone=t=>{logPractice(t);if(t.cardId)setCompleted(s=>{const n=new Set(s);n.add(t.cardId);return n;});};
 
+  const dailyChallenge=useMemo(()=>reelDailyChallenge(),[]);
+
   if(!hasSkills){
     return<div className="sec"><div className="reels-empty">
       <span className="re-emoji">🌳</span>
@@ -5240,13 +5437,19 @@ function ReelsSection({st,setSt}){
     <div className="reels-bar">
       <div>
         <div className="rb-title">REELS DE EVOLUÇÃO</div>
-        <div className="rb-sub">Toque um story ou role o feed. Cada card treina uma skill sua.</div>
+        <div className="rb-sub">Cada card é uma mentalização. Para, lê, vive — e só depois rola.</div>
       </div>
       <div className="rb-stats">
         <div className="rb-stat"><b>{todayCount}</b><span>hoje</span></div>
-        <div className="rb-stat"><b>{streak}</b><span>dias</span></div>
+        <div className={`rb-stat${streak>=2?' fire':''}`}><b>{streak>0?`${streak}🔥`:0}</b><span>dias</span></div>
         <div className="rb-stat"><b>{totalReps}</b><span>total</span></div>
       </div>
+    </div>
+    <div className="reel-hero">
+      <div className="rh-eyebrow">{dailyChallenge.title}</div>
+      <div className="rh-title">O desafio mental de hoje começa antes da primeira tela.</div>
+      <div className="rh-body">“{dailyChallenge.body}”</div>
+      <div className="rh-cta">Role o feed. O primeiro card já é teu treino <span className="rh-arrow">→</span></div>
     </div>
     <div className="reel-filters">
       <button className={"rfil"+(filter==='all'?' on':'')}onClick={()=>setFilter('all')}>🌀 Todas</button>
