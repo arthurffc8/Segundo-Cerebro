@@ -130,6 +130,20 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* task item */
 .tsk-row { display:flex; align-items:flex-start; gap:10px; padding:12px; background:var(--card); border:var(--bdw) solid var(--bd); border-radius:var(--r); margin-bottom:8px; transition: all .2s; box-shadow: var(--sh); }
 .tsk-row.done { opacity:.4; transform: scale(0.98); }
+/* fixed/recurring task badge */
+.tsk-fixed{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--ac);background:var(--ac1);border:1px solid var(--ac2);border-radius:4px;padding:1px 6px;white-space:nowrap;}
+.tsk-fixed::before{content:"🔁";font-size:.6rem;}
+/* weekday picker */
+.tsk-wd{display:flex;gap:4px;flex-wrap:wrap;}
+.tsk-wd-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--bd2);background:var(--card2);color:var(--tx3);font-family:var(--fm);font-size:.62rem;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0;}
+.tsk-wd-btn.on{background:var(--ac);color:#000;border-color:var(--ac);box-shadow:0 0 8px color-mix(in srgb,var(--ac) 40%,transparent);}
+.tsk-wd-btn:hover{border-color:var(--ac);}
+/* fixed tasks panel */
+.tsk-fixos{background:var(--card);border:1px solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px;}
+.tsk-fixo-row{display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--bd);}
+.tsk-fixo-row:last-child{border-bottom:none;}
+.tsk-fixo-days{display:flex;gap:2px;}
+.tsk-fixo-dot{width:18px;height:18px;border-radius:50%;font-size:.5rem;font-family:var(--fm);display:flex;align-items:center;justify-content:center;font-weight:700;}
 /* status btn */
 .st-btn { padding:5px 9px; border-radius:5px; font-size:.75rem; font-weight:600; cursor:pointer; transition:all .15s; border: var(--bdw) solid var(--bd2); }
 
@@ -1167,6 +1181,7 @@ function makeInit(){
       {id:'t2',title:'Ir à pelada às 19h',weight:6,date:td,cat:'saude',prio:'media',done:false,createdAt:td,subtasks:[]},
       {id:'t3',title:'Ler 20 páginas',weight:4,date:td,cat:'pessoal',prio:'baixa',done:false,createdAt:td,subtasks:[]},
     ],
+    fixedTasks:[],
     taskLists:[
       {id:'tl1',nome:'💡 Ideias',items:[{id:'tli1',text:'Anotar ideias de conteúdo',done:false},{id:'tli2',text:'Estudar edição de vídeo',done:false}]},
       {id:'tl2',nome:'🛒 Comprar',items:[{id:'tli3',text:'Chuteira nova',done:false}]},
@@ -1885,14 +1900,47 @@ function MissaoSection({st,setSt}){
   </div>;
 }
 
+// ── TAREFAS FIXAS (recorrentes por dia da semana) ─────────────────────────────
+const WD_SHORT=['D','S','T','Q','Q','S','S'];
+
+function spawnFixedTasks(st,setSt){
+  const fixed=st.fixedTasks||[];
+  if(!fixed.length)return;
+  const now=new Date();
+  const dow=now.getDay();
+  const td=TODAY();
+  const toSpawn=fixed.filter(ft=>(ft.days||[]).includes(dow));
+  if(!toSpawn.length)return;
+  setSt(p=>{
+    const existing=new Set((p.tasks||[]).filter(t=>t.fixedId&&t.date===td).map(t=>t.fixedId));
+    const fresh=toSpawn.filter(ft=>!existing.has(ft.id)).map(ft=>({
+      id:uid(),title:ft.title,weight:ft.weight||5,date:td,time:ft.time||'',
+      cat:ft.cat||'',prio:ft.prio||'media',done:false,createdAt:td,
+      subtasks:(ft.subtasks||[]).map(s=>({...s})),fixedId:ft.id,
+    }));
+    if(!fresh.length)return p;
+    return{...p,tasks:[...(p.tasks||[]),...fresh]};
+  });
+}
+
 // ── MODAIS DE FORMULÁRIO ─────────────────────────────────────────────────────
 
-function TaskModal({open,onClose,onSave,init,cats}){
-  const blank={title:'',weight:5,date:TODAY(),time:'',cat:cats[0]?.id||'',prio:'media',done:false,subtasks:[]};
+function TaskModal({open,onClose,onSave,onSaveFixed,init,cats}){
+  const blank={title:'',weight:5,date:TODAY(),time:'',cat:cats[0]?.id||'',prio:'media',done:false,subtasks:[],fixedDays:[]};
   const[f,setF]=useState({...blank});
-  useEffect(()=>{setF({...blank,...(init||{})});},[open]);
+  useEffect(()=>{setF({...blank,...(init||{}),fixedDays:(init&&init.fixedDays)||[]});},[open]);
   const isEdit=!!(init&&init.id);
-  function save(){if(!f.title.trim())return;onSave({...f,date:f.date||TODAY(),subtasks:(f.subtasks||[]).filter(s=>s.text.trim())});onClose();}
+  const hasFixed=(f.fixedDays||[]).length>0;
+  function togDay(d){setF(p=>({...p,fixedDays:p.fixedDays.includes(d)?p.fixedDays.filter(x=>x!==d):[...p.fixedDays,d].sort()}));}
+  function save(){
+    if(!f.title.trim())return;
+    if(hasFixed&&onSaveFixed){
+      onSaveFixed({title:f.title.trim(),weight:f.weight||5,time:f.time||'',cat:f.cat||'',prio:f.prio||'media',days:f.fixedDays,subtasks:(f.subtasks||[]).filter(s=>s.text.trim())});
+    }else{
+      onSave({...f,date:f.date||TODAY(),subtasks:(f.subtasks||[]).filter(s=>s.text.trim())});
+    }
+    onClose();
+  }
   function addSub(){setF(p=>({...p,subtasks:[...(p.subtasks||[]),{id:uid(),text:'',done:false}]}));}
   function updSub(i,v){setF(p=>({...p,subtasks:p.subtasks.map((s,idx)=>idx===i?{...s,text:v}:s)}));}
   function togSub(i){setF(p=>({...p,subtasks:p.subtasks.map((s,idx)=>idx===i?{...s,done:!s.done}:s)}));}
@@ -1900,7 +1948,7 @@ function TaskModal({open,onClose,onSave,init,cats}){
   return<Modal open={open}onClose={onClose}title={isEdit?'Editar Tarefa':'Nova Tarefa'}>
     <Fld label="Título"><input value={f.title}onChange={e=>setF(p=>({...p,title:e.target.value}))}placeholder="Ex: Estudar n8n por 1 hora"/></Fld>
     <div className="g2c">
-      <Fld label="Data"><input type="date"value={f.date}onChange={e=>setF(p=>({...p,date:e.target.value}))}/></Fld>
+      <Fld label="Data"><input type="date"value={f.date}onChange={e=>setF(p=>({...p,date:e.target.value}))}disabled={hasFixed}/></Fld>
       <Fld label="Horário (opcional)"><input type="time"value={f.time||''}onChange={e=>setF(p=>({...p,time:e.target.value}))}/></Fld>
     </div>
     <div className="g2c">
@@ -1916,6 +1964,12 @@ function TaskModal({open,onClose,onSave,init,cats}){
         {cats.map(c=><option key={c.id}value={c.id}>{c.name}</option>)}
       </select>
     </Fld>
+    <Fld label={`Repetir semanalmente${hasFixed?' ✦ fixa':''}`}>
+      <div className="tsk-wd">
+        {WD_SHORT.map((lb,i)=><button key={i}type="button"className={`tsk-wd-btn${f.fixedDays.includes(i)?' on':''}`}onClick={()=>togDay(i)}>{lb}</button>)}
+      </div>
+      {hasFixed&&<div style={{fontSize:'.68rem',color:'var(--ac)',marginTop:6,fontStyle:'italic'}}>🔁 Esta tarefa aparecerá automaticamente nos dias selecionados.</div>}
+    </Fld>
     <Fld label="Subitens (lista)">
       <div className="flex col g6">
         {(f.subtasks||[]).map((s,i)=><div key={s.id}className="fc g6">
@@ -1928,7 +1982,7 @@ function TaskModal({open,onClose,onSave,init,cats}){
     </Fld>
     <Btns>
       <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
-      <button className="btn btn-ac"onClick={save}>Salvar</button>
+      <button className="btn btn-ac"onClick={save}>{hasFixed?'Criar Tarefa Fixa':'Salvar'}</button>
     </Btns>
   </Modal>;
 }
@@ -2256,6 +2310,8 @@ function HojeSection({st,setSt}){
   const[taskModal,setTaskModal]=useState(false);
   const[editTask,setEditTask]=useState(null);
   const[focusOpen,setFocusOpen]=useState(false);
+  // Spawn tarefas fixas do dia
+  useEffect(()=>{spawnFixedTasks(st,setSt);},[td]);
   const todayTasks=st.tasks.filter(t=>t.date===td);
   const dayLog=st.habitLog[td]||{};
   const activeHabits=st.habits.filter(h=>h.active);
@@ -2278,6 +2334,9 @@ function HojeSection({st,setSt}){
       setSt(p=>({...p,tasks:[...p.tasks,{...f,id:uid(),done:false,createdAt:td2}]}));
     }
     setEditTask(null);
+  }
+  function saveFixed(f){
+    setSt(p=>({...p,fixedTasks:[...(p.fixedTasks||[]),{...f,id:uid()}]}));
   }
 
   const streak=useMemo(()=>{
@@ -2349,6 +2408,7 @@ function HojeSection({st,setSt}){
           <CatTag catId={t.cat}cats={st.categories}/>
           <PrioTag p={t.prio}/>
           <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>+{t.weight}pts</span>
+          {t.fixedId&&<span className="tsk-fixed">fixa</span>}
         </div>
       </div>
       <button className="btn-ic"onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
@@ -2425,7 +2485,7 @@ function HojeSection({st,setSt}){
       "{frase}"
     </div>
 
-    <TaskModal open={taskModal}onClose={()=>{setTaskModal(false);setEditTask(null);}}onSave={saveTask}init={editTask}cats={st.categories}/>
+    <TaskModal open={taskModal}onClose={()=>{setTaskModal(false);setEditTask(null);}}onSave={saveTask}onSaveFixed={saveFixed}init={editTask}cats={st.categories}/>
   </div>;
 }
 
@@ -2440,6 +2500,9 @@ function TarefasSection({st,setSt}){
   const[preset,setPreset]=useState(null);
   const[weekOff,setWeekOff]=useState(0);
   const[listInput,setListInput]=useState({});
+  const[editFixed,setEditFixed]=useState(null);
+  // Spawn tarefas fixas do dia
+  useEffect(()=>{spawnFixedTasks(st,setSt);},[td]);
 
   function weekDates(ref){
     const d=new Date(ref);const off=(d.getDay()===0?-6:1-d.getDay());
@@ -2454,6 +2517,15 @@ function TarefasSection({st,setSt}){
     else setSt(p=>({...p,tasks:[...p.tasks,{...f,id:uid(),done:false,createdAt:td}]}));
     setEdit(null);setPreset(null);
   }
+  function saveFixedTask(f){
+    if(editFixed){
+      setSt(p=>({...p,fixedTasks:(p.fixedTasks||[]).map(ft=>ft.id===editFixed.id?{...ft,...f}:ft)}));
+    }else{
+      setSt(p=>({...p,fixedTasks:[...(p.fixedTasks||[]),{...f,id:uid()}]}));
+    }
+    setEditFixed(null);
+  }
+  function delFixed(id){setSt(p=>({...p,fixedTasks:(p.fixedTasks||[]).filter(ft=>ft.id!==id)}));}
   function del(id){setSt(p=>({...p,tasks:p.tasks.filter(t=>t.id!==id)}));}
   function tog(id){setSt(p=>({...p,tasks:p.tasks.map(t=>t.id===id?{...t,done:!t.done}:t)}));}
   function openNew(initPartial){setEdit(null);setPreset(initPartial||{});setModal(true);}
@@ -2491,7 +2563,10 @@ function TarefasSection({st,setSt}){
         <span onClick={e=>{e.stopPropagation();tog(t.id);}}style={{fontSize:'.8rem',flexShrink:0,cursor:'pointer',lineHeight:1.2}}>{t.done?'✅':'⬜'}</span>
         <span style={{flex:1,fontSize:'.76rem',fontWeight:600,lineHeight:1.25,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx3)':'var(--tx)',wordBreak:'break-word'}}>{t.title}</span>
       </div>
-      {subs.length>0&&<div style={{marginLeft:18,marginTop:3,fontSize:'.62rem',fontFamily:'var(--fm)',color:dn===subs.length?'#22c55e':'var(--tx3)'}}>☑ {dn}/{subs.length}</div>}
+      <div className="fc g4 mt4"style={{flexWrap:'wrap'}}>
+        {subs.length>0&&<span style={{fontSize:'.62rem',fontFamily:'var(--fm)',color:dn===subs.length?'#22c55e':'var(--tx3)'}}>☑ {dn}/{subs.length}</span>}
+        {t.fixedId&&<span className="tsk-fixed">fixa</span>}
+      </div>
     </div>;
   }
   function dayRow(item){
@@ -2516,11 +2591,14 @@ function TarefasSection({st,setSt}){
       <div className="sch-t">Tarefas</div>
       {view==='lista'
         ?<button className="btn btn-ac"onClick={addList}>+ Nova Lista</button>
-        :<button className="btn btn-ac"onClick={()=>openNew({date:td})}>+ Nova Tarefa</button>}
+        :view==='quadro'
+        ?<button className="btn btn-ac"onClick={()=>openNew({date:td})}>+ Nova Tarefa</button>
+        :<button className="btn btn-ac"onClick={()=>{setEditFixed(null);setModal(true);}}>+ Tarefa Fixa</button>}
     </div>
     <div className="stabs mb14">
       <button className={`stab${view==='lista'?' on':''}`}onClick={()=>setView('lista')}>📋 Listas</button>
       <button className={`stab${view==='quadro'?' on':''}`}onClick={()=>setView('quadro')}>🗓 Quadro Semanal</button>
+      <button className={`stab${view==='fixos'?' on':''}`}onClick={()=>setView('fixos')}>🔁 Fixas</button>
     </div>
 
     {view==='lista'&&<div>
@@ -2579,7 +2657,35 @@ function TarefasSection({st,setSt}){
       </div>
     </div>}
 
-    <TaskModal open={modal}onClose={()=>{setModal(false);setEdit(null);setPreset(null);}}onSave={save}init={edit||preset}cats={st.categories}/>
+    {view==='fixos'&&<div>
+      {(st.fixedTasks||[]).length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'30px 0',textAlign:'center'}}>
+        Nenhuma tarefa fixa ainda.<br/><span style={{fontSize:'.78rem'}}>Crie tarefas que se repetem em dias específicos da semana.</span>
+      </div>}
+      <div className="tsk-fixos">
+        {(st.fixedTasks||[]).map(ft=>{
+          const pc={alta:'#ef4444',media:'#eab308',baixa:'#22c55e'}[ft.prio]||'#888';
+          return<div key={ft.id}className="tsk-fixo-row">
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:'.88rem',fontWeight:600,color:'var(--tx)'}}>{ft.title}</div>
+              <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
+                {ft.time&&<span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>⏰ {ft.time}</span>}
+                <span style={{fontSize:'.68rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>+{ft.weight||5}pts</span>
+                <span className="prio"style={{background:pc+'22',color:pc,border:`1px solid ${pc}33`}}>{ft.prio}</span>
+              </div>
+              <div className="tsk-fixo-days"style={{marginTop:6}}>
+                {WD_SHORT.map((lb,i)=><span key={i}className="tsk-fixo-dot"style={{background:ft.days.includes(i)?'var(--ac)':'var(--card2)',color:ft.days.includes(i)?'#000':'var(--tx4)',border:`1px solid ${ft.days.includes(i)?'var(--ac)':'var(--bd)'}`}}>{lb}</span>)}
+              </div>
+            </div>
+            <div className="fc g4"style={{flexShrink:0}}>
+              <button className="btn-ic"style={{color:'var(--ac)'}}onClick={()=>{setEditFixed(ft);setPreset({...ft,fixedDays:ft.days});setModal(true);}}>✏️</button>
+              <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delFixed(ft.id)}>×</button>
+            </div>
+          </div>;
+        })}
+      </div>
+    </div>}
+
+    <TaskModal open={modal}onClose={()=>{setModal(false);setEdit(null);setPreset(null);setEditFixed(null);}}onSave={save}onSaveFixed={saveFixedTask}init={edit||editFixed||preset}cats={st.categories}/>
   </div>;
 }
 
