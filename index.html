@@ -2551,16 +2551,38 @@ function TarefasSection({st,setSt}){
   // refeições fixas (âncoras do dia) — tarefas se organizam antes/depois por horário
   const MEALS=[{id:'m-cafe',meal:true,emoji:'☕',title:'Café da manhã',time:'08:00'},{id:'m-almoco',meal:true,emoji:'🍽️',title:'Almoço',time:'12:00'}];
   function dayItems(ds){
-    const items=[...st.tasks.filter(t=>t.date===ds).map(t=>({...t,time:t.time||''})),...MEALS.map(m=>({...m}))];
-    items.sort((a,b)=>{const ta=a.time||'',tb=b.time||'';if(ta!==tb)return ta<tb?-1:1;if(a.meal!==b.meal)return a.meal?1:-1;return(po[a.prio]||1)-(po[b.prio]||1);});
+    const dayDow=new Date(ds+'T12:00:00').getDay();
+    const realTasks=st.tasks.filter(t=>t.date===ds);
+    const spawnedIds=new Set(realTasks.filter(t=>t.fixedId).map(t=>t.fixedId));
+    const fixed=(st.fixedTasks||[]).filter(ft=>(ft.days||[]).includes(dayDow)&&!spawnedIds.has(ft.id));
+    const virtualTasks=fixed.map(ft=>({...ft,id:'vfx-'+ft.id,time:ft.time||'',virtualFixed:true,fixedId:ft.id}));
+    const items=[...realTasks.map(t=>({...t,time:t.time||''})),...virtualTasks,...MEALS.map(m=>({...m}))];
+    items.sort((a,b)=>{const ta=a.time||'',tb=b.time||'';if(ta!==tb)return ta<tb?-1:1;if(a.meal!==b.meal)return a.meal?1:-1;if(a.virtualFixed!==b.virtualFixed)return a.virtualFixed?1:-1;return(po[a.prio]||1)-(po[b.prio]||1);});
     return items;
+  }
+  function spawnVirtual(ftId,ds){
+    const ft=(st.fixedTasks||[]).find(f=>f.id===ftId);
+    if(!ft)return null;
+    const t={id:uid(),title:ft.title,weight:ft.weight||5,date:ds,time:ft.time||'',cat:ft.cat||'',prio:ft.prio||'media',done:false,createdAt:td,subtasks:(ft.subtasks||[]).map(s=>({...s})),fixedId:ft.id};
+    setSt(p=>({...p,tasks:[...p.tasks,t]}));
+    return t;
   }
   function colCard(t){
     const subs=t.subtasks||[];const dn=subs.filter(s=>s.done).length;
     const pc={alta:'#ef4444',media:'#eab308',baixa:'#22c55e'}[t.prio]||'#888';
-    return<div onClick={()=>openEdit(t)}style={{flex:1,background:'var(--card2)',border:'1px solid var(--bd)',borderLeft:`3px solid ${pc}`,borderRadius:6,padding:'7px 9px',cursor:'pointer',opacity:t.done?.5:1}}>
+    const isVirtual=!!t.virtualFixed;
+    const handleClick=()=>{
+      if(isVirtual){const spawned=spawnVirtual(t.fixedId,t._ds||td);if(spawned)openEdit(spawned);}
+      else openEdit(t);
+    };
+    const handleToggle=e=>{
+      e.stopPropagation();
+      if(isVirtual){const spawned=spawnVirtual(t.fixedId,t._ds||td);if(spawned)tog(spawned.id);}
+      else tog(t.id);
+    };
+    return<div onClick={handleClick}style={{flex:1,background:isVirtual?'var(--card)':'var(--card2)',border:isVirtual?`1px dashed ${pc}66`:'1px solid var(--bd)',borderLeft:`3px solid ${pc}`,borderRadius:6,padding:'7px 9px',cursor:'pointer',opacity:t.done?.5:1}}>
       <div className="fc g6"style={{alignItems:'flex-start'}}>
-        <span onClick={e=>{e.stopPropagation();tog(t.id);}}style={{fontSize:'.8rem',flexShrink:0,cursor:'pointer',lineHeight:1.2}}>{t.done?'✅':'⬜'}</span>
+        <span onClick={handleToggle}style={{fontSize:'.8rem',flexShrink:0,cursor:'pointer',lineHeight:1.2}}>{t.done?'✅':'⬜'}</span>
         <span style={{flex:1,fontSize:'.76rem',fontWeight:600,lineHeight:1.25,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx3)':'var(--tx)',wordBreak:'break-word'}}>{t.title}</span>
       </div>
       <div className="fc g4 mt4"style={{flexWrap:'wrap'}}>
@@ -2579,7 +2601,7 @@ function TarefasSection({st,setSt}){
       </div>
     </div>;
     return<div key={item.id}className="fc"style={{gap:5,alignItems:'stretch',marginBottom:6}}>
-      {gutter}{colCard(item)}
+      {gutter}{colCard({...item,_ds:ds})}
     </div>;
   }
   const colWrap={minWidth:160,flex:'0 0 160px',background:'var(--card)',borderRadius:8,padding:8,maxHeight:'62vh',overflowY:'auto'};
