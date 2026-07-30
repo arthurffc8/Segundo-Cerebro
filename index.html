@@ -1911,16 +1911,14 @@ function spawnFixedTasks(st,setSt){
   const td=TODAY();
   const toSpawn=fixed.filter(ft=>(ft.days||[]).includes(dow));
   if(!toSpawn.length)return;
-  setSt(p=>{
-    const existing=new Set((p.tasks||[]).filter(t=>t.fixedId&&t.date===td).map(t=>t.fixedId));
-    const fresh=toSpawn.filter(ft=>!existing.has(ft.id)).map(ft=>({
-      id:uid(),title:ft.title,weight:ft.weight||5,date:td,time:ft.time||'',
-      cat:ft.cat||'',prio:ft.prio||'media',done:false,createdAt:td,
-      subtasks:(ft.subtasks||[]).map(s=>({...s})),fixedId:ft.id,
-    }));
-    if(!fresh.length)return p;
-    return{...p,tasks:[...(p.tasks||[]),...fresh]};
-  });
+  const existing=new Set((st.tasks||[]).filter(t=>t.fixedId&&t.date===td).map(t=>t.fixedId));
+  const fresh=toSpawn.filter(ft=>!existing.has(ft.id)).map(ft=>({
+    id:uid(),title:ft.title,weight:ft.weight||5,date:td,time:ft.time||'',
+    cat:ft.cat||'',prio:ft.prio||'media',done:false,createdAt:td,
+    subtasks:(ft.subtasks||[]).map(s=>({...s})),fixedId:ft.id,
+  }));
+  if(!fresh.length)return;
+  setSt(p=>({...p,tasks:[...(p.tasks||[]),...fresh]}));
 }
 
 // ── MODAIS DE FORMULÁRIO ─────────────────────────────────────────────────────
@@ -2552,11 +2550,11 @@ function TarefasSection({st,setSt}){
   const MEALS=[{id:'m-cafe',meal:true,emoji:'☕',title:'Café da manhã',time:'08:00'},{id:'m-almoco',meal:true,emoji:'🍽️',title:'Almoço',time:'12:00'}];
   function dayItems(ds){
     const dayDow=new Date(ds+'T12:00:00').getDay();
-    const realTasks=st.tasks.filter(t=>t.date===ds);
+    const realTasks=st.tasks.filter(t=>t.date===ds).map(t=>({...t,time:t.time||'',_ds:ds}));
     const spawnedIds=new Set(realTasks.filter(t=>t.fixedId).map(t=>t.fixedId));
     const fixed=(st.fixedTasks||[]).filter(ft=>(ft.days||[]).includes(dayDow)&&!spawnedIds.has(ft.id));
-    const virtualTasks=fixed.map(ft=>({...ft,id:'vfx-'+ft.id,time:ft.time||'',virtualFixed:true,fixedId:ft.id}));
-    const items=[...realTasks.map(t=>({...t,time:t.time||''})),...virtualTasks,...MEALS.map(m=>({...m}))];
+    const virtualTasks=fixed.map(ft=>({...ft,id:'vfx-'+ft.id,time:ft.time||'',_ds:ds,virtualFixed:true,fixedId:ft.id}));
+    const items=[...realTasks,...virtualTasks,...MEALS.map(m=>({...m}))];
     items.sort((a,b)=>{const ta=a.time||'',tb=b.time||'';if(ta!==tb)return ta<tb?-1:1;if(a.meal!==b.meal)return a.meal?1:-1;if(a.virtualFixed!==b.virtualFixed)return a.virtualFixed?1:-1;return(po[a.prio]||1)-(po[b.prio]||1);});
     return items;
   }
@@ -2601,7 +2599,7 @@ function TarefasSection({st,setSt}){
       </div>
     </div>;
     return<div key={item.id}className="fc"style={{gap:5,alignItems:'stretch',marginBottom:6}}>
-      {gutter}{colCard({...item,_ds:ds})}
+      {gutter}{colCard(item)}
     </div>;
   }
   const colWrap={minWidth:160,flex:'0 0 160px',background:'var(--card)',borderRadius:8,padding:8,maxHeight:'62vh',overflowY:'auto'};
