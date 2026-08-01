@@ -566,6 +566,13 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .theme-bauhaus .card{border-width:2px;border-radius:0;}
 .theme-bauhaus .btn-ac{background:#d62828;color:#fff;box-shadow:4px 4px 0 #000;border-radius:0;}
 .theme-bauhaus .tab-btn.on{background:#f4c430;color:#000;border-bottom:3px solid #d62828;}
+/* Data Rabbit theme — magical dark purple + gold */
+.theme-datarabbit{--bg:#151020;--card:#1e1829;--card2:#262033;--card3:#2f2840;--bd:#3d2f52;--bd2:rgba(124,58,237,.12);--bd3:rgba(245,158,11,.25);--tx:#f3e9ff;--tx2:#c4b5e0;--tx3:#7c6a9e;--ac:#f59e0b;--ac1:rgba(245,158,11,.12);--ac2:rgba(245,158,11,.28);--r:12px;}
+.theme-datarabbit .card{border:1px solid rgba(124,58,237,.22);box-shadow:0 4px 20px rgba(124,58,237,.12);}
+.theme-datarabbit .tab-btn.on{background:linear-gradient(180deg,rgba(124,58,237,.22),transparent);border-bottom-color:#a855f7;color:#f59e0b;text-shadow:0 0 12px rgba(245,158,11,.45);}
+.theme-datarabbit .btn-ac{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a0f2e;box-shadow:0 0 18px rgba(245,158,11,.35);}
+.theme-datarabbit .score-n,.theme-datarabbit .mval{text-shadow:0 0 16px rgba(245,158,11,.45);}
+.theme-datarabbit .sch-t{color:#c4b5e0;}
 </style>
 </head>
 <body>
@@ -755,6 +762,9 @@ const THEMES=[
   {id:'bauhaus', name:'Bauhaus', emoji:'🔶', bg:'#f4f1ea', card:'#ffffff', card2:'#ece7dc', bd:'#000000', ac:'#d62828', tx:'#000000', tx2:'#1a1a1a', tx3:'#6b6b6b', ff:"'Space Grotesk', sans-serif", ft:"'Unbounded'", r:'0px', sh:'4px 4px 0px #000000', bdw:'2px',
     desc:'Form follows function. Vermelho, preto, bege. Geometria e função.',
     vibes:['geométrico','claro','ousado']},
+  {id:'datarabbit', name:'Data Rabbit', emoji:'🐇', bg:'#151020', card:'#1e1829', card2:'#262033', bd:'#3d2f52', ac:'#f59e0b', tx:'#f3e9ff', tx2:'#c4b5e0', tx3:'#7c6a9e', ff:"'DM Sans', sans-serif", ft:"'Bebas Neue'", r:'12px', sh:'0 4px 20px rgba(124,58,237,0.15)', bdw:'1px',
+    desc:'Coelho de dados noite adentro. Roxo profundo com dourado mágico.',
+    vibes:['mágico','roxo','dourado']},
 ];
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
