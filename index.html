@@ -72,31 +72,27 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 @keyframes fu{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:none}}
 /* sidebar layout */
 .layout-sidebar{display:flex;flex-direction:row;min-height:100vh;}
-.layout-sidebar .sidebar{width:64px;background:var(--card);border-right:var(--bdw) solid var(--bd);display:flex;flex-direction:column;align-items:center;padding:12px 0;position:fixed;inset:0 auto 0 0;z-index:200;overflow-y:auto;}
-.layout-sidebar .sidebar.expanded{width:180px;align-items:stretch;padding:12px;}
-.layout-sidebar .sidebar-top{display:flex;align-items:center;gap:10px;padding:0 6px 14px;margin-bottom:8px;border-bottom:1px solid var(--bd);}
+.layout-sidebar .sidebar{width:180px;background:var(--card);border-right:var(--bdw) solid var(--bd);display:flex;flex-direction:column;padding:14px;position:fixed;inset:0 auto 0 0;z-index:200;overflow-y:auto;}
+.layout-sidebar .sidebar-top{display:flex;align-items:center;gap:10px;padding-bottom:14px;margin-bottom:10px;border-bottom:1px solid var(--bd);}
 .layout-sidebar .sidebar-top .sb-avatar{font-size:1.5rem;}
 .layout-sidebar .sidebar-top .sb-title{font-family:var(--ft);font-size:.9rem;letter-spacing:.06em;color:var(--ac);line-height:1;}
-.layout-sidebar .sidebar-top .sb-sub{font-size:.6rem;color:var(--tx2);line-height:1;}
-.layout-sidebar .sb-toggle{align-self:center;width:32px;height:32px;border-radius:8px;background:var(--card2);color:var(--tx2);display:flex;align-items:center;justify-content:center;cursor:pointer;margin-bottom:12px;border:1px solid var(--bd2);}
-.layout-sidebar .sb-toggle:hover{color:var(--ac);border-color:var(--ac);}
+.layout-sidebar .sidebar-top .sb-sub{font-size:.62rem;color:var(--tx2);line-height:1;}
 .layout-sidebar .sb-nav{display:flex;flex-direction:column;gap:4px;width:100%;}
 .layout-sidebar .sb-btn{display:flex;align-items:center;gap:10px;padding:10px;border-radius:var(--r);background:none;border:none;color:var(--tx2);font-size:.82rem;font-weight:600;cursor:pointer;transition:all var(--tr);white-space:nowrap;}
 .layout-sidebar .sb-btn:hover{background:var(--card2);color:var(--tx);}
 .layout-sidebar .sb-btn.on{background:var(--ac1);color:var(--ac);}
 .layout-sidebar .sb-btn .sb-emoji{font-size:1.15rem;}
-.layout-sidebar .sb-btn .sb-label{opacity:0;width:0;overflow:hidden;transition:opacity .15s ease .05s;}
-.layout-sidebar .sidebar.expanded .sb-btn .sb-label{opacity:1;width:auto;}
 .layout-sidebar .sb-footer{margin-top:auto;padding-top:12px;border-top:1px solid var(--bd);width:100%;display:flex;flex-direction:column;gap:6px;}
-.layout-sidebar .main-wrap{flex:1;margin-left:64px;min-width:0;}
-.layout-sidebar .main-wrap.expanded{margin-left:180px;}
-.layout-sidebar .nav-header-mini{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--card);border-bottom:var(--bdw) solid var(--bd);}
+.layout-sidebar .main-wrap{flex:1;margin-left:180px;min-width:0;}
+.layout-sidebar .nav-header-mini{display:none;}
 @media(max-width:760px){
-  .layout-sidebar .sidebar{width:56px;}
-  .layout-sidebar .sidebar.expanded{width:160px;}
+  .layout-sidebar .sidebar{width:56px;padding:10px 6px;align-items:center;}
+  .layout-sidebar .sidebar-top{display:none;}
+  .layout-sidebar .sb-btn{padding:10px 6px;justify-content:center;}
+  .layout-sidebar .sb-btn .sb-label{display:none;}
+  .layout-sidebar .sb-footer{align-items:center;}
   .layout-sidebar .main-wrap{margin-left:56px;}
-  .layout-sidebar .main-wrap.expanded{margin-left:160px;}
-  .layout-sidebar .sb-btn{padding:8px;}
+  .layout-sidebar .nav-header-mini{display:flex;}
 }
 /* buttons */
 .btn { padding:7px 14px; border-radius:var(--r); font-size:.8rem; font-weight:700; cursor:pointer; box-shadow: var(--sh); border: var(--bdw) solid transparent; }
@@ -2121,6 +2117,39 @@ function Navbar({cur,onChange,st,fbUser,syncStatus,layoutMode}){
       </button>)}
     </div>
   </div>;
+}
+
+// ── SIDEBAR (menu vertical) ──────────────────────────────────────────────────
+
+function Sidebar({cur,onChange,st,fbUser,syncStatus}){
+  const tabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
+  const xp=useMemo(()=>calcTotalXP(st),[st.skilltree]);
+  const info=getLevelInfo(xp);
+  return<aside className="sidebar">
+    <div className="sidebar-top">
+      <span className="sb-avatar">{st.user.avatar}</span>
+      <div style={{minWidth:0}}>
+        <div className="sb-title">SEGUNDO CÉREBRO</div>
+        <div className="sb-sub">Olá, {st.user.name}</div>
+      </div>
+    </div>
+    <nav className="sb-nav">
+      {tabs.map(t=><button key={t.id}className={`sb-btn${cur===t.id?' on':''}`}onClick={()=>onChange(t.id)}title={t.label}>
+        <span className="sb-emoji">{t.emoji}</span>
+        <span className="sb-label">{t.label}</span>
+      </button>)}
+    </nav>
+    <div className="sb-footer">
+      <button className="sb-btn"onClick={()=>onChange('missao')}title={`${info.cls.nome} ${roman(info.sub)} — Nível ${info.lvl}`}>
+        <ClassAvatar cls={info.cls}size={24}baseImg={st.classBaseImg}mini={true}/>
+        <span className="sb-label"style={{color:info.cls.cor}}>Nv.{info.lvl}</span>
+      </button>
+      <div className="sb-btn"style={{cursor:'default'}}>
+        <SyncDot fbUser={fbUser}syncStatus={syncStatus}/>
+        <span className="sb-label"style={{fontSize:'.68rem',color:'var(--tx3)'}}>Sync</span>
+      </div>
+    </div>
+  </aside>;
 }
 
 // ── MODO FOCO (Pomodoro fullscreen) ──────────────────────────────────────────
@@ -5148,6 +5177,12 @@ function CfgAparencia({st,setCfg,setSt}){
       </div>
     </div>
     <div className="cfg-s">
+      <div className="cfg-t">Posição do menu</div>
+      <div className="fc g8">
+        {[{k:'top',l:'⬆️ Topo'},{k:'side',l:'⬅️ Lateral'}].map(m=><button key={m.k}className="btn"style={{background:(st.config.menuMode||'top')===m.k?'var(--ac)':'var(--card2)',border:`1px solid ${(st.config.menuMode||'top')===m.k?'var(--ac)':'var(--bd2)'}`,color:(st.config.menuMode||'top')===m.k?'#000':'var(--tx2)',fontSize:'.78rem',padding:'6px 12px'}}onClick={()=>setCfg('menuMode',m.k)}>{m.l}</button>)}
+      </div>
+    </div>
+    <div className="cfg-s">
       <div className="cfg-t">Animações do Sistema</div>
       <div className="fc g10"><Tog on={st.config.animations!==false}onChange={()=>setCfg('animations',!st.config.animations)}/><span style={{fontSize:'.85rem',color:'var(--tx2)'}}>{st.config.animations!==false?'Ativadas (Fluído)':'Desativadas (Rápido)'}</span></div>
     </div>
@@ -6098,9 +6133,14 @@ function App(){
   const storyCls=story?CLASSES.find(c=>c.id===story.classId):null;
 
   const layoutMode=st.config.layoutMode||'classic';
-  return<div className={layoutMode==='redesign'?'layout-redesign':''}>
-    <Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}layoutMode={layoutMode}/>
-    <div className={layoutMode==='redesign'?'layout-container':''}>
+  const menuMode=st.config.menuMode||'top';
+  const isSidebar=menuMode==='side';
+  const rootClass=[layoutMode==='redesign'?'layout-redesign':'',isSidebar?'layout-sidebar':''].filter(Boolean).join(' ');
+  return<div className={rootClass}>
+    {isSidebar
+      ?<Sidebar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}/>
+      :<Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}layoutMode={layoutMode}/>}
+    <div className={isSidebar?('main-wrap'+(layoutMode==='redesign'?' layout-container':'')):(layoutMode==='redesign'?'layout-container':'')}>
       {sections[visibleTab]||null}
     </div>
     {story&&storyCls&&<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)setSt(p=>({...p,aiClassStory:null}));}}>
