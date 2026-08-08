@@ -305,11 +305,11 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .tc-cur-mock .m-card i{height:3px;border-radius:2px;opacity:.45;}
 .tc-cur-mock .m-card .m-btn{align-self:flex-start;width:50%;height:10px;border-radius:3px;margin-top:auto;}
 /* skill tree — templo RPG premium (navy + ouro) */
-.st-screen{background:linear-gradient(180deg,#0B1522,#13263D 55%,#0B1522);}
+.st-screen{background:linear-gradient(180deg,rgba(11,21,34,0.75),rgba(19,38,61,0.6) 55%,rgba(11,21,34,0.75));backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
 .st-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;}
 .st-chips::-webkit-scrollbar{display:none;}
-.st-chip{display:flex;align-items:center;gap:6px;padding:7px 15px;border-radius:4px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;cursor:pointer;background:#1D314A;border:1px solid #2B394C;color:#5C6B7C;transition:all .2s;flex-shrink:0;}
-.st-panel{position:relative;overflow:hidden;border-radius:6px;padding:16px 18px;margin-bottom:20px;background:linear-gradient(135deg,#1D314A,#13263D);}
+.st-chip{display:flex;align-items:center;gap:6px;padding:7px 15px;border-radius:4px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;cursor:pointer;background:rgba(29,49,74,0.7);border:1px solid rgba(43,57,76,0.8);color:#5C6B7C;transition:all .2s;flex-shrink:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
+.st-panel{position:relative;overflow:hidden;border-radius:6px;padding:16px 18px;margin-bottom:20px;background:linear-gradient(135deg,rgba(29,49,74,0.7),rgba(19,38,61,0.6));backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
 .st-title{font-family:var(--serif);font-weight:900;letter-spacing:.13em;text-transform:uppercase;line-height:1.05;}
 .st-sub{font-family:var(--serif);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#5C6B7C;margin-top:6px;}
 .st-label{font-family:var(--serif);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#5C6B7C;}
@@ -4408,7 +4408,7 @@ function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
 function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const S=stl||DEF_STYLE;
   const g=S.glow||1;
-  const bl=(n)=>Math.round(n*g); // blur escalado pelo brilho
+  const bl=(n)=>Math.round(n*g);
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const pct=Math.round(lv/max*100);
@@ -4416,50 +4416,74 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const maxed=lv>=max;
   const d=pal.d,s=pal.s;
   const TRACK='#2B394C';
-  // anel de progresso (destaque sobre trilho metálico)
+  const ratio=max>0?lv/max:0; // 0..1
+  // ── EFEITOS ESCALADOS POR NÍVEL ──
+  // Glow externo: cresce agressivamente por nível (0, 3, 8, 16, 26, 38)
+  const glowPx=started?bl(Math.round(3+lv*lv*1.8)):0;
+  const glowAlpha=started?Math.min(0.95,0.15+lv*0.16):0;
+  const glowHex=_ah(glowAlpha);
+  // Ring progress: trilha mais larga em níveis altos (padding 2→5)
+  const ringPad=started?Math.round(2+lv*0.6):2;
   const ring=started?`conic-gradient(${d} ${pct}%, ${TRACK} ${pct}%)`:TRACK;
-  // fundo suave (halo) atrás do nó
-  const halo=started?`radial-gradient(circle, ${d}66, ${d}00 70%)`:focus?`radial-gradient(circle, ${d}44, ${d}00 70%)`:'radial-gradient(circle, rgba(68,86,109,.30), rgba(68,86,109,0) 70%)';
-  // moldura (rim de pedra/metal) ao redor — pode ser desligada
-  const frameBg=!S.moldura?'transparent':started?`radial-gradient(circle at 50% 34%, ${d}2e, ${s}16)`:focus?`radial-gradient(circle at 50% 34%, ${d}1a, ${s}0a)`:'radial-gradient(circle at 50% 34%, #20364F, #11223A)';
-  const frameBorder=!S.moldura?'transparent':selected||maxed?'#FFF1B3':focus?d+'cc':started?d+'99':'#33455B';
-  const stoneShadow=S.moldura?`inset 0 1px 2px rgba(255,255,255,.10), inset 0 -2px 5px rgba(0,0,0,.45)`:'';
-  const outerGlow=selected?`0 0 ${bl(20)}px ${d}aa`:focus?`0 0 ${bl(18)}px ${d}99`:maxed?`0 0 ${bl(14)}px ${d}88`:started?`0 0 ${bl(9)}px ${d}44`:'';
-  const frameGlow=[stoneShadow,outerGlow].filter(Boolean).join(', ')||'none';
-  // entalhes/ticks no rim (estilo medalhão)
-  const studColor=started?d:'#44566D';
-  const studs=`repeating-conic-gradient(from 0deg, ${studColor} 0deg 2deg, transparent 2deg 11deg)`;
-  // glow do anel interno
+  // Ring glow: cresce com nível
+  const ringGlowPx=started?bl(Math.round(3+lv*3.5)):0;
+  const ringGlowAlpha=started?Math.min(1,0.2+lv*0.15):0;
   let ringGlow;
-  if(selected)ringGlow=`0 0 ${bl(14)}px ${d}`;
-  else if(focus)ringGlow=`0 0 ${bl(12)}px ${d}99`;
-  else if(maxed)ringGlow=`0 0 ${bl(11)}px ${d}cc`;
-  else if(started)ringGlow=`0 0 ${bl(7)}px ${d}66`;
+  if(selected)ringGlow=`0 0 ${bl(16)}px ${d}`;
+  else if(focus)ringGlow=`0 0 ${bl(14)}px ${d}cc`;
+  else if(maxed)ringGlow=`0 0 ${ringGlowPx}px ${d}, 0 0 ${bl(ringGlowPx*0.5)}px ${d}88`;
+  else if(started)ringGlow=`0 0 ${ringGlowPx}px ${d}${_ah(ringGlowAlpha)}`;
   else ringGlow='none';
-  // aura: borda fina brilhante que cresce a cada nível
-  const auraD=72+lv*(S.auraStep||5);
-  // hint do próximo passo (aparece ao selecionar)
+  // Halo: cresce em intensidade e tamanho por nível
+  const haloSize=90+lv*12; // 90, 102, 114, 126, 138, 150
+  const haloAlpha=started?_ah(Math.min(1,0.08+lv*0.17)):focus?'33':'18';
+  const halo=started?`radial-gradient(circle, ${d}${haloAlpha}, ${d}00 72%)`:focus?`radial-gradient(circle, ${d}33, ${d}00 72%)`:`radial-gradient(circle, rgba(68,86,109,.18), rgba(68,86,109,0) 72%)`;
+  // Moldura: brilho escala com nível
+  const frameIntensity=started?_ah(Math.min(1,0.08+lv*0.14)):'16';
+  const frameBg=!S.moldura?'transparent':started?`radial-gradient(circle at 50% 34%, ${d}${frameIntensity}, ${s}${_ah(Math.min(1,0.04+lv*0.08))})`:`radial-gradient(circle at 50% 34%, rgba(32,54,79,0.6), rgba(17,34,58,0.6))`;
+  const frameBorder=!S.moldura?'transparent':selected||maxed?'#FFF1B3':focus?d+'cc':started?d+_ah(Math.min(1,0.25+lv*0.14)):'rgba(51,69,91,0.6)';
+  const stoneShadow=S.moldura?`inset 0 1px 2px rgba(255,255,255,${started?0.06+lv*0.03:0.06}), inset 0 -2px 5px rgba(0,0,0,${started?0.2+lv*0.06:0.3})`:'';
+  const outerGlow=selected?`0 0 ${bl(22)}px ${d}bb, 0 0 ${bl(40)}px ${d}44`:focus?`0 0 ${bl(20)}px ${d}99`:started?`0 0 ${glowPx}px ${d}${glowHex}`:'';
+  const frameGlow=[stoneShadow,outerGlow].filter(Boolean).join(', ')||'none';
+  // Entalhes: visibilidade escala com nível
+  const studColor=started?d:'rgba(68,86,109,0.5)';
+  const studs=`repeating-conic-gradient(from 0deg, ${studColor} 0deg 2deg, transparent 2deg 11deg)`;
+  const studOpacity=started?Math.min(0.95,0.2+lv*0.15):0.3;
+  // Aura: cresce mais agressivamente por nível (72, 84, 98, 114, 132, 152)
+  const auraD=72+lv*lv*2.8+lv*6;
+  const auraOpacity=started?Math.min(0.85,0.12+lv*0.14):0;
+  const auraBorderW=started?Math.min(3,0.8+lv*0.4):0;
+  // Core: gradiente mais vibrante em níveis altos
+  const coreSat=started?Math.round(40+lv*12):0; // saturação do emoji
+  const emojiOpacity=started?Math.min(1,0.25+lv*0.15):0.2;
+  const emojiFilter=started?`brightness(${0.6+lv*0.12}) saturate(${coreSat}%)`:'grayscale(1) brightness(0.7)';
+  const coreBg=started?`radial-gradient(circle at 50% 32%, ${d}${_ah(Math.min(1,0.4+lv*0.12))}, ${s}${_ah(Math.min(1,0.2+lv*0.1))})`:`linear-gradient(145deg,rgba(29,49,74,0.7),rgba(19,38,61,0.6))`;
+  // Badge: mais visível em níveis altos
+  const badgeBg=started?`rgba(11,21,34,${Math.min(0.95,0.5+lv*0.09)})`:'rgba(11,21,34,0.7)';
+  // Nome: cor escala com nível
+  const nameColor=maxed?'#FFF1B3':started?d+_ah(Math.min(1,0.5+lv*0.1)):focus?'#FFF1B3':'rgba(92,107,124,0.7)';
+  // hint do próximo passo
   const nextHint=maxed?'Já dominada. Mantém afiado e ensina.':(skill.levels&&skill.levels[lv+1])||null;
   return<div className="skill-node"onClick={onClick}style={{position:'relative'}}>
-    <div className="skill-halo"style={{background:halo,opacity:selected?1:focus?.85:started?.9:.5}}/>
+    <div className="skill-halo"style={{background:halo,width:haloSize,height:haloSize,left:'50%',top:35,transform:'translate(-50%,-50%)',opacity:selected?1:focus?.85:started?Math.min(1,0.4+lv*0.12):.35}}/>
     {maxed&&S.louros&&<div className="skill-laurel"><Laurel color={d}/></div>}
     {focus&&<div style={{position:'absolute',width:auraD+24,height:auraD+24,borderRadius:'50%',left:'50%',top:35,transform:'translate(-50%,-50%)',zIndex:0,border:`1px dashed ${d}`,opacity:.45,animation:'st-focus-spin 24s linear infinite',pointerEvents:'none'}}/>}
-    {started&&<div style={{position:'absolute',width:auraD,height:auraD,borderRadius:'50%',left:'50%',top:35,transform:'translate(-50%,-50%)',zIndex:0,border:`1.5px solid ${d}`,opacity:0.22+(lv/max)*0.55,boxShadow:`0 0 ${bl(4+lv*4)}px ${d}, inset 0 0 ${bl(3+lv*2)}px ${d}55`,pointerEvents:'none',transition:'all .3s ease'}}/>}
+    {started&&<div style={{position:'absolute',width:auraD,height:auraD,borderRadius:'50%',left:'50%',top:35,transform:'translate(-50%,-50%)',zIndex:0,border:`${auraBorderW}px solid ${d}`,opacity:auraOpacity,boxShadow:`0 0 ${bl(4+lv*5)}px ${d}${_ah(Math.min(0.8,0.1+lv*0.14))}, inset 0 0 ${bl(3+lv*3)}px ${d}${_ah(Math.min(0.6,0.08+lv*0.1))}`,pointerEvents:'none',transition:'all .3s ease'}}/>}
     <div className="skill-frame"style={{background:frameBg,border:`1px solid ${frameBorder}`,boxShadow:frameGlow,transition:'box-shadow .2s,border-color .2s'}}>
-      {S.entalhes&&<div className="skill-studs"style={{background:studs,WebkitMaskImage:'radial-gradient(transparent 62%, #000 65%)',maskImage:'radial-gradient(transparent 62%, #000 65%)',opacity:started?0.85:0.45}}/>}
-      <div className="skill-ring"style={{background:ring,padding:started?3:2,boxShadow:ringGlow}}>
-        <div className="skill-core"style={{background:started?`radial-gradient(circle at 50% 32%, ${d}, ${s})`:'linear-gradient(145deg,#1D314A,#13263D)'}}>
-          <span style={{opacity:started?0.82:0.32,filter:started?'brightness(0)':'grayscale(1) brightness(.85)'}}>{skill.emoji}</span>
+      {S.entalhes&&<div className="skill-studs"style={{background:studs,WebkitMaskImage:'radial-gradient(transparent 62%, #000 65%)',maskImage:'radial-gradient(transparent 62%, #000 65%)',opacity:studOpacity}}/>}
+      <div className="skill-ring"style={{background:ring,padding:ringPad,boxShadow:ringGlow}}>
+        <div className="skill-core"style={{background:coreBg}}>
+          <span style={{opacity:emojiOpacity,filter:emojiFilter}}>{skill.emoji}</span>
         </div>
       </div>
     </div>
     <div className="skill-badge"style={{
-      background:'#0B1522',
-      color:maxed?'#FFF1B3':started?d:'#5C6B7C',
-      border:`1px solid ${maxed?'#FFF1B3':started?d:'#44566D'}`
+      background:badgeBg,
+      color:maxed?'#FFF1B3':started?d:'rgba(92,107,124,0.7)',
+      border:`1px solid ${maxed?'#FFF1B3':started?d+_ah(Math.min(1,0.4+lv*0.12)):'rgba(68,86,109,0.5)'}`
     }}>{lv}/{max}</div>
     {practiced&&<div style={{position:'absolute',top:2,right:2,width:10,height:10,borderRadius:'50%',background:'#22c55e',border:'2px solid #0B1522',boxShadow:'0 0 6px #22c55e',zIndex:3}}/>}
-    <div className="skill-name"style={{color:started?d:focus?'#FFF1B3':'#5C6B7C'}}>{skill.nome}</div>
+    <div className="skill-name"style={{color:nameColor}}>{skill.nome}</div>
     {selected&&<div className="st-hint">
       {nextHint
         ?<><div className="st-hint-eyebrow">Próximo passo (nv {lv+1})</div><div className="st-hint-text">{nextHint}</div></>
@@ -4765,7 +4789,7 @@ function SkillTreeSection({st,setSt,setTab}){
   const treeBg=_washes+(stl.fundoTema?`, url("data:image/svg+xml,${encodeURIComponent(_bgSvg)}")`:'');
   // borda neon dos ramos (personalizável)
   const neon=stl.neon!=null?stl.neon:1;
-  const branchBg=`linear-gradient(180deg, ${pal.s}1f, rgba(11,21,34,0.5))`;
+  const branchBg=`linear-gradient(180deg, ${pal.s}18, rgba(11,21,34,0.35))`;
   const branchBorder=`1.5px solid ${pal.d}${_ah(Math.min(0.95,0.3+neon*0.32))}`;
   const branchGlow=`0 0 ${Math.round(5+neon*13)}px ${pal.d}${_ah(Math.min(0.75,neon*0.4))}, inset 0 0 ${Math.round(neon*16)}px ${pal.s}${_ah(Math.min(0.45,neon*0.18))}`;
 
@@ -4802,7 +4826,7 @@ function SkillTreeSection({st,setSt,setTab}){
         <span className="st-label">Maestria geral</span>
         <span style={{fontFamily:'var(--serif)',fontSize:'.78rem',fontWeight:700,color:pal.d,letterSpacing:'.05em'}}>{totLv}/{totMax} · {pct}%</span>
       </div>
-      <div style={{height:7,background:'#0B1522',borderRadius:4,overflow:'hidden',border:'1px solid #2B394C'}}>
+      <div style={{height:7,background:'rgba(0,0,0,0.3)',borderRadius:4,overflow:'hidden',border:'1px solid rgba(43,57,76,0.6)'}}>
         <div style={{height:'100%',width:pct+'%',background:`linear-gradient(90deg,${pal.s},${pal.d})`,borderRadius:4,transition:'width .5s ease',boxShadow:`0 0 8px ${pal.d}`}}/>
       </div>
     </div>
