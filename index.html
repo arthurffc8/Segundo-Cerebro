@@ -796,6 +796,11 @@ const THEMES=[
     desc:'Coelho de dados noite adentro. Roxo profundo com dourado mágico.',
     vibes:['mágico','roxo','dourado']},
 ];
+// ── BACKGROUND IMAGES ──────────────────────────────────────────────────────
+const BG_IMAGES=[
+  {id:'bg1', name:'Fundo 1', path:'./background/cc49a03b-5b4e-475f-a558-b2ec8bd77d6d.png'},
+  {id:'bg2', name:'Fundo 2', path:'./background/fa90675c-c9c6-48dc-8e9d-6a8666cdf9aa.png'},
+];
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
   {k:'red',    bg:'#3b1515',bd:'#5c2020',name:'Vermelho'},
@@ -1213,7 +1218,7 @@ function makeInit(){
     config:{
       accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
-      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',
+      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,
     },
     categories:DEF_CATS,
     tasks:[
@@ -1558,6 +1563,21 @@ function applyTheme(config){
   // Apply theme-id class (theme-terminal, theme-bauhaus, ...) for theme-specific CSS
   [...html.classList].forEach(c=>{if(c.startsWith('theme-'))html.classList.remove(c);});
   html.classList.add('theme-'+theme.id);
+
+  // Background image
+  const body=document.body;
+  if(config.bgImage){
+    const bgImg=BG_IMAGES.find(b=>b.id===config.bgImage);
+    if(bgImg){
+      body.style.backgroundImage=`url('${bgImg.path}')`;
+      body.style.backgroundSize='cover';
+      body.style.backgroundPosition='center';
+      body.style.backgroundAttachment='fixed';
+      body.style.backgroundBlendMode='overlay';
+    }
+  }else{
+    body.style.backgroundImage='none';
+  }
 }
 
 // ── UI PRIMITIVES ────────────────────────────────────────────────────────────
@@ -5196,6 +5216,30 @@ function CfgAparencia({st,setCfg,setSt}){
       <div className="cfg-t">Animações do Sistema</div>
       <div className="fc g10"><Tog on={st.config.animations!==false}onChange={()=>setCfg('animations',!st.config.animations)}/><span style={{fontSize:'.85rem',color:'var(--tx2)'}}>{st.config.animations!==false?'Ativadas (Fluído)':'Desativadas (Rápido)'}</span></div>
     </div>
+    {/* Background Image Selection */}
+    <div className="cfg-s">
+      <div className="cfg-t">Plano de fundo</div>
+      <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
+        Escolha uma imagem de fundo para o app. A imagem será aplicada com efeito de sobreposição para manter a legibilidade.
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'12px'}}>
+        {/* None option */}
+        <div style={{position:'relative',cursor:'pointer',borderRadius:8,overflow:'hidden',border:`2px solid ${!st.config.bgImage?'var(--ac)':'var(--bd2)'}`,background:'var(--card)',padding:'20px',textAlign:'center',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center'}}onClick={()=>setCfg('bgImage',null)}>
+          <div style={{fontSize:'.85rem',color:'var(--tx2)'}}>Sem imagem</div>
+          {!st.config.bgImage&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
+        </div>
+        {/* Background image options */}
+        {BG_IMAGES.map(bg=>{
+          const isActive=st.config.bgImage===bg.id;
+          return<div key={bg.id}style={{position:'relative',cursor:'pointer',borderRadius:8,overflow:'hidden',border:`2px solid ${isActive?'var(--ac)':'var(--bd2)'}`,minHeight:80}}onClick={()=>setCfg('bgImage',bg.id)}>
+            <img src={bg.path}alt={bg.name}style={{width:'100%',height:'100%',objectFit:'cover',display:'block',minHeight:80}}/>
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.7), transparent)',pointerEvents:'none'}}/>
+            <div style={{position:'absolute',bottom:6,left:8,fontSize:'.72rem',color:'#fff',fontWeight:600,textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>{bg.name}</div>
+            {isActive&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
+          </div>;
+        })}
+      </div>
+    </div>
   </div>;
 }
 
@@ -6049,7 +6093,7 @@ function App(){
   },[st]);
 
   // Apply theme
-  useEffect(()=>{applyTheme(st.config);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor]);
+  useEffect(()=>{applyTheme(st.config);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage]);
   useEffect(()=>{applyTheme(st.config);},[]);
 
   // Init Firebase on mount if config exists
