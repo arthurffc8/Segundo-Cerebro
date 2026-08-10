@@ -4845,7 +4845,7 @@ function SkillTreeSection({st,setSt,setTab}){
     {/* Painel de personalização */}
     {showStyle&&<SkillStylePanel stl={stl}setStyle={setStyle}applyPreset={applyPreset}/>}
 
-    {/* Árvore — ramos (subcategorias) lado a lado; cada fileira aceita várias habilidades */}
+    {/* Árvore — ramos (subcategorias) organizados em grid adaptativo */}
     <div style={{position:'relative',borderRadius:10,overflow:'hidden'}}>
       {tree.id==='futebol'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futebol-bg.jpg')",backgroundSize:'cover',backgroundPosition:'center 30%',filter:'grayscale(1)',opacity:0.13,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='futevolei'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futevolei-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
@@ -4853,28 +4853,32 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-    <div style={{display:'flex',justifyContent:'center',alignItems:'stretch',gap:10,flexWrap:'wrap',padding:'14px 6px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
+    <div style={{display:'grid',gridTemplateColumns:`repeat(auto-fit, minmax(${Math.min(180, Math.max(120, 600 / Math.max(1, columns.length)))}px, 1fr))`,gap:'12px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
-        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',minWidth:84,flex:'1 1 84px',maxWidth:220,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'6px 5px'}}>
+        const colMaxTier=Math.max(1, ...col.skills.map(s=>s.tier||1));
+        const totalItems=col.skills.length + (isOrphan ? 0 : 1);
+        const adaptiveMinHeight=Math.max(120, colMaxTier * 90 + (isOrphan ? 0 : 50));
+        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease'}}>
           {/* cabeçalho */}
-          <div className="fc"style={{justifyContent:'center',gap:3,height:24,marginBottom:8}}>
+          <div className="fc"style={{justifyContent:'center',gap:3,minHeight:28,marginBottom:10,paddingBottom:6,borderBottom:`1px solid ${pal.d}22`}}>
             {isOrphan
-              ?<span style={{fontFamily:'var(--serif)',fontSize:'.7rem',color:'#5C6B7C',letterSpacing:'.05em'}}>Outros</span>
-              :<input value={col.sc.nome}onChange={e=>renameSubcat(col.sc.id,e.target.value)}style={{minWidth:0,maxWidth:160,fontFamily:'var(--serif)',fontWeight:700,fontSize:'.7rem',letterSpacing:'.04em',color:pal.d,background:'none',border:'none',borderBottom:`1px solid ${pal.d}44`,padding:'0 0 2px',textAlign:'center'}}/>}
+              ?<span style={{fontFamily:'var(--serif)',fontSize:'.75rem',color:'#5C6B7C',letterSpacing:'.05em',fontWeight:600}}>Outros</span>
+              :<input value={col.sc.nome}onChange={e=>renameSubcat(col.sc.id,e.target.value)}style={{minWidth:0,maxWidth:'100%',fontFamily:'var(--serif)',fontWeight:700,fontSize:'.75rem',letterSpacing:'.04em',color:pal.d,background:'none',border:'none',borderBottom:`1px solid ${pal.d}44`,padding:'0 0 2px',textAlign:'center'}}/>}
             {!isOrphan&&<button className="btn-ic"style={{color:'#44566D',fontSize:'.78rem',padding:0,flexShrink:0}}onClick={()=>delSubcat(col.sc.id)}>×</button>}
           </div>
-          {/* corpo: fileiras de altura fixa (alinham entre ramos) */}
-          <div style={{position:'relative'}}>
-            {maxTier>1&&col.skills.length>0&&<div style={{position:'absolute',top:60,height:(maxTier-1)*120,left:'50%',width:2,transform:'translateX(-50%)',background:`linear-gradient(${pal.d}00,${pal.d}44,${pal.d}00)`,zIndex:0}}/>}
-            {Array.from({length:maxTier},(_,i)=>{
+          {/* corpo: altura adaptativa baseada no conteúdo */}
+          <div style={{position:'relative',flex:1,display:'flex',flexDirection:'column',gap:8}}>
+            {colMaxTier>1&&col.skills.length>0&&<div style={{position:'absolute',top:40,bottom:40,left:'50%',width:2,transform:'translateX(-50%)',background:`linear-gradient(to bottom, ${pal.d}00,${pal.d}44,${pal.d}44,${pal.d}00)`,zIndex:0,borderRadius:1}}/>}
+            {Array.from({length:colMaxTier},(_,i)=>{
               const t=i+1,items=col.byTier[t]||[];
-              return<div key={t}style={{position:'relative',zIndex:1,height:120,display:'flex',alignItems:'center',justifyContent:'center',gap:12}}>
+              const tierHeight=Math.max(80, items.length * 85);
+              return<div key={t}style={{position:'relative',zIndex:1,minHeight:tierHeight,display:'flex',alignItems:'center',justifyContent:'center',gap:10,flexWrap:'wrap',padding:'8px 4px'}}>
                 {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}focus={s.id===focusSkillId}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
               </div>;
             })}
-            {!isOrphan&&<div style={{position:'relative',zIndex:1,height:42,display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <button onClick={()=>{const used=col.skills.map(s=>s.tier||1);const nt=used.length?Math.max(...used)+1:1;setEditSkill(null);setSkillPreset({subcat:col.sc.id,tier:nt});setSkillModal(true);}}style={{width:30,height:30,borderRadius:'50%',background:'none',border:`1px dashed ${pal.d}66`,color:pal.d,cursor:'pointer',fontSize:'1rem',lineHeight:1}}>+</button>
+            {!isOrphan&&<div style={{position:'relative',zIndex:1,minHeight:42,display:'flex',alignItems:'center',justifyContent:'center',marginTop:'auto',paddingTop:8}}>
+              <button onClick={()=>{const used=col.skills.map(s=>s.tier||1);const nt=used.length?Math.max(...used)+1:1;setEditSkill(null);setSkillPreset({subcat:col.sc.id,tier:nt});setSkillModal(true);}}style={{width:32,height:32,borderRadius:'50%',background:`${pal.d}11`,border:`1.5px dashed ${pal.d}66`,color:pal.d,cursor:'pointer',fontSize:'1.1rem',lineHeight:1,transition:'all 0.2s ease'}}onMouseEnter={e=>{e.currentTarget.style.background=`${pal.d}22`;e.currentTarget.style.borderColor=pal.d;}}onMouseLeave={e=>{e.currentTarget.style.background=`${pal.d}11`;e.currentTarget.style.borderColor=`${pal.d}66`;}}>+</button>
             </div>}
           </div>
         </div>;
@@ -4882,7 +4886,7 @@ function SkillTreeSection({st,setSt,setTab}){
     </div>
     </div>
 
-    <div style={{textAlign:'center',fontFamily:'var(--serif)',fontSize:'.62rem',letterSpacing:'.05em',color:'#44566D',marginTop:12}}>Coluna = subcategoria · linha = prateleira (várias por fileira) · "+" adiciona habilidade · "➕" no topo cria subcategoria</div>
+    <div style={{textAlign:'center',fontFamily:'var(--serif)',fontSize:'.65rem',letterSpacing:'.05em',color:'#44566D',marginTop:12,lineHeight:1.5}}>💡 <strong>Subcategorias</strong> se organizam automaticamente em grid • <strong>Tiers</strong> se adaptam à quantidade de habilidades • <strong>+</strong> adiciona nova habilidade</div>
 
     {/* Modais */}
     {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}st={st}tree={tree}onGoReel={goReelsFor}
