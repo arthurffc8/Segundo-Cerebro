@@ -4432,7 +4432,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   // Core: gradiente interno que ganha cor com o nível
   const coreBg=!started
     ?'linear-gradient(145deg,#1a2636,#111d2c)'
-    :`radial-gradient(circle at 45% 38%, ${d}${_ah(Math.min(1,0.15+lv*0.15))}, ${s}${_ah(Math.min(1,0.05+lv*0.08))} 70%, #111d2c)`;
+    :`radial-gradient(circle at 45% 38%, ${d}${_ah(Math.min(1,0.2+lv*0.14))}, ${s}${_ah(Math.min(1,0.12+lv*0.08))} ${28+lv*6}%, rgba(17,29,44,0.96) 90%)`;
 
   // Emoji: grayscale → colorido gradualmente
   const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
@@ -4853,7 +4853,7 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-    <div style={{display:'grid',gridTemplateColumns:columns.length > 1 ? '1fr' : `repeat(auto-fit, minmax(${Math.min(180, Math.max(120, 600 / Math.max(1, columns.length)))}px, 1fr))`,alignItems:'start',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1,gridAutoRows:'minmax(min-content, max-content)'}}>
+    <div style={{display:'inline-grid',margin:'0 auto',gridTemplateColumns:columns.length > 1 ? `repeat(${columns.length}, minmax(180px, 260px))` : 'minmax(180px, 260px)',alignItems:'start',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1,gridAutoRows:'minmax(min-content, max-content)'}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
