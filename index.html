@@ -4853,12 +4853,12 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-    <div style={{display:'grid',gridTemplateColumns:columns.length > 1 ? '1fr' : `repeat(auto-fit, minmax(${Math.min(180, Math.max(120, 600 / Math.max(1, columns.length)))}px, 1fr))`,alignItems:'start',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
+    <div style={{display:'grid',gridTemplateColumns:columns.length > 1 ? '1fr' : `repeat(auto-fit, minmax(${Math.min(180, Math.max(120, 600 / Math.max(1, columns.length)))}px, 1fr))`,alignItems:'start',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1,gridAutoRows:'minmax(min-content, max-content)'}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
         const adaptiveMinHeight=colMaxTier > 0 ? 'auto' : '70px';
-        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease'}}>
+        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease',overflow:'hidden',width:'100%'}}>
           {/* cabeçalho */}
           <div className="fc"style={{justifyContent:'center',gap:3,minHeight:28,marginBottom:10,paddingBottom:6,borderBottom:`1px solid ${pal.d}22`}}>
             {isOrphan
@@ -4867,12 +4867,12 @@ function SkillTreeSection({st,setSt,setTab}){
             {!isOrphan&&<button className="btn-ic"style={{color:'#44566D',fontSize:'.78rem',padding:0,flexShrink:0}}onClick={()=>delSubcat(col.sc.id)}>×</button>}
           </div>
           {/* corpo: altura adaptativa baseada no conteúdo */}
-          <div style={{position:'relative',flex:1,display:'flex',flexDirection:'column',gap:8}}>
+          <div style={{position:'relative',flex:1,display:'flex',flexDirection:'column',gap:8,minHeight:0}}>
             {colMaxTier>1&&col.skills.length>0&&<div style={{position:'absolute',top:40,bottom:40,left:'50%',width:2,transform:'translateX(-50%)',background:`linear-gradient(to bottom, ${pal.d}00,${pal.d}44,${pal.d}44,${pal.d}00)`,zIndex:0,borderRadius:1}}/>}
             {Array.from({length:colMaxTier},(_,i)=>{
               const t=i+1,items=col.byTier[t]||[];
               const tierHeight=80;
-              return<div key={t}style={{position:'relative',zIndex:1,minHeight:tierHeight,display:'flex',alignItems:'center',justifyContent:'center',gap:10,flexWrap:'wrap',padding:'8px 4px'}}>
+              return<div key={t}style={{position:'relative',zIndex:1,width:'100%',minHeight:tierHeight,display:'flex',alignItems:'flex-start',justifyContent:'center',gap:10,flexWrap:'wrap',padding:'8px 4px'}}>
                 {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}focus={s.id===focusSkillId}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
               </div>;
             })}
