@@ -4429,14 +4429,14 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   else if(maxed)ringGlow=`0 0 8px ${d}66, 0 0 3px ${d}aa`;
   else if(lv>=3)ringGlow=`0 0 ${2+lv}px ${d}44`;
 
-  // Core: gradiente interno que escurece conforme o nível avança
+  // Core: gradiente de dentro pra fora, crescendo o brilho e preenchendo no máximo
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const innerTone=`${d}${_ah(Math.min(1,0.18+levelRatio*0.22))}`;
-  const midTone=`${s}${_ah(Math.min(1,0.12+levelRatio*0.16))}`;
-  const shadeStop=25+levelRatio*35;
+  const innerTone=`${s}${_ah(Math.min(1,0.35+levelRatio*0.4))}`;
+  const midTone=`${d}${_ah(Math.min(1,0.25+levelRatio*0.25))}`;
+  const outerTone=`rgba(17,29,44,${0.86+levelRatio*0.1})`;
   const coreBg=!started
     ?'linear-gradient(145deg,#1a2636,#111d2c)'
-    :`radial-gradient(circle at 45% 38%, ${innerTone} 18%, ${midTone} ${shadeStop}%, rgba(17,29,44,${0.92+levelRatio*0.06}) 100%)`;
+    :`radial-gradient(circle at 50% 50%, ${innerTone} 0%, ${innerTone} ${20+levelRatio*30}%, ${midTone} ${30+levelRatio*30}%, ${outerTone} 100%)`;
 
   // Emoji: grayscale → colorido gradualmente
   const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
@@ -4849,7 +4849,7 @@ function SkillTreeSection({st,setSt,setTab}){
     {/* Painel de personalização */}
     {showStyle&&<SkillStylePanel stl={stl}setStyle={setStyle}applyPreset={applyPreset}/>}
 
-    {/* Árvore — ramos (subcategorias) organizados em grid adaptativo */}
+    {/* Árvore — ramos (subcategorias) organizados em layout adaptativo */}
     <div style={{position:'relative',borderRadius:10,overflow:'hidden'}}>
       {tree.id==='futebol'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futebol-bg.jpg')",backgroundSize:'cover',backgroundPosition:'center 30%',filter:'grayscale(1)',opacity:0.13,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='futevolei'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futevolei-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
@@ -4857,12 +4857,12 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-    <div style={{display:'inline-flex',flexDirection:'column',alignItems:'center',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
+    <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1,maxWidth:'100%'}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
         const adaptiveMinHeight=colMaxTier > 0 ? 'auto' : '70px';
-        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease',overflow:'hidden',minWidth:220,maxWidth:320}}>
+        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease',overflow:'hidden',flex:'1 1 260px',maxWidth:'340px',minWidth:'240px'}}>
           {/* cabeçalho */}
           <div className="fc"style={{justifyContent:'center',gap:3,minHeight:28,marginBottom:10,paddingBottom:6,borderBottom:`1px solid ${pal.d}22`}}>
             {isOrphan
