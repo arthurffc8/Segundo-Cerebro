@@ -4435,28 +4435,36 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   // Tudo contido dentro do nó (76px), sem expansão externa.
   // Progressão: core fill + ring espessura/brilho + borda do frame + pips abaixo.
 
-  // Progress ring: transforma o efeito em anéis crescentes, não fatias de pizza
+  // Progress ring: anéis de brilho com espaço vazio até o último nível
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const ring=TRACK;
-  const ringW=started?Math.round(4+levelRatio*12):2; // anel fica mais espesso com o nível
+  const emptyGap=70-levelRatio*52; // espaço vazio até a borda do anel
+  const ringThickness=3+levelRatio*6;
+  const ringColor=`${s}${_ah(Math.min(1,0.18+levelRatio*0.5))}`;
+  const ring=started
+    ? `radial-gradient(circle, transparent ${emptyGap}%, ${ringColor} ${emptyGap + 1}%, ${ringColor} ${emptyGap + 10 + levelRatio*10}%, transparent 100%)`
+    : TRACK;
+  const ringW=started?Math.round(ringThickness):2;
 
-  // Ring glow: brilho no anel aumentando o raio com o nível
+  // Ring glow: anel vai avançando e ficando mais aberto com cada nível
   let ringGlow='none';
-  if(selected)ringGlow=`0 0 ${12+levelRatio*12}px ${d}aa`;
-  else if(focus)ringGlow=`0 0 ${10+levelRatio*8}px ${d}88`;
-  else if(maxed)ringGlow=`0 0 ${12+levelRatio*12}px ${d}aa, 0 0 ${5+levelRatio*6}px ${d}cc`;
-  else if(started)ringGlow=`0 0 ${4+levelRatio*10}px ${d}55`;
+  if(selected)ringGlow=`0 0 ${10+levelRatio*18}px ${d}${_ah(Math.min(1,0.42+levelRatio*0.38))}`;
+  else if(focus)ringGlow=`0 0 ${8+levelRatio*12}px ${d}${_ah(Math.min(1,0.34+levelRatio*0.34))}`;
+  else if(maxed)ringGlow=`0 0 ${18+levelRatio*22}px ${d}${_ah(Math.min(1,0.62+levelRatio*0.3))}, 0 0 ${6+levelRatio*12}px ${s}${_ah(Math.min(1,0.3+levelRatio*0.35))}`;
+  else if(started)ringGlow=`0 0 ${6+levelRatio*18}px ${s}${_ah(Math.min(1,0.32+levelRatio*0.4))}`;
 
-  // Core: brilho e contraste crescente de dentro pra fora até a borda
-  const innerTone=`${s}${_ah(Math.min(1,0.7+levelRatio*0.3))}`;
-  const midTone=`${d}${_ah(Math.min(1,0.55+levelRatio*0.35))}`;
-  const outerTone=`rgba(17,29,44,${0.55+levelRatio*0.4})`;
-  const innerStop=8+levelRatio*30;
-  const midStop=innerStop+8+levelRatio*28;
+  // Core: gradiente mais definido e contraste maior por nível
+  const lightTone=`rgba(255,255,255,${0.08+levelRatio*0.24})`;
+  const innerTone=`${s}${_ah(Math.min(1,0.28+levelRatio*0.58))}`;
+  const midTone=`${s}${_ah(Math.min(1,0.16+levelRatio*0.42))}`;
+  const outerTone=`${d}${_ah(Math.min(1,0.08+levelRatio*0.28))}`;
+  const darkTone=`rgba(12,20,34,${0.6+levelRatio*0.3})`;
+  const innerStop=8+levelRatio*42;
+  const midStop=innerStop+8+levelRatio*18;
+  const outerStop=midStop+12+levelRatio*12;
   const coreBg=!started
     ?'linear-gradient(145deg,#1a2636,#111d2c)'
-    :`radial-gradient(circle at 50% 50%, ${innerTone} 0%, ${innerTone} ${innerStop}%, ${midTone} ${midStop}%, ${outerTone} 100%)`;
-  const coreGlow=started?`0 0 ${5+levelRatio*24}px ${s}${_ah(Math.min(1,0.75+levelRatio*0.2))}`:'none';
+    :`radial-gradient(circle at 50% 50%, ${lightTone} 0%, ${innerTone} ${innerStop}%, ${midTone} ${midStop}%, ${outerTone} ${outerStop}%, ${darkTone} 100%)`;
+  const coreGlow=started?`0 0 ${6+levelRatio*30}px ${s}${_ah(Math.min(1,0.65+levelRatio*0.2))}`:'none';
 
   // Emoji: grayscale → colorido gradualmente
   const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
