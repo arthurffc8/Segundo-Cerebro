@@ -897,6 +897,12 @@ const SKILL_PALETTE_PRESETS=[
   {nome:'Esmeralda',d:'#58D68D',s:'#1E8449'},
   {nome:'Violeta',d:'#A569FF',s:'#5B2C9D'},
   {nome:'Branco-Ouro',d:'#FFF7D1',s:'#E8C547'},
+  {nome:'Fogo',d:'#FFAB70',s:'#F97316'},
+  {nome:'Oceano',d:'#6CD4FF',s:'#1E90FF'},
+  {nome:'Pêssego',d:'#FFBA9A',s:'#F08A5D'},
+  {nome:'Lavanda',d:'#C7B8FF',s:'#8A63FF'},
+  {nome:'Jade',d:'#7BE0A5',s:'#0F766E'},
+  {nome:'Gelo',d:'#CDE7FF',s:'#7BA9FF'},
 ];
 function treePalette(tree){
   if(tree&&tree.destaque)return{d:tree.destaque,s:tree.secundaria||tree.destaque};
@@ -4435,31 +4441,43 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   // Tudo contido dentro do nó (76px), sem expansão externa.
   // Progressão: core fill + ring espessura/brilho + borda do frame + pips abaixo.
 
-  // Progress ring: anel de halo com vácuo até a borda; vácuo some no último nível
+  // Quatro estágios visuais por skill: cada fase tem tom e brilho diferentes.
+  const stageCount=4;
+  const stageSize=Math.max(1,Math.ceil(max/stageCount));
+  const stageIndex=started?Math.min(stageCount-1,Math.floor((lv-1)/stageSize)):0;
+  const stagePal=[
+    {glow:`${s}${_ah(0.45)}`, edge:`${d}${_ah(0.24)}`, mid:`${s}${_ah(0.24)}`, accent:`rgba(255,255,255,0.14)`, tone:`rgba(10,14,24,0.78)`},
+    {glow:`${s}${_ah(0.7)}`, edge:`${d}${_ah(0.42)}`, mid:`${s}${_ah(0.34)}`, accent:`rgba(255,255,255,0.22)`, tone:`rgba(8,12,22,0.85)`},
+    {glow:`${d}${_ah(0.92)}`, edge:`${d}${_ah(0.58)}`, mid:`${s}${_ah(0.44)}`, accent:`rgba(255,255,255,0.28)`, tone:`rgba(6,10,18,0.92)`},
+    {glow:`${d}${_ah(1)}`, edge:`${d}${_ah(0.78)}`, mid:`${s}${_ah(0.56)}`, accent:`rgba(255,255,255,0.36)`, tone:`rgba(4,8,14,0.96)`},
+  ][stageIndex];
+  const stageD=stagePal.edge;
+  const stageS=stagePal.mid;
+
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const ringOuter=86 + levelRatio*14; // 86% → 100%
-  const ringInner=ringOuter - (8 + levelRatio*4); // anel mais espesso em níveis altos
-  const ringGlowTone=`${s}${_ah(Math.min(1,0.24+levelRatio*0.5))}`;
-  const ringColor1=`${s}${_ah(Math.min(1,0.18+levelRatio*0.4))}`;
-  const ringColor2=`${d}${_ah(Math.min(1,0.2+levelRatio*0.35))}`;
-  const ringColor3=`rgba(255,255,255,${0.08+levelRatio*0.22})`;
+  const ringOuter=88 + levelRatio*10;
+  const ringInner=60 + levelRatio*18;
+  const ringGlowTone=stagePal.glow;
+  const ringColor1=`${stageS}${_ah(Math.min(1,0.26+levelRatio*0.4))}`;
+  const ringColor2=`${stageD}${_ah(Math.min(1,0.28+levelRatio*0.32))}`;
+  const ringColor3=`rgba(255,255,255,${0.14+levelRatio*0.34})`;
+  const ringGapAlpha=0.85*(1-levelRatio);
+  const ringGapColor=`rgba(10,14,24,${ringGapAlpha})`;
   const ring=started
-    ? `radial-gradient(circle at 50% 50%, transparent 0%, transparent ${ringInner - 2}%, ${ringColor3} ${ringInner - 1}%, ${ringColor1} ${ringInner + 3}%, ${ringColor2} ${ringOuter - 1}%, transparent ${ringOuter}%, transparent 100%)`
+    ? `radial-gradient(circle at 50% 50%, transparent 0%, transparent ${ringInner - 2}%, ${ringGapColor} ${ringInner}%, ${ringGapColor} ${ringOuter - 6}%, ${ringColor3} ${ringOuter - 5}%, ${ringColor1} ${ringOuter - 2}%, ${ringColor2} ${ringOuter - 0.5}%, transparent ${ringOuter}%, transparent 100%)`
     : TRACK;
   const ringW=started?Math.round(5 + levelRatio*5):2;
 
-  // Ring glow: o halo cresce em raio e saturação com cada nível
   let ringGlow='none';
   if(selected)ringGlow=`0 0 ${12+levelRatio*16}px ${ringGlowTone}`;
   else if(focus)ringGlow=`0 0 ${10+levelRatio*12}px ${ringGlowTone}`;
-  else if(maxed)ringGlow=`0 0 ${18+levelRatio*22}px ${ringGlowTone}, 0 0 ${8+levelRatio*10}px ${s}${_ah(Math.min(1,0.32+levelRatio*0.36))}`;
-  else if(started)ringGlow=`0 0 ${8+levelRatio*16}px ${s}${_ah(Math.min(1,0.32+levelRatio*0.4))}`;
+  else if(maxed)ringGlow=`0 0 ${18+levelRatio*22}px ${ringGlowTone}, 0 0 ${8+levelRatio*10}px ${stageS}${_ah(Math.min(1,0.32+levelRatio*0.36))}`;
+  else if(started)ringGlow=`0 0 ${8+levelRatio*16}px ${stageS}${_ah(Math.min(1,0.32+levelRatio*0.4))}`;
 
-  // Core: degrade mais colorido e contraste mais forte por nível
-  const centerTone=`${s}${_ah(Math.min(1,0.28+levelRatio*0.55))}`;
-  const midTone=`${s}${_ah(Math.min(1,0.16+levelRatio*0.4))}`;
-  const outerTone=`${d}${_ah(Math.min(1,0.08+levelRatio*0.28))}`;
-  const darkTone=`rgba(12,20,34,${0.55+levelRatio*0.35})`;
+  const centerTone=`${stageS}${_ah(Math.min(1,0.28+levelRatio*0.56))}`;
+  const midTone=`${stageD}${_ah(Math.min(1,0.22+levelRatio*0.42))}`;
+  const outerTone=stagePal.accent;
+  const darkTone=stagePal.tone;
   const highlightTone=`rgba(255,255,255,${0.08+levelRatio*0.22})`;
   const innerStop=10 + levelRatio*38;
   const midStop=innerStop + 10 + levelRatio*18;
