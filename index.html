@@ -1193,6 +1193,7 @@ const DEF_SKILLTREES=[
 ];
 
 const DEF_TABS=[
+  {id:'skilltree',label:'Skill Tree',emoji:'🌳',visible:true},
   {id:'hoje',label:'Hoje',emoji:'🏠',visible:true},
   {id:'reels',label:'Reels',emoji:'🎞️',visible:true},
   {id:'tarefas',label:'Tarefas',emoji:'✅',visible:true},
@@ -1203,7 +1204,6 @@ const DEF_TABS=[
   {id:'financas',label:'Finanças',emoji:'💰',visible:true},
   {id:'missao',label:'Missão',emoji:'⚔️',visible:true},
   {id:'crencas',label:'Mente',emoji:'🦋',visible:true},
-  {id:'skilltree',label:'Skill Tree',emoji:'🌳',visible:true},
   {id:'conquistas',label:'Conquistas',emoji:'🏆',visible:true},
   {id:'eixo',label:'Eixo',emoji:'⚖️',visible:true},
   {id:'config',label:'Config',emoji:'⚙️',visible:true},
@@ -1343,11 +1343,17 @@ function sanitizeTabs(state){
   if(!state?.config?.tabs)return state;
   const existing=new Set(state.config.tabs.map(t=>t.id));
   const missing=DEF_TABS.filter(t=>!existing.has(t.id));
-  if(!missing.length)return state;
   const tabs=[...state.config.tabs];
-  const cfgIdx=tabs.findIndex(t=>t.id==='config');
-  if(cfgIdx>=0)tabs.splice(cfgIdx,0,...missing);
-  else tabs.push(...missing);
+  if(missing.length){
+    const cfgIdx=tabs.findIndex(t=>t.id==='config');
+    if(cfgIdx>=0)tabs.splice(cfgIdx,0,...missing);
+    else tabs.push(...missing);
+  }
+  const skillIdx=tabs.findIndex(t=>t.id==='skilltree');
+  if(skillIdx>0){
+    const [tab]=tabs.splice(skillIdx,1);
+    tabs.unshift(tab);
+  }
   return{...state,config:{...state.config,tabs}};
 }
 
@@ -1522,7 +1528,7 @@ function ClassAvatar({cls,locked,size,baseImg,mini}){
 
 // ── APPLY THEME ──────────────────────────────────────────────────────────────
 
-function applyTheme(config){
+function applyTheme(config, st){
   const r=document.documentElement.style;
   const html=document.documentElement;
   const theme=THEMES.find(t=>t.id===config.themeId)||THEMES[0];
@@ -1573,10 +1579,21 @@ function applyTheme(config){
       body.style.backgroundSize='cover';
       body.style.backgroundPosition='center';
       body.style.backgroundAttachment='fixed';
+      body.style.backgroundRepeat='no-repeat';
       body.style.backgroundBlendMode='overlay';
     }
   }else{
-    body.style.backgroundImage='none';
+    const classImage = st?.classBaseImg || null;
+    if(classImage){
+      body.style.backgroundImage=`url('${classImage}')`;
+      body.style.backgroundSize='cover';
+      body.style.backgroundPosition='center';
+      body.style.backgroundAttachment='fixed';
+      body.style.backgroundRepeat='no-repeat';
+      body.style.backgroundBlendMode='overlay';
+    } else {
+      body.style.backgroundImage='none';
+    }
   }
 }
 
@@ -6120,7 +6137,7 @@ function ReelsSection({st,setSt}){
 
 function App(){
   const[st,setSt]=useState(loadSt);
-  const[tab,setTab]=useState('hoje');
+  const[tab,setTab]=useState('skilltree');
   const[fbUser,setFbUser]=useState(null);
   const[syncStatus,setSyncStatus]=useState('idle'); // 'idle'|'syncing'|'ok'|'err'
   const syncTimer=useRef(null);
@@ -6132,8 +6149,7 @@ function App(){
   },[st]);
 
   // Apply theme
-  useEffect(()=>{applyTheme(st.config);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage]);
-  useEffect(()=>{applyTheme(st.config);},[]);
+  useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.classBaseImg,st.skilltree]);
 
   // Init Firebase on mount if config exists
   useEffect(()=>{
