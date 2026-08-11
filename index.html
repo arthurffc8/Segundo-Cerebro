@@ -4439,40 +4439,47 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
 
   // ── DESIGN LIMPO POR NÍVEL ──
   // Tudo contido dentro do nó (76px), sem expansão externa.
-  // Progressão: core fill + ring espessura/brilho + borda do frame + pips abaixo.
-
-  // Quatro estágios visuais por skill: brilho interno cresce, gap escuro diminui e ring externo permanece nítido.
-  const stageCount=4;
-  const stageIndex=started?Math.min(stageCount-1,Math.floor((lv-1)/(Math.max(1,max)/stageCount))):0;
-  const stagePal=[
-    {ball:`${s}${_ah(0.75)}`, ring:`${s}${_ah(0.98)}`, glow:`${s}${_ah(0.55)}`, edge:`${d}${_ah(0.30)}`, gap:`rgba(7,10,18,0.92)`, accent:`rgba(255,255,255,0.16)`},
-    {ball:`${s}${_ah(0.92)}`, ring:`${s}${_ah(1)}`, glow:`${s}${_ah(0.85)}`, edge:`${d}${_ah(0.50)}`, gap:`rgba(6,9,17,0.94)`, accent:`rgba(255,255,255,0.22)`},
-    {ball:`${d}${_ah(0.94)}`, ring:`${d}${_ah(0.98)}`, glow:`${d}${_ah(0.96)}`, edge:`${d}${_ah(0.64)}`, gap:`rgba(5,8,15,0.96)`, accent:`rgba(255,255,255,0.28)`},
-    {ball:`${d}${_ah(1)}`, ring:`${d}${_ah(1)}`, glow:`${d}${_ah(1)}`, edge:`${d}${_ah(0.78)}`, gap:`rgba(4,6,14,0.98)`, accent:`rgba(255,255,255,0.34)`},
-  ][stageIndex];
-
+  // Progressão: a luz nasce no centro, cresce até tomar o nó e o gap escuro diminui.
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const coreBallPct=started? Math.max(16, 16 + levelRatio*68) : 0;
-  const coreDarkStart=Math.min(100, coreBallPct + 8);
-  const coreBg=!started
-    ?'radial-gradient(circle at 50% 50%, rgba(18,26,40,0.95) 0%, rgba(12,16,26,0.98) 44%, rgba(7,10,18,0.95) 100%)'
-    :`radial-gradient(circle at 50% 50%, ${stagePal.ball} 0%, ${stagePal.ball} ${coreBallPct}%, ${stagePal.gap} ${coreDarkStart}%, ${stagePal.gap} 100%)`;
+  const ballPct=started
+    ? Math.min(100, 20 + Math.round((lv-1) * 80 / Math.max(1, max-1)))
+    : 0;
+  const gapStart=Math.min(84, ballPct + 4);
+  const ringStart=86;
+  const ringEnd=94;
+  const darkGap=`rgba(8,12,20,${0.95 - levelRatio*0.12})`;
 
-  const ringGlowTone=stagePal.glow;
-  const ringGapStart=started? Math.max(58, 70 - levelRatio*16) : 0;
-  const ringGapEnd=started? Math.min(88, 82 - levelRatio*10) : 0;
+  const blueSteps=[
+    {ball:'#7dd3fc',ring:'#38bdf8',glow:'rgba(125,211,252,0.55)'},
+    {ball:'#60a5fa',ring:'#2563eb',glow:'rgba(96,165,250,0.65)'},
+    {ball:'#3b82f6',ring:'#1d4ed8',glow:'rgba(59,130,246,0.75)'},
+    {ball:'#1d4ed8',ring:'#1e40af',glow:'rgba(29,78,216,0.85)'},
+    {ball:'#1e3a8a',ring:'#1e40af',glow:'rgba(30,58,138,0.95)'},
+  ];
+  const levelIndex=started
+    ? Math.min(4,Math.round((lv-1) * 4 / Math.max(1, max-1)))
+    : 0;
+  const ballColor=blueSteps[levelIndex].ball;
+  const ringColor=blueSteps[levelIndex].ring;
+  const ringGlowTone=blueSteps[levelIndex].glow;
+
+  const coreBg=!started
+    ? 'radial-gradient(circle at 50% 50%, rgba(18,26,40,0.95) 0%, rgba(10,14,24,0.98) 45%, rgba(7,10,18,0.96) 100%)'
+    : maxed
+      ? `radial-gradient(circle at 50% 50%, ${ballColor} 0%, ${ballColor} 100%)`
+      : `radial-gradient(circle at 50% 50%, ${ballColor} 0%, ${ballColor} ${ballPct}%, ${darkGap} ${gapStart}%, ${darkGap} ${ringStart}%, rgba(10,14,24,0.98) ${ringStart + 1}%, rgba(10,14,24,0.98) 100%)`;
+
   const ring=started
-    ? `radial-gradient(circle at 50% 50%, transparent 0%, transparent ${ringGapStart}%, ${stagePal.gap} ${ringGapStart}%, ${stagePal.gap} ${ringGapEnd}%, ${stagePal.ring} ${ringGapEnd + 2}%, transparent 100%)`
+    ? `radial-gradient(circle at 50% 50%, transparent 0%, transparent ${ringStart}%, ${ringColor} ${ringStart}%, ${ringColor} ${ringEnd}%, transparent 100%)`
     : TRACK;
   const ringW=started?Math.round(5 + levelRatio*4):2;
 
   let ringGlow='none';
   if(selected)ringGlow=`0 0 ${12+levelRatio*16}px ${ringGlowTone}`;
   else if(focus)ringGlow=`0 0 ${10+levelRatio*12}px ${ringGlowTone}`;
-  else if(maxed)ringGlow=`0 0 ${20+levelRatio*24}px ${ringGlowTone}, 0 0 ${10+levelRatio*12}px ${stagePal.accent}`;
-  else if(started)ringGlow=`0 0 ${8+levelRatio*18}px ${stagePal.glow}`;
+  else if(maxed)ringGlow=`0 0 ${20+levelRatio*24}px ${ringGlowTone}, 0 0 ${10+levelRatio*12}px ${ballColor}`;
+  else if(started)ringGlow=`0 0 ${8+levelRatio*18}px ${ringGlowTone}`;
 
-  const coreGlow=started?`0 0 ${6+levelRatio*28}px ${stagePal.glow}`:'none';
   const coreGlow=started?`0 0 ${6+levelRatio*28}px ${ringGlowTone}`:'none';
 
   // Emoji: grayscale → colorido gradualmente
