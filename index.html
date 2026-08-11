@@ -321,10 +321,22 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-node:hover{transform:translateY(-2px) scale(1.05);}
 .skill-halo{position:absolute;width:90px;height:90px;border-radius:50%;left:50%;top:35px;transform:translate(-50%,-50%);z-index:0;filter:blur(10px);pointer-events:none;}
 .skill-laurel{position:absolute;width:88px;height:88px;left:50%;top:35px;transform:translate(-50%,-50%);z-index:0;pointer-events:none;}
-.skill-frame{position:relative;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;}
+.skill-frame{position:relative;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;overflow:hidden;}
 .skill-studs{position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;}
 .skill-ring{position:relative;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;}
 .skill-core{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.38rem;}
+/* ── Estágios de ignição: cada nível acende uma camada nova dentro do nó ── */
+.sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d);height:var(--sk-d);border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 58%,var(--sk-rim) 92%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom) var(--sk-glow);transition:width .4s ease,height .4s ease;}
+.sk-aura{position:absolute;inset:2.5px;border-radius:50%;z-index:1;pointer-events:none;border:1px solid var(--sk-c);opacity:var(--sk-aura-op);box-shadow:0 0 7px var(--sk-glow),inset 0 0 9px var(--sk-glow);}
+.sk-orbit{position:absolute;inset:0;z-index:2;pointer-events:none;animation:sk-spin 9s linear infinite;}
+.sk-orbit i{position:absolute;left:50%;top:50%;width:3.5px;height:3.5px;margin:-1.75px 0 0 -1.75px;border-radius:50%;background:var(--sk-hot);box-shadow:0 0 5px var(--sk-glow);}
+.sk-rays{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:50%;opacity:.6;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 3deg,transparent 3deg 30deg);animation:sk-spin 30s linear infinite;}
+/* Forma final: coroa pulsante e corona de raios, ambas POR FORA do disco (que já está cheio) */
+.sk-crown{position:absolute;left:50%;top:35px;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;z-index:0;pointer-events:none;border:1.5px solid var(--sk-hot);animation:sk-crown 2.8s ease-in-out infinite;}
+.sk-corona{position:absolute;left:50%;top:35px;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;z-index:0;pointer-events:none;opacity:.55;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 2.5deg,transparent 2.5deg 22.5deg);animation:sk-spin 22s linear infinite;}
+@keyframes sk-spin{to{transform:rotate(360deg)}}
+@keyframes sk-crown{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.7;transform:scale(1.06)}}
+@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona{animation:none}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:4px;font-family:var(--serif);font-size:.58rem;letter-spacing:.03em;text-align:center;line-height:1.2;max-width:70px;}
 /* responsive */
@@ -903,6 +915,22 @@ const SKILL_PALETTE_PRESETS=[
   {nome:'Lavanda',d:'#C7B8FF',s:'#8A63FF'},
   {nome:'Jade',d:'#7BE0A5',s:'#0F766E'},
   {nome:'Gelo',d:'#CDE7FF',s:'#7BA9FF'},
+  {nome:'Rubi',d:'#FF7A8A',s:'#B01030'},
+  {nome:'Turquesa',d:'#5EEAD4',s:'#0D9488'},
+  {nome:'Âmbar',d:'#FFC93C',s:'#B45309'},
+  {nome:'Ciano',d:'#67E8F9',s:'#0E7490'},
+  {nome:'Magenta',d:'#F472D0',s:'#A21CAF'},
+  {nome:'Limão',d:'#D9F99D',s:'#4D7C0F'},
+  {nome:'Índigo',d:'#8FA3FF',s:'#3730A3'},
+  {nome:'Coral',d:'#FF9E7A',s:'#E14D2A'},
+  {nome:'Bronze',d:'#E0A46A',s:'#8B5A2B'},
+  {nome:'Prata',d:'#E2E8F0',s:'#64748B'},
+  {nome:'Vinho',d:'#E06A8B',s:'#7A1E3A'},
+  {nome:'Selva',d:'#86EFAC',s:'#166534'},
+  {nome:'Cobalto',d:'#7DA8FF',s:'#1E3A8A'},
+  {nome:'Sol',d:'#FFE066',s:'#F59E0B'},
+  {nome:'Ametista',d:'#D8B4FE',s:'#7E22CE'},
+  {nome:'Néon',d:'#A3FF6E',s:'#3F9B0B'},
 ];
 function treePalette(tree){
   if(tree&&tree.destaque)return{d:tree.destaque,s:tree.secundaria||tree.destaque};
@@ -920,6 +948,18 @@ const SKILL_STYLE_PRESETS={
 function readStyle(st){return{...DEF_STYLE,...((st&&st.skilltree&&st.skilltree.style)||{})};}
 // alpha 0..1 → hex 2 dígitos
 function _ah(a){return Math.round(Math.max(0,Math.min(1,a))*255).toString(16).padStart(2,'0');}
+// interpolação de cor: #rrggbb → rgb, mistura e rampa multi-parada (0..1)
+function _hx(c){const h=String(c).replace('#','');return[parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)];}
+function _rgbHex(r,g,b){return'#'+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');}
+function _mix(a,b,t){const A=_hx(a),B=_hx(b),k=Math.max(0,Math.min(1,t));return _rgbHex(A[0]+(B[0]-A[0])*k,A[1]+(B[1]-A[1])*k,A[2]+(B[2]-A[2])*k);}
+function _rgba(c,a){const p=_hx(c);return`rgba(${p[0]},${p[1]},${p[2]},${a})`;}
+function _ramp(stops,t){const x=Math.max(0,Math.min(1,t))*(stops.length-1),i=Math.min(stops.length-2,Math.floor(x));return _mix(stops[i],stops[i+1],x-i);}
+// Rampa de luz de uma habilidade, tirada da paleta da própria árvore: começa
+// como brasa na cor secundária e termina incandescente na cor de destaque.
+function skillLightRamp(pal){
+  const d=pal.d,s=pal.s||pal.d;
+  return[_mix(s,'#0A0F1A',0.22),_mix(s,d,0.38),_mix(s,d,0.72),d,_mix(d,'#FFFFFF',0.1)];
+}
 // subcats = colunas (branches) personalizáveis; cada skill tem subcat = id da coluna
 const DEF_SKILLTREES=[
   {id:'futebol',nome:'Futebol',emoji:'⚽',destaque:'#F5D98C',secundaria:'#D18B1F',cor:'#F5D98C',
@@ -4431,69 +4471,63 @@ function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
 function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
-  const pct=Math.round(lv/max*100);
   const started=lv>0;
   const maxed=lv>=max;
-  const d=pal.d,s=pal.s;
-  const TRACK='rgba(43,57,76,0.5)';
+  const d=pal.d,s=pal.s||pal.d;
+  const gk=stl&&typeof stl.glow==='number'?stl.glow:1;   // slider "Brilho"
+  const nk=stl&&typeof stl.neon==='number'?stl.neon:1;   // slider "Borda neon"
 
-  // ── DESIGN LIMPO POR NÍVEL ──
-  // Tudo contido dentro do nó (76px), sem expansão externa.
-  // Progressão: a luz nasce no centro, cresce até tomar o nó e o gap escuro diminui.
-  const levelRatio=max>0?Math.min(1,lv/max):0;
-  const ballPct=started
-    ? Math.min(100, 20 + Math.round((lv-1) * 80 / Math.max(1, max-1)))
-    : 0;
-  const gapStart=Math.min(84, ballPct + 4);
-  const ringStart=86;
-  const ringEnd=94;
-  const darkGap=`rgba(8,12,20,${0.95 - levelRatio*0.12})`;
+  // ── ESTÁGIOS DE IGNIÇÃO ──
+  // A luz nasce no centro e cresce nível a nível (raio = nível ÷ máximo), mas cada
+  // estágio também ACENDE UM ELEMENTO NOVO, então dá pra ler o nível de longe:
+  //   1 faísca · 2 satélite em órbita · 3 anel de aura · 4 raios · 5 forma final
+  // Num skill de 3 níveis os estágios pulam de 2 em 2 — a forma final é sempre o último.
+  const levelRatio=max>0?Math.min(1,lv/max):0;   // fração do raio tomada pela luz
+  const tone=max>1?(lv-1)/(max-1):1;             // 0 no nível 1 → 1 no último nível
+  const stage=started?1+Math.round(tone*4):0;
 
-  const blueSteps=[
-    {ball:'#7dd3fc',ring:'#38bdf8',glow:'rgba(125,211,252,0.55)'},
-    {ball:'#60a5fa',ring:'#2563eb',glow:'rgba(96,165,250,0.65)'},
-    {ball:'#3b82f6',ring:'#1d4ed8',glow:'rgba(59,130,246,0.75)'},
-    {ball:'#1d4ed8',ring:'#1e40af',glow:'rgba(29,78,216,0.85)'},
-    {ball:'#1e3a8a',ring:'#1e40af',glow:'rgba(30,58,138,0.95)'},
-  ];
-  const levelIndex=started
-    ? Math.min(4,Math.round((lv-1) * 4 / Math.max(1, max-1)))
-    : 0;
-  const ballColor=blueSteps[levelIndex].ball;
-  const ringColor=blueSteps[levelIndex].ring;
-  const ringGlowTone=blueSteps[levelIndex].glow;
+  const FRAME=67;                                // diâmetro interno de .skill-frame (70px − borda)
+  const lightD=+(levelRatio*FRAME).toFixed(1);
+  const orbitR=Math.min(30.5,(lightD+FRAME)/4); // satélites no meio do vão entre luz e borda
+  const sats=stage>=2&&stage<5?stage-1:0;        // 1, 2 e 3 satélites nos estágios 2, 3 e 4
 
-  const coreBg=!started
-    ? 'radial-gradient(circle at 50% 50%, rgba(18,26,40,0.95) 0%, rgba(10,14,24,0.98) 45%, rgba(7,10,18,0.96) 100%)'
-    : maxed
-      ? `radial-gradient(circle at 50% 50%, ${ballColor} 0%, ${ballColor} 100%)`
-      : `radial-gradient(circle at 50% 50%, ${ballColor} 0%, ${ballColor} ${ballPct}%, ${darkGap} ${gapStart}%, ${darkGap} ${ringStart}%, rgba(10,14,24,0.98) ${ringStart + 1}%, rgba(10,14,24,0.98) 100%)`;
+  // Cores: tudo derivado da paleta da árvore, nada fixo
+  const lightMain=_ramp(skillLightRamp(pal),tone);
+  const lightHot=_mix(lightMain,'#FFFFFF',0.3+tone*0.35);  // núcleo esquenta até quase branco
+  const lightRim=_mix(lightMain,s,0.25+tone*0.35);         // borda mais funda dá volume ao orbe
+  const glowTone=_mix(lightMain,d,0.45);
+  const maxHi=_mix(d,'#FFFFFF',0.4);                      // acabamento da forma final
 
-  const ring=started
-    ? `radial-gradient(circle at 50% 50%, transparent 0%, transparent ${ringStart}%, ${ringColor} ${ringStart}%, ${ringColor} ${ringEnd}%, transparent 100%)`
-    : TRACK;
-  const ringW=started?Math.round(5 + levelRatio*4):2;
+  // O poço escuro em volta: quanto menor a luz, mais vazio ele parece
+  const well=started
+    ? `radial-gradient(circle closest-side, ${_mix(s,'#05080F',0.86)} 0%, #03050B 100%)`
+    : 'radial-gradient(circle closest-side, #101725 0%, #05070D 100%)';
 
-  let ringGlow='none';
-  if(selected)ringGlow=`0 0 ${12+levelRatio*16}px ${ringGlowTone}`;
-  else if(focus)ringGlow=`0 0 ${10+levelRatio*12}px ${ringGlowTone}`;
-  else if(maxed)ringGlow=`0 0 ${20+levelRatio*24}px ${ringGlowTone}, 0 0 ${10+levelRatio*12}px ${ballColor}`;
-  else if(started)ringGlow=`0 0 ${8+levelRatio*18}px ${ringGlowTone}`;
+  const halo=started?`0 0 ${Math.round((7+levelRatio*20)*gk)}px ${_rgba(glowTone,Math.min(0.85,(0.14+levelRatio*0.4)*gk).toFixed(2))}`:null;
+  const maxHalo=maxed?`0 0 ${Math.round(34*gk)}px ${_rgba(lightHot,Math.min(0.6,0.3*gk).toFixed(2))}`:null;
+  const stateHalo=selected?`0 0 14px ${_rgba(d,0.55)}`:focus?`0 0 10px ${_rgba(d,0.4)}`:null;
+  const frameShadow=[stateHalo,maxHalo,halo].filter(Boolean).join(', ')||'none';
 
-  const coreGlow=started?`0 0 ${6+levelRatio*28}px ${ringGlowTone}`:'none';
+  // Emoji: grayscale → colorido conforme a luz cresce
+  const emojiOp=!started?0.25:0.45+levelRatio*0.55;
+  const emojiFilt=!started?'grayscale(1) brightness(0.65)':`brightness(${(0.8+levelRatio*0.35).toFixed(2)}) saturate(${Math.round(45+levelRatio*75)}%)`;
 
-  // Emoji: grayscale → colorido gradualmente
-  const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
-  const emojiFilt=!started?'grayscale(1) brightness(0.65)':`brightness(${0.7+lv*0.08}) saturate(${30+lv*14}%)`;
+  // Frame: a borda do círculo acende junto com a luz
+  const frameBorder=maxed?maxHi
+    :selected?_rgba(d,0.95)
+    :focus?_rgba(d,0.8)
+    :started?_rgba(d,Math.min(1,(0.22+levelRatio*0.6)*(0.4+nk*0.6)).toFixed(2))
+    :'rgba(51,69,91,0.4)';
 
-  // Frame: borda fina que ganha cor e brilho
-  const frameBorder=selected||maxed?'#FFF1B3'
-    :focus?d+'bb'
-    :started?d+_ah(Math.min(1,0.18+lv*0.15)):'rgba(51,69,91,0.4)';
-  const frameShadow=selected?`0 0 12px ${d}66`
-    :focus?`0 0 8px ${d}44`
-    :maxed?`0 0 6px ${d}44, inset 0 0 8px ${d}11`
-    :started&&lv>=3?`inset 0 0 ${4+lv}px ${d}0a`:'none';
+  const skVars={
+    '--sk-d':lightD+'px',
+    '--sk-c':lightMain,
+    '--sk-hot':lightHot,
+    '--sk-rim':lightRim,
+    '--sk-glow':_rgba(glowTone,Math.min(0.9,0.55*gk).toFixed(2)),
+    '--sk-bloom':Math.round((4+levelRatio*13)*gk)+'px',
+    '--sk-aura-op':(maxed?0.9:0.55).toFixed(2),
+  };
 
   // Pips: bolinhas abaixo do badge indicando nível (como estrelas)
   const pips=[];
@@ -4502,28 +4536,37 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   }
 
   // Nome: ganha cor e opacidade
-  const nameColor=maxed?'#FFF1B3'
-    :started?d+_ah(Math.min(1,0.4+lv*0.12))
-    :focus?'#FFF1B3':'rgba(92,107,124,0.55)';
+  const nameColor=maxed?maxHi
+    :started?_rgba(d,Math.min(1,0.4+levelRatio*0.6).toFixed(2))
+    :focus?d:'rgba(92,107,124,0.55)';
 
   // Badge
-  const badgeColor=maxed?'#FFF1B3':started?d:'rgba(92,107,124,0.55)';
-  const badgeBorder=maxed?'#FFF1B3':started?d+_ah(Math.min(1,0.25+lv*0.12)):'rgba(68,86,109,0.35)';
+  const badgeColor=maxed?maxHi:started?d:'rgba(92,107,124,0.55)';
+  const badgeBorder=maxed?maxHi:started?_rgba(d,Math.min(1,0.25+levelRatio*0.6).toFixed(2)):'rgba(68,86,109,0.35)';
 
   // Hint
   const nextHint=maxed?'Já dominada. Mantém afiado e ensina.':(skill.levels&&skill.levels[lv+1])||null;
 
   return<div className="skill-node"onClick={onClick}style={{position:'relative'}}>
-    {/* Frame + ring + core */}
-    <div className="skill-frame"style={{background:coreBg,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .2s,border-color .2s'}}>
-      <div className="skill-ring"style={{background:ring,padding:ringW,boxShadow:ringGlow}}>
-        <div className="skill-core"style={{background:started?coreBg:'transparent',boxShadow:coreGlow,transition:'box-shadow .2s,background .2s'}}>
-          <span style={{opacity:emojiOp,filter:emojiFilt,transition:'all .3s'}}>{skill.emoji}</span>
+    {/* Forma final: corona de raios e coroa pulsante em volta do disco cheio */}
+    {maxed&&<div className="sk-corona"style={{'--sk-hot':maxHi}}/>}
+    {maxed&&<div className="sk-crown"style={{'--sk-hot':_rgba(maxHi,0.85)}}/>}
+    {/* Frame: poço escuro + camadas que acendem por estágio */}
+    <div className="skill-frame"style={{...skVars,background:well,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .25s,border-color .25s'}}>
+      {stage>=4&&!maxed&&<div className="sk-rays"/>}
+      {stage>=3&&<div className="sk-aura"/>}
+      {sats>0&&<div className="sk-orbit">
+        {Array.from({length:sats},(_,i)=><i key={i}style={{transform:`rotate(${i*360/sats}deg) translateY(${-orbitR}px)`}}/>)}
+      </div>}
+      {started&&<div className="sk-light"/>}
+      <div className="skill-ring"style={{background:'transparent',padding:0}}>
+        <div className="skill-core">
+          <span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s'}}>{skill.emoji}</span>
         </div>
       </div>
     </div>
-    {/* Laurels p/ dominados */}
-    {maxed&&<div style={{position:'absolute',top:28,left:'50%',transform:'translate(-50%,-50%)',fontSize:'.7rem',opacity:0.85,zIndex:4,pointerEvents:'none',textShadow:`0 0 6px ${d}88`}}>{d==='#FFF1B3'?'👑':'⭐'}</div>}
+    {/* Selo de dominada */}
+    {maxed&&<div style={{position:'absolute',top:28,left:'50%',transform:'translate(-50%,-50%)',fontSize:'.7rem',opacity:0.85,zIndex:4,pointerEvents:'none',textShadow:`0 0 6px ${_rgba(maxHi,0.6)}`}}>{d==='#FFF7D1'?'👑':'⭐'}</div>}
     {/* Focus indicator */}
     {focus&&<div style={{position:'absolute',inset:-3,borderRadius:'50%',border:`1.5px dashed ${d}`,opacity:0.5,animation:'st-focus-spin 20s linear infinite',pointerEvents:'none'}}/>}
     {/* Badge */}
@@ -4532,7 +4575,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
     {practiced&&<div style={{position:'absolute',top:2,right:2,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'1.5px solid #0B1522',boxShadow:'0 0 4px #22c55e',zIndex:3}}/>}
     {/* Pips: nível visual */}
     {max>1&&<div style={{display:'flex',justifyContent:'center',gap:3,marginTop:3}}>
-      {pips.map((p,i)=><div key={i}style={{width:5,height:5,borderRadius:'50%',background:p.gold?'#FFF1B3':p.filled?d:'rgba(43,57,76,0.4)',border:p.gold?'1px solid #FFF1B3':p.filled?`1px solid ${d}88`:'1px solid rgba(43,57,76,0.3)',boxShadow:p.filled?`0 0 3px ${p.gold?'#FFF1B3':d}66`:'none',transition:'all .3s'}}/>)}
+      {pips.map((p,i)=><div key={i}style={{width:5,height:5,borderRadius:'50%',background:p.gold?maxHi:p.filled?d:'rgba(43,57,76,0.4)',border:`1px solid ${p.gold?maxHi:p.filled?_rgba(d,0.53):'rgba(43,57,76,0.3)'}`,boxShadow:p.filled?`0 0 3px ${_rgba(p.gold?maxHi:d,0.4)}`:'none',transition:'all .3s'}}/>)}
     </div>}
     {/* Nome */}
     <div className="skill-name"style={{color:nameColor,marginTop:max>1?2:4}}>{skill.nome}</div>
