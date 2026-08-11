@@ -4429,14 +4429,17 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   else if(maxed)ringGlow=`0 0 8px ${d}66, 0 0 3px ${d}aa`;
   else if(lv>=3)ringGlow=`0 0 ${2+lv}px ${d}44`;
 
-  // Core: gradiente de dentro pra fora, crescendo o brilho e preenchendo no máximo
+  // Core: brilho dramático crescendo de dentro pra fora até preencher todo o círculo
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const innerTone=`${s}${_ah(Math.min(1,0.35+levelRatio*0.4))}`;
-  const midTone=`${d}${_ah(Math.min(1,0.25+levelRatio*0.25))}`;
-  const outerTone=`rgba(17,29,44,${0.86+levelRatio*0.1})`;
+  const innerTone=`${s}${_ah(Math.min(1,0.65+levelRatio*0.35))}`;
+  const midTone=`${d}${_ah(Math.min(1,0.4+levelRatio*0.3))}`;
+  const outerTone=`rgba(17,29,44,${0.78+levelRatio*0.18})`;
+  const innerStop=12+levelRatio*32;
+  const midStop=innerStop+18+levelRatio*25;
   const coreBg=!started
     ?'linear-gradient(145deg,#1a2636,#111d2c)'
-    :`radial-gradient(circle at 50% 50%, ${innerTone} 0%, ${innerTone} ${20+levelRatio*30}%, ${midTone} ${30+levelRatio*30}%, ${outerTone} 100%)`;
+    :`radial-gradient(circle at 50% 50%, ${innerTone} 0%, ${innerTone} ${innerStop}%, ${midTone} ${midStop}%, ${outerTone} 100%)`;
+  const coreGlow=started?`0 0 ${6+levelRatio*18}px ${s}${_ah(Math.min(1,0.6+levelRatio*0.3))}`:'none';
 
   // Emoji: grayscale → colorido gradualmente
   const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
@@ -4473,7 +4476,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
     {/* Frame + ring + core */}
     <div className="skill-frame"style={{background:coreBg,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .2s,border-color .2s'}}>
       <div className="skill-ring"style={{background:ring,padding:ringW,boxShadow:ringGlow}}>
-        <div className="skill-core"style={{background:started?`radial-gradient(circle at 50% 40%, ${d}18, transparent 65%)`:'transparent'}}>
+        <div className="skill-core"style={{background:started?coreBg:'transparent',boxShadow:coreGlow,transition:'box-shadow .2s,background .2s'}}>
           <span style={{opacity:emojiOp,filter:emojiFilt,transition:'all .3s'}}>{skill.emoji}</span>
         </div>
       </div>
@@ -4857,12 +4860,12 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-    <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1,maxWidth:'100%'}}>
+    <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
         const adaptiveMinHeight=colMaxTier > 0 ? 'auto' : '70px';
-        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease',overflow:'hidden',flex:'1 1 260px',maxWidth:'340px',minWidth:'240px'}}>
+        return<div key={col.sc.id}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'8px 6px',transition:'all 0.3s ease',overflow:'visible',flex:'0 0 auto',width:'fit-content',minWidth:'220px',maxWidth:'460px'}}>
           {/* cabeçalho */}
           <div className="fc"style={{justifyContent:'center',gap:3,minHeight:28,marginBottom:10,paddingBottom:6,borderBottom:`1px solid ${pal.d}22`}}>
             {isOrphan
@@ -4876,7 +4879,7 @@ function SkillTreeSection({st,setSt,setTab}){
             {Array.from({length:colMaxTier},(_,i)=>{
               const t=i+1,items=col.byTier[t]||[];
               const tierHeight=80;
-              return<div key={t}style={{position:'relative',zIndex:1,width:'100%',minHeight:tierHeight,display:'flex',alignItems:'flex-start',justifyContent:'center',gap:10,flexWrap:'nowrap',overflowX:'auto',padding:'8px 4px'}}>
+              return<div key={t}style={{position:'relative',zIndex:1,minHeight:tierHeight,display:'flex',alignItems:'flex-start',justifyContent:'center',gap:10,flexWrap:'wrap',overflowX:'visible',padding:'8px 4px'}}>
                 {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}focus={s.id===focusSkillId}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
               </div>;
             })}
