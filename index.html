@@ -4435,28 +4435,28 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   // Tudo contido dentro do nó (76px), sem expansão externa.
   // Progressão: core fill + ring espessura/brilho + borda do frame + pips abaixo.
 
-  // Progress ring: conic fill sobre trilho
-  const ring=started?`conic-gradient(${d} ${pct}%, ${TRACK} ${pct}%)`:TRACK;
-  const ringW=started?Math.round(2+lv*0.8):2; // 2,3,3,4,5,5 px
-
-  // Ring glow: muito sutil, só nos níveis altos
-  let ringGlow='none';
-  if(selected)ringGlow=`0 0 10px ${d}88`;
-  else if(focus)ringGlow=`0 0 8px ${d}66`;
-  else if(maxed)ringGlow=`0 0 8px ${d}66, 0 0 3px ${d}aa`;
-  else if(lv>=3)ringGlow=`0 0 ${2+lv}px ${d}44`;
-
-  // Core: brilho dramático crescendo de dentro pra fora até preencher todo o círculo
+  // Progress ring: transforma o efeito em anéis crescentes, não fatias de pizza
   const levelRatio=max>0?Math.min(1,lv/max):0;
-  const innerTone=`${s}${_ah(Math.min(1,0.65+levelRatio*0.35))}`;
-  const midTone=`${d}${_ah(Math.min(1,0.4+levelRatio*0.3))}`;
-  const outerTone=`rgba(17,29,44,${0.78+levelRatio*0.18})`;
-  const innerStop=12+levelRatio*32;
-  const midStop=innerStop+18+levelRatio*25;
+  const ring=TRACK;
+  const ringW=started?Math.round(4+levelRatio*12):2; // anel fica mais espesso com o nível
+
+  // Ring glow: brilho no anel aumentando o raio com o nível
+  let ringGlow='none';
+  if(selected)ringGlow=`0 0 ${12+levelRatio*12}px ${d}aa`;
+  else if(focus)ringGlow=`0 0 ${10+levelRatio*8}px ${d}88`;
+  else if(maxed)ringGlow=`0 0 ${12+levelRatio*12}px ${d}aa, 0 0 ${5+levelRatio*6}px ${d}cc`;
+  else if(started)ringGlow=`0 0 ${4+levelRatio*10}px ${d}55`;
+
+  // Core: brilho e contraste crescente de dentro pra fora até a borda
+  const innerTone=`${s}${_ah(Math.min(1,0.7+levelRatio*0.3))}`;
+  const midTone=`${d}${_ah(Math.min(1,0.55+levelRatio*0.35))}`;
+  const outerTone=`rgba(17,29,44,${0.55+levelRatio*0.4})`;
+  const innerStop=8+levelRatio*30;
+  const midStop=innerStop+8+levelRatio*28;
   const coreBg=!started
     ?'linear-gradient(145deg,#1a2636,#111d2c)'
     :`radial-gradient(circle at 50% 50%, ${innerTone} 0%, ${innerTone} ${innerStop}%, ${midTone} ${midStop}%, ${outerTone} 100%)`;
-  const coreGlow=started?`0 0 ${6+levelRatio*18}px ${s}${_ah(Math.min(1,0.6+levelRatio*0.3))}`:'none';
+  const coreGlow=started?`0 0 ${5+levelRatio*24}px ${s}${_ah(Math.min(1,0.75+levelRatio*0.2))}`:'none';
 
   // Emoji: grayscale → colorido gradualmente
   const emojiOp=!started?0.25:Math.min(1,0.35+lv*0.13);
