@@ -329,8 +329,8 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d);height:var(--sk-d);border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 58%,var(--sk-rim) 92%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom) var(--sk-glow);transition:width .4s ease,height .4s ease;}
 .sk-aura{position:absolute;inset:2.5px;border-radius:50%;z-index:1;pointer-events:none;border:1px solid var(--sk-c);opacity:var(--sk-aura-op);box-shadow:0 0 7px var(--sk-glow),inset 0 0 9px var(--sk-glow);}
 .sk-orbit{position:absolute;inset:0;z-index:2;pointer-events:none;animation:sk-spin 9s linear infinite;}
-.sk-orbit i{position:absolute;left:50%;top:50%;width:3.5px;height:3.5px;margin:-1.75px 0 0 -1.75px;border-radius:50%;background:var(--sk-hot);box-shadow:0 0 5px var(--sk-glow);}
-.sk-rays{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:50%;opacity:.6;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 3deg,transparent 3deg 30deg);animation:sk-spin 30s linear infinite;}
+.sk-orbit i{position:absolute;left:50%;top:50%;width:3.5px;height:3.5px;margin:-1.75px 0 0 -1.75px;border-radius:50%;background:var(--sk-spark);box-shadow:0 0 5px var(--sk-glow);}
+.sk-rays{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:50%;opacity:.6;background:repeating-conic-gradient(from 0deg,var(--sk-spark) 0deg 3deg,transparent 3deg 30deg);animation:sk-spin 30s linear infinite;}
 /* Forma final: coroa pulsante e corona de raios, ambas POR FORA do disco (que já está cheio) */
 .sk-crown{position:absolute;left:50%;top:35px;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;z-index:0;pointer-events:none;border:1.5px solid var(--sk-hot);animation:sk-crown 2.8s ease-in-out infinite;}
 .sk-corona{position:absolute;left:50%;top:35px;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;z-index:0;pointer-events:none;opacity:.55;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 2.5deg,transparent 2.5deg 22.5deg);animation:sk-spin 22s linear infinite;}
@@ -338,7 +338,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 @keyframes sk-crown{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.7;transform:scale(1.06)}}
 @media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona{animation:none}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
-.skill-name{margin-top:4px;font-family:var(--serif);font-size:.58rem;letter-spacing:.03em;text-align:center;line-height:1.2;max-width:70px;}
+.skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 /* responsive */
 @media(max-width:500px){
   .g3c{grid-template-columns:1fr 1fr;}
@@ -939,11 +939,11 @@ function treePalette(tree){
   return{d:c,s:c};
 }
 // Parâmetros visuais editáveis pelo usuário (painel de personalização)
-const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1};
+const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false};
 const SKILL_STYLE_PRESETS={
-  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1},
-  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25},
-  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4},
+  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false},
+  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true},
+  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false},
 };
 function readStyle(st){return{...DEF_STYLE,...((st&&st.skilltree&&st.skilltree.style)||{})};}
 // alpha 0..1 → hex 2 dígitos
@@ -958,7 +958,9 @@ function _ramp(stops,t){const x=Math.max(0,Math.min(1,t))*(stops.length-1),i=Mat
 // como brasa na cor secundária e termina incandescente na cor de destaque.
 function skillLightRamp(pal){
   const d=pal.d,s=pal.s||pal.d;
-  return[_mix(s,'#0A0F1A',0.22),_mix(s,d,0.38),_mix(s,d,0.72),d,_mix(d,'#FFFFFF',0.1)];
+  // Passa pelo destaque, desce pra secundária e só então escurece: assim os
+  // primeiros níveis não ficam todos no mesmo tom pálido em paletas já claras.
+  return[_mix(d,'#FFFFFF',0.55),_mix(d,'#FFFFFF',0.2),_mix(d,s,0.35),_mix(d,s,0.85),_mix(s,'#070C16',0.22)];
 }
 // subcats = colunas (branches) personalizáveis; cada skill tem subcat = id da coluna
 const DEF_SKILLTREES=[
@@ -4476,6 +4478,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const d=pal.d,s=pal.s||pal.d;
   const gk=stl&&typeof stl.glow==='number'?stl.glow:1;   // slider "Brilho"
   const nk=stl&&typeof stl.neon==='number'?stl.neon:1;   // slider "Borda neon"
+  const hideEmoji=!!(stl&&stl.semEmoji);                  // toggle "Sem emojis" — foco no nome
 
   // ── ESTÁGIOS DE IGNIÇÃO ──
   // A luz nasce no centro e cresce nível a nível (raio = nível ÷ máximo), mas cada
@@ -4491,20 +4494,26 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
   const orbitR=Math.min(30.5,(lightD+FRAME)/4); // satélites no meio do vão entre luz e borda
   const sats=stage>=2&&stage<5?stage-1:0;        // 1, 2 e 3 satélites nos estágios 2, 3 e 4
 
-  // Cores: tudo derivado da paleta da árvore, nada fixo
+  // Cores: tudo derivado da paleta da árvore, nada fixo.
+  // O brilho é um gradiente em dois eixos: ENTRE NÍVEIS vai do tom mais claro da
+  // paleta (nível 1) até o mais profundo (último), e DENTRO do orbe vai do núcleo
+  // claro pra borda escura — a luz clareia no meio e afunda na beirada.
   const lightMain=_ramp(skillLightRamp(pal),tone);
-  const lightHot=_mix(lightMain,'#FFFFFF',0.3+tone*0.35);  // núcleo esquenta até quase branco
-  const lightRim=_mix(lightMain,s,0.25+tone*0.35);         // borda mais funda dá volume ao orbe
-  const glowTone=_mix(lightMain,d,0.45);
-  const maxHi=_mix(d,'#FFFFFF',0.4);                      // acabamento da forma final
+  const lightHot=_mix(lightMain,'#FFFFFF',0.4);            // núcleo sempre mais claro que o corpo
+  const lightRim=_mix(lightMain,'#05070D',0.16+tone*0.2);  // borda sempre mais funda que o corpo
+  const glowTone=_mix(lightMain,d,0.35+tone*0.4);          // halo não some quando o orbe escurece
+  const spark=_mix(d,'#FFFFFF',0.3);                       // satélites e raios seguem acesos
+  const maxHi=_mix(d,'#FFFFFF',0.4);                       // acabamento da forma final
 
-  // O poço escuro em volta: quanto menor a luz, mais vazio ele parece
+  // O poço em volta é sempre fundo — é o escuro dele que faz a luz aparecer —
+  // só ganha um fio da cor do tema que adensa com o nível.
+  const wellCore=_mix(_mix(d,s,0.5),'#04070E',0.88-tone*0.05);
   const well=started
-    ? `radial-gradient(circle closest-side, ${_mix(s,'#05080F',0.86)} 0%, #03050B 100%)`
+    ? `radial-gradient(circle closest-side, ${wellCore} 0%, #03050B 100%)`
     : 'radial-gradient(circle closest-side, #101725 0%, #05070D 100%)';
 
   const halo=started?`0 0 ${Math.round((7+levelRatio*20)*gk)}px ${_rgba(glowTone,Math.min(0.85,(0.14+levelRatio*0.4)*gk).toFixed(2))}`:null;
-  const maxHalo=maxed?`0 0 ${Math.round(34*gk)}px ${_rgba(lightHot,Math.min(0.6,0.3*gk).toFixed(2))}`:null;
+  const maxHalo=maxed?`0 0 ${Math.round(34*gk)}px ${_rgba(maxHi,Math.min(0.6,0.3*gk).toFixed(2))}`:null;
   const stateHalo=selected?`0 0 14px ${_rgba(d,0.55)}`:focus?`0 0 10px ${_rgba(d,0.4)}`:null;
   const frameShadow=[stateHalo,maxHalo,halo].filter(Boolean).join(', ')||'none';
 
@@ -4525,6 +4534,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
     '--sk-hot':lightHot,
     '--sk-rim':lightRim,
     '--sk-glow':_rgba(glowTone,Math.min(0.9,0.55*gk).toFixed(2)),
+    '--sk-spark':spark,
     '--sk-bloom':Math.round((4+levelRatio*13)*gk)+'px',
     '--sk-aura-op':(maxed?0.9:0.55).toFixed(2),
   };
@@ -4535,10 +4545,14 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
     pips.push({filled:i<=lv,gold:maxed&&i<=lv});
   }
 
-  // Nome: ganha cor e opacidade
+  // Nome: é a informação principal do nó, então nasce já legível e ganha
+  // um halo na cor do tema conforme sobe de nível
   const nameColor=maxed?maxHi
-    :started?_rgba(d,Math.min(1,0.4+levelRatio*0.6).toFixed(2))
-    :focus?d:'rgba(92,107,124,0.55)';
+    :started?_rgba(d,Math.min(1,0.66+levelRatio*0.34).toFixed(2))
+    :focus?d:'rgba(126,142,160,0.8)';
+  const nameGlow=started
+    ?`0 1px 3px rgba(0,0,0,.85), 0 0 ${Math.round(6+levelRatio*9)}px ${_rgba(maxed?maxHi:d,(0.2+levelRatio*0.32).toFixed(2))}`
+    :'0 1px 3px rgba(0,0,0,.85)';
 
   // Badge
   const badgeColor=maxed?maxHi:started?d:'rgba(92,107,124,0.55)';
@@ -4561,7 +4575,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
       {started&&<div className="sk-light"/>}
       <div className="skill-ring"style={{background:'transparent',padding:0}}>
         <div className="skill-core">
-          <span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s'}}>{skill.emoji}</span>
+          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s'}}>{skill.emoji}</span>}
         </div>
       </div>
     </div>
@@ -4578,7 +4592,7 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
       {pips.map((p,i)=><div key={i}style={{width:5,height:5,borderRadius:'50%',background:p.gold?maxHi:p.filled?d:'rgba(43,57,76,0.4)',border:`1px solid ${p.gold?maxHi:p.filled?_rgba(d,0.53):'rgba(43,57,76,0.3)'}`,boxShadow:p.filled?`0 0 3px ${_rgba(p.gold?maxHi:d,0.4)}`:'none',transition:'all .3s'}}/>)}
     </div>}
     {/* Nome */}
-    <div className="skill-name"style={{color:nameColor,marginTop:max>1?2:4}}>{skill.nome}</div>
+    <div className="skill-name"style={{color:nameColor,textShadow:nameGlow,marginTop:max>1?3:5,...(hideEmoji?{fontSize:'.76rem',maxWidth:80}:null)}}>{skill.nome}</div>
     {/* Hint ao selecionar */}
     {selected&&<div className="st-hint">
       {nextHint
@@ -4767,6 +4781,7 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
     {slider('Crescimento da aura','auraStep',0,10,1,v=>v+'px/nível')}
     {slider('Intensidade do fundo','fundoIntensidade',0,1.6,0.1,v=>Math.round(v*100)+'%')}
     <div style={{height:1,background:'#2B394C',margin:'6px 0'}}/>
+    {toggle('Sem emojis (só o nome)','semEmoji')}
     {toggle('Moldura (rim)','moldura')}
     {toggle('Entalhes','entalhes')}
     {toggle('Coroa de louros (no máx.)','louros')}
