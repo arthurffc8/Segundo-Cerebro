@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "segundo-cerebro",
-      "runtimeExecutable": "py",
-      "runtimeArgs": ["-m", "http.server", "4599"],
-      "port": 4599
+      "name": "cerebro",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4173"],
+      "port": 4173
     }
   ]
 }

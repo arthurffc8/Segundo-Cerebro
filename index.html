@@ -44,7 +44,7 @@
 }
 * { margin:0; padding:0; box-sizing:border-box; border-width: var(--bdw); }
 html { font-size:var(--fs); }
-body { 
+body {
   background:var(--bg); color:var(--tx); font-family:var(--ff); min-height:100vh; overflow-x:hidden; -webkit-tap-highlight-color:transparent;
   transition: background var(--tr), color var(--tr);
 }
@@ -177,26 +177,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* status btn */
 .st-btn { padding:5px 9px; border-radius:5px; font-size:.75rem; font-weight:600; cursor:pointer; transition:all .15s; border: var(--bdw) solid var(--bd2); }
 
-/* ── SKILL TREE — foco do dia, radar, ritual, histórico ── */
-/* Focus banner (skill do dia) */
-.st-focus{position:relative;margin-bottom:14px;padding:16px 18px;border-radius:12px;overflow:hidden;background:linear-gradient(135deg, rgba(11,21,34,.92), rgba(19,38,61,.88));border:1px solid rgba(245,217,140,.35);box-shadow:0 0 24px -6px rgba(245,217,140,.35), inset 0 0 40px rgba(245,217,140,.06);}
-.st-focus::before{content:"";position:absolute;inset:0;background:radial-gradient(60% 120% at 0% 50%, rgba(245,217,140,.18), transparent 65%);pointer-events:none;}
-.st-focus::after{content:"";position:absolute;left:-50%;top:-50%;width:200%;height:200%;background:conic-gradient(from 0deg, transparent, rgba(245,217,140,.12), transparent 30%);animation:st-focus-spin 14s linear infinite;opacity:.5;pointer-events:none;}
-@keyframes st-focus-spin{to{transform:rotate(360deg);}}
-.st-focus>*{position:relative;z-index:1;}
-.st-focus-eyebrow{font-family:var(--serif);font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:#F5D98C;margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-.st-focus-eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:#F5D98C;box-shadow:0 0 10px #F5D98C;animation:pulse 1.6s ease-in-out infinite;}
-.st-focus-grid{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;}
-.st-focus-node{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:2rem;background:radial-gradient(circle at 50% 32%, #F5D98C, #D18B1F);box-shadow:0 0 24px rgba(245,217,140,.55), inset 0 2px 4px rgba(255,255,255,.25);animation:st-focus-pulse 2.2s ease-in-out infinite;}
-@keyframes st-focus-pulse{0%,100%{box-shadow:0 0 24px rgba(245,217,140,.55), inset 0 2px 4px rgba(255,255,255,.25);}50%{box-shadow:0 0 38px rgba(245,217,140,.85), inset 0 2px 4px rgba(255,255,255,.3);}}
-.st-focus-info h4{font-family:var(--serif);font-size:1.1rem;letter-spacing:.06em;text-transform:uppercase;color:#FFF1B3;margin:0 0 4px;}
-.st-focus-info p{font-family:var(--serif);font-size:.72rem;color:#9FB3C8;line-height:1.5;margin:0;font-style:italic;}
-.st-focus-cta{display:flex;flex-direction:column;gap:6px;}
-.st-focus-cta button{padding:6px 10px;border-radius:6px;font-family:var(--serif);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border:1px solid rgba(245,217,140,.4);background:rgba(245,217,140,.08);color:#F5D98C;font-weight:700;transition:all .15s;}
-.st-focus-cta button:hover{background:rgba(245,217,140,.2);box-shadow:0 0 10px rgba(245,217,140,.35);}
-.st-focus-cta button.primary{background:#F5D98C;color:#0B1522;border-color:transparent;}
-.st-focus-cta button.primary:hover{filter:brightness(1.08);}
-.st-focus-streak{font-family:var(--fm);font-size:.68rem;color:#F5D98C;letter-spacing:.1em;text-transform:uppercase;text-align:center;margin-top:6px;}
+/* ── SKILL TREE — radar, ritual, histórico ── */
 
 /* Radar chart */
 .st-radar-wrap{position:relative;padding:18px 16px;margin-bottom:16px;border-radius:10px;background:linear-gradient(135deg,#1D314A,#13263D);border:1px solid #2B394C;}
@@ -305,7 +286,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .tc-cur-mock .m-card i{height:3px;border-radius:2px;opacity:.45;}
 .tc-cur-mock .m-card .m-btn{align-self:flex-start;width:50%;height:10px;border-radius:3px;margin-top:auto;}
 /* skill tree — templo RPG premium (navy + ouro) */
-.st-screen{background:linear-gradient(180deg,rgba(11,21,34,0.75),rgba(19,38,61,0.6) 55%,rgba(11,21,34,0.75));backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+.st-screen{background:linear-gradient(180deg,rgba(11,21,34,calc(0.75*var(--st-scrim,1))),rgba(19,38,61,calc(0.6*var(--st-scrim,1))) 55%,rgba(11,21,34,calc(0.75*var(--st-scrim,1))));backdrop-filter:blur(calc(2px*var(--st-scrim,1)));-webkit-backdrop-filter:blur(calc(2px*var(--st-scrim,1)));}
 .st-chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:14px;}
 .st-chips::-webkit-scrollbar{display:none;}
 .st-chip{display:flex;align-items:center;gap:6px;padding:7px 15px;border-radius:4px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;white-space:nowrap;cursor:pointer;background:rgba(29,49,74,0.7);border:1px solid rgba(43,57,76,0.8);color:#5C6B7C;transition:all .2s;flex-shrink:0;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);}
@@ -813,6 +794,8 @@ const BG_IMAGES=[
   {id:'bg1', name:'Fundo 1', path:'./background/cc49a03b-5b4e-475f-a558-b2ec8bd77d6d.png'},
   {id:'bg2', name:'Fundo 2', path:'./background/fa90675c-c9c6-48dc-8e9d-6a8666cdf9aa.png'},
 ];
+// Quanto a imagem de fundo aparece por padrão (0 = apagada, 1 = no talo)
+const DEF_BG_OPACITY=0.25;
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
   {k:'red',    bg:'#3b1515',bd:'#5c2020',name:'Vermelho'},
@@ -1266,7 +1249,7 @@ function makeInit(){
     config:{
       accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
-      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,
+      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,bgOpacity:DEF_BG_OPACITY,
     },
     categories:DEF_CATS,
     tasks:[
@@ -1618,31 +1601,25 @@ function applyTheme(config, st){
   [...html.classList].forEach(c=>{if(c.startsWith('theme-'))html.classList.remove(c);});
   html.classList.add('theme-'+theme.id);
 
-  // Background image
+  // Background image + destaque (0 = fundo apagado, 1 = imagem no talo)
   const body=document.body;
-  if(config.bgImage){
-    const bgImg=BG_IMAGES.find(b=>b.id===config.bgImage);
-    if(bgImg){
-      body.style.backgroundImage=`url('${bgImg.path}')`;
-      body.style.backgroundSize='cover';
-      body.style.backgroundPosition='center';
-      body.style.backgroundAttachment='fixed';
-      body.style.backgroundRepeat='no-repeat';
-      body.style.backgroundBlendMode='overlay';
-    }
+  const bgImg=config.bgImage?BG_IMAGES.find(b=>b.id===config.bgImage):null;
+  const src=bgImg?bgImg.path:(st?.classBaseImg||null);
+  const bgOp=src?Math.max(0,Math.min(1,config.bgOpacity!=null?config.bgOpacity:DEF_BG_OPACITY)):0;
+  if(src){
+    // véu da cor do tema por cima da imagem — quanto mais opaco, mais discreto o fundo
+    const veil=_rgba(theme.bg,1-bgOp);
+    body.style.backgroundImage=`linear-gradient(${veil},${veil}), url('${src}')`;
+    body.style.backgroundSize='cover';
+    body.style.backgroundPosition='center';
+    body.style.backgroundAttachment='fixed';
+    body.style.backgroundRepeat='no-repeat';
+    body.style.backgroundBlendMode='normal';
   }else{
-    const classImage = st?.classBaseImg || null;
-    if(classImage){
-      body.style.backgroundImage=`url('${classImage}')`;
-      body.style.backgroundSize='cover';
-      body.style.backgroundPosition='center';
-      body.style.backgroundAttachment='fixed';
-      body.style.backgroundRepeat='no-repeat';
-      body.style.backgroundBlendMode='overlay';
-    } else {
-      body.style.backgroundImage='none';
-    }
+    body.style.backgroundImage='none';
   }
+  // A Skill Tree tem um véu próprio — mantém um piso pra não perder a legibilidade
+  r.setProperty('--st-scrim',String(0.25+0.75*(1-bgOp)));
 }
 
 // ── UI PRIMITIVES ────────────────────────────────────────────────────────────
@@ -4302,20 +4279,6 @@ function skillRadar(trees,cx,cy,R){
   return{points:pts.map(p=>`${p.x},${p.y}`).join(' '),items,pts};
 }
 
-// Escolhe 1 skill por dia (rotação determinística) ponderada por espaço pra crescer
-function pickFocusSkill(st,treeId){
-  const pool=[];
-  const trees=((st.skilltree&&st.skilltree.trees)||[]).filter(t=>!treeId||t.id===treeId);
-  trees.forEach(t=>(t.skills||[]).forEach(s=>{
-    const room=Math.max(1,(s.maxNivel||1)-(s.nivel||0));
-    for(let i=0;i<room;i++)pool.push({skill:s,tree:t});
-  }));
-  if(!pool.length)return null;
-  const d=new Date();
-  const seed=(d.getFullYear()*10000)+(d.getMonth()*100)+(d.getDate());
-  return pool[seed%pool.length];
-}
-
 // Histórico de prática de uma skill via dados do Reels
 function skillPracticeHistory(st,skillId,limit){
   const done=((st.reels&&st.reels.done)||[]).filter(d=>d.skillId===skillId).sort((a,b)=>(b.ts||0)-(a.ts||0));
@@ -4332,27 +4295,6 @@ function skillStreak(st,skillId){
   return c;
 }
 
-// Streak do foco do dia (quantos dias seguidos ele apareceu como foco e foi praticado)
-function focusStreak(st,treeId){
-  let c=0;
-  for(let off=0;off<60;off++){
-    const d=new Date();d.setDate(d.getDate()-off);
-    const seed=(d.getFullYear()*10000)+(d.getMonth()*100)+d.getDate();
-    const pool=[];
-    ((st.skilltree&&st.skilltree.trees)||[]).filter(t=>!treeId||t.id===treeId).forEach(t=>(t.skills||[]).forEach(s=>{
-      const room=Math.max(1,(s.maxNivel||1)-(s.nivel||0));
-      for(let i=0;i<room;i++)pool.push({skillId:s.id});
-    }));
-    if(!pool.length)break;
-    const pick=pool[seed%pool.length];
-    const dateStr=localDateStr(d);
-    const practiced=((st.reels&&st.reels.done)||[]).some(p=>p.skillId===pick.skillId&&p.date===dateStr);
-    if(!practiced)break;
-    c++;
-  }
-  return c;
-}
-
 // Gera narrativa épica de level-up via IA (malandro)
 async function skillRitualNarrative(skill,tree,newLevel){
   if(!aiReady())return null;
@@ -4362,32 +4304,6 @@ async function skillRitualNarrative(skill,tree,newLevel){
     const t=await aiCall(AI_SYS_MALANDRO,prompt,250);
     return t?aiStrip(t):null;
   }catch(e){return null;}
-}
-
-// Banner de foco do dia
-function SkillFocusBanner({st,tree,onOpenSkill,onGoReel}){
-  const pick=useMemo(()=>pickFocusSkill(st,tree&&tree.id),[st,tree&&tree.id]);
-  const streak=useMemo(()=>focusStreak(st,tree&&tree.id),[st,tree&&tree.id]);
-  if(!pick)return null;
-  const s=pick.skill,t=pick.tree;
-  const pal=treePalette(t);
-  const lv=s.nivel||0,mx=s.maxNivel||1;
-  const nextDesc=lv>=mx?'Já dominada — hora de manter afiado e ensinar.':((s.levels&&s.levels[lv+1])||'Mais um degrau pra subir.');
-  return<div className="st-focus">
-    <div className="st-focus-eyebrow">🎯 Foco do dia</div>
-    <div className="st-focus-grid">
-      <div className="st-focus-node"style={{background:`radial-gradient(circle at 50% 32%, ${pal.d}, ${pal.s})`,boxShadow:`0 0 24px ${pal.d}88, inset 0 2px 4px rgba(255,255,255,.25)`}}>{s.emoji||t.emoji}</div>
-      <div className="st-focus-info">
-        <h4>{s.nome}</h4>
-        <p>{t.emoji} {t.nome} · nível {lv}/{mx} · {nextDesc}</p>
-      </div>
-      <div className="st-focus-cta">
-        <button className="primary"onClick={()=>onOpenSkill(s.id)}>Ver skill</button>
-        <button onClick={onGoReel}>Treinar → Reels</button>
-      </div>
-    </div>
-    {streak>=1&&<div className="st-focus-streak">🔥 {streak} dia{streak>1?'s':''} de foco praticado</div>}
-  </div>;
 }
 
 // Radar de maestria entre todas as árvores
@@ -4470,7 +4386,7 @@ function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
 }
 
 
-function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
+function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const started=lv>0;
@@ -4581,8 +4497,6 @@ function SkillNode({skill,pal,selected,stl,onClick,focus,practiced}){
     </div>
     {/* Selo de dominada */}
     {maxed&&<div style={{position:'absolute',top:28,left:'50%',transform:'translate(-50%,-50%)',fontSize:'.7rem',opacity:0.85,zIndex:4,pointerEvents:'none',textShadow:`0 0 6px ${_rgba(maxHi,0.6)}`}}>{d==='#FFF7D1'?'👑':'⭐'}</div>}
-    {/* Focus indicator */}
-    {focus&&<div style={{position:'absolute',inset:-3,borderRadius:'50%',border:`1.5px dashed ${d}`,opacity:0.5,animation:'st-focus-spin 20s linear infinite',pointerEvents:'none'}}/>}
     {/* Badge */}
     <div className="skill-badge"style={{background:'rgba(11,21,34,0.8)',color:badgeColor,border:`1px solid ${badgeBorder}`}}>{lv}/{max}</div>
     {/* Pratica de hoje */}
@@ -4801,9 +4715,7 @@ function SkillTreeSection({st,setSt,setTab}){
   const[treeModal,setTreeModal]=useState(false);
   const[editTree,setEditTree]=useState(null);
   const[showRadar,setShowRadar]=useState(false);
-  // Foco do dia + prática de hoje
-  const focusPick=useMemo(()=>pickFocusSkill(st,sel),[st,sel]);
-  const focusSkillId=focusPick?focusPick.skill.id:null;
+  // Prática de hoje
   const today=TODAY();
   const practicedToday=useMemo(()=>new Set(((st.reels&&st.reels.done)||[]).filter(d=>d.date===today).map(d=>d.skillId)),[st.reels,today]);
   const openSkillModalFor=id=>{
@@ -4942,9 +4854,6 @@ function SkillTreeSection({st,setSt,setTab}){
       </div>
     </div>
 
-    {/* Foco do dia */}
-    {focusSkillId&&<SkillFocusBanner st={st}tree={tree}onOpenSkill={openSkillModalFor}onGoReel={()=>goReelsFor(focusSkillId)}/>}
-
     {/* Radar de maestria */}
     {showRadar&&<SkillRadar trees={trees}/>}
 
@@ -4979,7 +4888,7 @@ function SkillTreeSection({st,setSt,setTab}){
               const t=i+1,items=col.byTier[t]||[];
               const tierHeight=80;
               return<div key={t}style={{position:'relative',zIndex:1,minHeight:tierHeight,display:'flex',alignItems:'flex-start',justifyContent:'center',gap:10,flexWrap:'wrap',overflowX:'visible',padding:'8px 4px'}}>
-                {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}focus={s.id===focusSkillId}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
+                {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
               </div>;
             })}
             {!isOrphan&&<div style={{position:'relative',zIndex:1,minHeight:42,display:'flex',alignItems:'center',justifyContent:'center',marginTop:'auto',paddingTop:8}}>
@@ -5267,6 +5176,7 @@ function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
 
 function CfgAparencia({st,setCfg,setSt}){
   const fss=[{k:'small',l:'Pequena'},{k:'medium',l:'Média'},{k:'large',l:'Grande'}];
+  const bgOp=st.config.bgOpacity!=null?st.config.bgOpacity:DEF_BG_OPACITY;
   function setTheme(tid){
     const t=THEMES.find(x=>x.id===tid);
     if(!t)return;
@@ -5358,7 +5268,7 @@ function CfgAparencia({st,setCfg,setSt}){
     <div className="cfg-s">
       <div className="cfg-t">Plano de fundo</div>
       <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
-        Escolha uma imagem de fundo para o app. A imagem será aplicada com efeito de sobreposição para manter a legibilidade.
+        Escolha uma imagem de fundo para o app. Use o controle de destaque abaixo para deixá-la mais discreta ou mais presente.
       </div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'12px'}}>
         {/* None option */}
@@ -5376,6 +5286,20 @@ function CfgAparencia({st,setCfg,setSt}){
             {isActive&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
           </div>;
         })}
+      </div>
+      {/* Destaque do fundo */}
+      <div style={{marginTop:18}}>
+        <div className="fcb mb4">
+          <span style={{fontSize:'.8rem',color:'var(--tx2)',fontWeight:600}}>Destaque do fundo</span>
+          <span style={{fontSize:'.78rem',color:'var(--ac)',fontWeight:700}}>{Math.round(bgOp*100)}%</span>
+        </div>
+        <input type="range"min={0}max={1}step={0.05}value={bgOp}onChange={e=>setCfg('bgOpacity',parseFloat(e.target.value))}style={{width:'100%',accentColor:'var(--ac)',padding:0}}/>
+        <div className="fcb"style={{fontSize:'.68rem',color:'var(--tx3)',marginTop:4}}>
+          <span>Discreto</span><span>No talo</span>
+        </div>
+        <div style={{fontSize:'.75rem',color:'var(--tx3)',marginTop:8,lineHeight:1.5}}>
+          Vale para a imagem escolhida acima e também para a foto do avatar, quando não há imagem selecionada.
+        </div>
       </div>
     </div>
   </div>;
@@ -6231,7 +6155,7 @@ function App(){
   },[st]);
 
   // Apply theme
-  useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.classBaseImg,st.skilltree]);
+  useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.config.bgOpacity,st.classBaseImg,st.skilltree]);
 
   // Init Firebase on mount if config exists
   useEffect(()=>{
