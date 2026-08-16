@@ -621,9 +621,33 @@ async function aiCall(system,prompt,maxTokens){
   const data=await res.json();
   return((data.content&&data.content[0]&&data.content[0].text)||'').trim();
 }
+// Chamada com blocos de conteúdo (texto + imagem). Aceita override de modelo.
+async function aiCallBlocks(system,blocks,maxTokens,modelOverride){
+  const c=aiLoadCfg();
+  if(!c||!c.key)throw new Error('IA não configurada');
+  const res=await fetch('https://api.anthropic.com/v1/messages',{
+    method:'POST',
+    headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+    body:JSON.stringify({model:modelOverride||c.model||'claude-3-5-haiku-latest',max_tokens:maxTokens||600,system:system||'',messages:[{role:'user',content:blocks}]}),
+  });
+  if(!res.ok){let m='';try{m=(await res.json()).error?.message||'';}catch(e){}throw new Error('IA '+res.status+(m?': '+m:''));}
+  const data=await res.json();
+  return((data.content&&data.content[0]&&data.content[0].text)||'').trim();
+}
+// Claude 3.5 Haiku não aceita imagem — cai para um modelo com visão quando necessário.
+const AI_VISION_MODEL='claude-opus-5';
+function aiModelForImage(){
+  const c=aiLoadCfg();const m=(c&&c.model)||'';
+  if(!m)return AI_VISION_MODEL;
+  if(/haiku/i.test(m)&&!/haiku-4/i.test(m))return AI_VISION_MODEL; // 3/3.5 haiku = sem visão
+  return m;
+}
 // Personas / prompts
 const AI_SYS_MALANDRO='Você é um mentor brasileiro no estilo da malandragem carioca / Zé Pelintra — sábio, direto, com gíria leve e bom humor, mas que motiva de verdade. Fale na 2ª pessoa (você), em português do Brasil. Seja conciso.';
 function aiStrip(t){return(t||'').replace(/^["'\s]+|["'\s]+$/g,'');}
+function aiParseArray(raw){
+  try{const t=aiStrip(raw);const a=t.indexOf('['),b=t.lastIndexOf(']');if(a<0||b<0)return null;const v=JSON.parse(t.slice(a,b+1));return Array.isArray(v)?v:null;}catch(e){return null;}
+}
 
 // ── FIREBASE SYNC ────────────────────────────────────────────────────────────
 
@@ -1237,6 +1261,7 @@ const DEF_TABS=[
   {id:'crencas',label:'Mente',emoji:'🦋',visible:true},
   {id:'conquistas',label:'Conquistas',emoji:'🏆',visible:true},
   {id:'eixo',label:'Eixo',emoji:'⚖️',visible:true},
+  {id:'calorias',label:'Calorias',emoji:'🔥',visible:true},
   {id:'config',label:'Config',emoji:'⚙️',visible:true},
 ];
 
@@ -1354,6 +1379,9 @@ function makeInit(){
           evidencias:[],createdAt:td},
       ],
       ritualLog:{},
+    },
+    calorias:{
+      metaKcal:2200,metaProt:150,peso:75,modo:'liquido',itens:[],
     },
     noteCategories:[
       {id:'nc1',name:'Pessoal',color:'#a855f7'},
@@ -6141,6 +6169,423 @@ function ReelsSection({st,setSt}){
   </div>;
 }
 
+// ── 🔥 CONTADOR DE CALORIAS ──────────────────────────────────────────────────
+
+const CAL_DEF={metaKcal:2200,metaProt:150,peso:75,modo:'liquido',itens:[]};
+const CAL_OUT_COLOR='#38bdf8';
+const CAL_PROT_COLOR='#a78bfa';
+
+const CAL_SYS_FOOD=`Você é nutricionista especialista em análise dietética. Estime com a MAIOR PRECISÃO possível as calorias e as proteínas do que a pessoa consumiu.
+REGRAS:
+- Use dados nutricionais reais (tabela TACO / USDA) para cada alimento.
+- Separe cada alimento ou bebida em um item próprio.
+- Se a quantidade não for informada, assuma uma porção caseira comum e deixe explícito em "qtd".
+- "kcal" = calorias totais daquele item (número inteiro). "prot" = proteína em gramas (número, até 1 casa decimal).
+- Se houver foto, identifique os alimentos e estime o volume usando prato, talher ou copo como referência de escala.
+RESPONDA APENAS com um array JSON válido, sem nenhum texto antes ou depois, neste formato:
+[{"nome":"Arroz branco cozido","qtd":"4 col. de sopa (100 g)","kcal":128,"prot":2.5}]`;
+
+const calSysAct=(peso)=>`Você é fisiologista do exercício. Estime as calorias GASTAS na atividade descrita.
+Peso corporal do usuário: ${peso} kg.
+REGRAS:
+- Use valores MET reais: kcal = MET × peso(kg) × duração(horas).
+- Se duração ou intensidade não forem informadas, assuma valores típicos e deixe explícito em "qtd".
+- Separe cada atividade em um item próprio. "kcal" é número inteiro.
+- Considere apenas o gasto da atividade (não some a taxa metabólica basal).
+RESPONDA APENAS com um array JSON válido, sem nenhum texto antes ou depois, neste formato:
+[{"nome":"Corrida moderada (8 km/h)","qtd":"30 min","kcal":298}]`;
+
+function CalChart({dias,accent,meta,modo}){
+  const W=560,H=modo==='kcal'?160:145,PAD={t:22,b:20,l:4,r:4};
+  const cW=W-PAD.l-PAD.r,cH=H-PAD.t-PAD.b;
+  const vals=modo==='kcal'?dias.flatMap(d=>[d.kin,d.kout]):dias.map(d=>d.prot);
+  const max=Math.max(...vals,meta||0,1);
+  const slot=cW/Math.max(dias.length,1);
+  const barW=modo==='kcal'?Math.max(Math.min(slot*0.36,16),2):Math.max(Math.min(slot*0.62,26),2);
+  const metaY=PAD.t+cH-((meta||0)/max)*cH;
+  const showLbl=(i)=>dias.length<=16||i%3===0||dias[i].isToday;
+  return<svg viewBox={`0 0 ${W} ${H}`}style={{width:'100%',height:'auto',display:'block'}}>
+    {/* linha da meta */}
+    {meta>0&&<g>
+      <line x1={PAD.l}y1={metaY}x2={W-PAD.r}y2={metaY}stroke={modo==='kcal'?accent:CAL_PROT_COLOR}strokeWidth="1"strokeDasharray="4,4"opacity="0.5"/>
+      <text x={W-PAD.r}y={metaY-3}textAnchor="end"fontSize="7"fontFamily="var(--fm)"fill={modo==='kcal'?accent:CAL_PROT_COLOR}opacity="0.8">meta {meta}</text>
+    </g>}
+    {dias.map((d,i)=>{
+      const cx=PAD.l+i*slot+slot/2;
+      if(modo==='kcal'){
+        const hIn=d.kin>0?Math.max((d.kin/max)*cH,2):0;
+        const hOut=d.kout>0?Math.max((d.kout/max)*cH,2):0;
+        const xIn=cx-barW-1,xOut=cx+1;
+        return<g key={d.data}>
+          <rect x={xIn}y={PAD.t+cH-hIn}width={barW}height={hIn}rx={2}fill={d.isSel?accent:accent+'99'}/>
+          <rect x={xOut}y={PAD.t+cH-hOut}width={barW}height={hOut}rx={2}fill={d.isSel?CAL_OUT_COLOR:CAL_OUT_COLOR+'99'}/>
+          {d.kin>0&&dias.length<=10&&<text x={xIn+barW/2}y={PAD.t+cH-hIn-3}textAnchor="middle"fontSize="6.5"fontFamily="var(--fm)"fill={accent}>{d.kin}</text>}
+          {showLbl(i)&&<text x={cx}y={H-6}textAnchor="middle"fontSize="7"fontFamily="var(--fm)"fill={d.isToday?accent:'var(--tx3)'}fontWeight={d.isToday?'700':'400'}>{d.label}</text>}
+        </g>;
+      }
+      const h=d.prot>0?Math.max((d.prot/max)*cH,2):0;
+      return<g key={d.data}>
+        <rect x={cx-barW/2}y={PAD.t+cH-h}width={barW}height={h}rx={2}fill={d.isSel?CAL_PROT_COLOR:CAL_PROT_COLOR+'99'}/>
+        {d.prot>0&&dias.length<=10&&<text x={cx}y={PAD.t+cH-h-3}textAnchor="middle"fontSize="6.5"fontFamily="var(--fm)"fill={CAL_PROT_COLOR}>{Math.round(d.prot)}</text>}
+        {showLbl(i)&&<text x={cx}y={H-6}textAnchor="middle"fontSize="7"fontFamily="var(--fm)"fill={d.isToday?CAL_PROT_COLOR:'var(--tx3)'}fontWeight={d.isToday?'700':'400'}>{d.label}</text>}
+      </g>;
+    })}
+  </svg>;
+}
+
+function CaloriasSection({st,setSt}){
+  const cal={...CAL_DEF,...(st.calorias||{})};
+  const itens=cal.itens||[];
+  const accent=st.config.accentOverride||(THEMES.find(t=>t.id===st.config.themeId)||THEMES[0]).ac;
+  const[dia,setDia]=useState(TODAY());
+  const[aba,setAba]=useState('dia');
+  const[txt,setTxt]=useState('');
+  const[img,setImg]=useState(null);
+  const[busy,setBusy]=useState(false);
+  const[err,setErr]=useState('');
+  const[pend,setPend]=useState(null);
+  const[periodo,setPeriodo]=useState('semana');
+  const[cfgOpen,setCfgOpen]=useState(false);
+  const[manOpen,setManOpen]=useState(false);
+  const[man,setMan]=useState({nome:'',qtd:'',kcal:'',prot:'',tipo:'in'});
+  const fileRef=useRef();
+
+  function setCal(fn){setSt(p=>{const prev={...CAL_DEF,...(p.calorias||{})};return{...p,calorias:fn(prev)};});}
+
+  // ── entrada ────────────────────────────────────────────────────────────────
+  function handleFile(f){
+    if(!f)return;
+    const r=new FileReader();
+    r.onload=ev=>{
+      const im=new Image();
+      im.onload=()=>{
+        const MAXP=1024;
+        const sc=Math.min(1,MAXP/Math.max(im.width,im.height));
+        const cv=document.createElement('canvas');
+        cv.width=Math.round(im.width*sc);cv.height=Math.round(im.height*sc);
+        cv.getContext('2d').drawImage(im,0,0,cv.width,cv.height);
+        try{setImg(cv.toDataURL('image/jpeg',0.82));}catch(e){setImg(ev.target.result);}
+      };
+      im.onerror=()=>setImg(ev.target.result);
+      im.src=ev.target.result;
+    };
+    r.readAsDataURL(f);
+  }
+
+  async function analisar(tipo){
+    if(!aiReady()){setErr('Configure a chave da IA em ⚙️ Config → Inteligência Artificial.');return;}
+    if(!txt.trim()&&!img){setErr('Descreve o que rolou ou anexa uma foto.');return;}
+    setBusy(true);setErr('');setPend(null);
+    try{
+      const sys=tipo==='in'?CAL_SYS_FOOD:calSysAct(cal.peso||75);
+      const desc=txt.trim()||(tipo==='in'
+        ?'Analise a foto: identifique os alimentos e estime as porções.'
+        :'Analise a foto: identifique a atividade física e estime duração e intensidade.');
+      let raw;
+      if(img){
+        const m=/^data:(image\/[a-zA-Z+]+);base64,(.+)$/.exec(img);
+        if(!m)throw new Error('Imagem inválida.');
+        raw=await aiCallBlocks(sys,[
+          {type:'image',source:{type:'base64',media_type:m[1],data:m[2]}},
+          {type:'text',text:desc},
+        ],1000,aiModelForImage());
+      }else{
+        raw=await aiCall(sys,desc,1000);
+      }
+      const arr=aiParseArray(raw);
+      if(!arr||!arr.length)throw new Error('Não consegui interpretar a resposta. Tenta detalhar mais.');
+      setPend({tipo,itens:arr.map(x=>({
+        id:uid(),
+        nome:String(x.nome||x.item||x.alimento||x.atividade||'Item'),
+        qtd:String(x.qtd||x.quantidade||x.porcao||''),
+        kcal:Math.max(0,Math.round(+x.kcal||0)),
+        prot:Math.max(0,Math.round((+x.prot||x.proteina||0)*10)/10),
+      }))});
+    }catch(e){setErr(e.message||'Falha na análise.');}
+    setBusy(false);
+  }
+
+  function editPend(id,campo,val){
+    setPend(p=>({...p,itens:p.itens.map(i=>i.id===id?{...i,[campo]:val}:i)}));
+  }
+  function delPend(id){setPend(p=>{const r=p.itens.filter(i=>i.id!==id);return r.length?{...p,itens:r}:null;});}
+  function confirmar(){
+    if(!pend)return;
+    const novos=pend.itens
+      .filter(i=>(+i.kcal||0)>0||(+i.prot||0)>0)
+      .map(i=>({id:i.id,data:dia,tipo:pend.tipo,nome:i.nome,qtd:i.qtd,
+        kcal:Math.round(+i.kcal||0),prot:pend.tipo==='in'?(+i.prot||0):0,createdAt:new Date().toISOString()}));
+    if(!novos.length){setPend(null);return;}
+    setCal(p=>({...p,itens:[...p.itens,...novos]}));
+    setPend(null);setTxt('');setImg(null);setErr('');
+  }
+  function delItem(id){setCal(p=>({...p,itens:p.itens.filter(i=>i.id!==id)}));}
+  function salvarManual(){
+    if(!man.nome.trim()||!(+man.kcal))return;
+    setCal(p=>({...p,itens:[...p.itens,{id:uid(),data:dia,tipo:man.tipo,nome:man.nome.trim(),qtd:man.qtd.trim(),
+      kcal:Math.round(+man.kcal||0),prot:man.tipo==='in'?(+man.prot||0):0,createdAt:new Date().toISOString()}]}));
+    setMan({nome:'',qtd:'',kcal:'',prot:'',tipo:'in'});setManOpen(false);
+  }
+
+  // ── agregações ─────────────────────────────────────────────────────────────
+  const doDia=itens.filter(i=>i.data===dia).slice().reverse();
+  const kin=doDia.filter(i=>i.tipo==='in').reduce((s,i)=>s+(+i.kcal||0),0);
+  const kout=doDia.filter(i=>i.tipo==='out').reduce((s,i)=>s+(+i.kcal||0),0);
+  const prot=doDia.filter(i=>i.tipo==='in').reduce((s,i)=>s+(+i.prot||0),0);
+  const liq=kin-kout;
+  const base=cal.modo==='liquido'?liq:kin;
+  const restante=(cal.metaKcal||0)-base;
+
+  const dias=useMemo(()=>{
+    const lista=[];
+    if(periodo==='semana'){
+      const ref=new Date(dia+'T12:00:00');
+      for(let i=6;i>=0;i--){const d=new Date(ref);d.setDate(d.getDate()-i);lista.push(localDateStr(d));}
+    }else{
+      const[y,m]=dia.split('-').map(Number);
+      const n=daysInMonth(y,m);
+      for(let d=1;d<=n;d++)lista.push(`${monthKey(y,m)}-${String(d).padStart(2,'0')}`);
+    }
+    const td=TODAY();
+    return lista.map(ds=>{
+      const li=itens.filter(i=>i.data===ds);
+      const ki=li.filter(i=>i.tipo==='in').reduce((s,i)=>s+(+i.kcal||0),0);
+      const ko=li.filter(i=>i.tipo==='out').reduce((s,i)=>s+(+i.kcal||0),0);
+      return{data:ds,label:String(+ds.slice(8)),kin:ki,kout:ko,
+        prot:li.filter(i=>i.tipo==='in').reduce((s,i)=>s+(+i.prot||0),0),
+        temDado:li.length>0,isToday:ds===td,isSel:ds===dia};
+    });
+  },[itens,dia,periodo]);
+
+  const comDado=dias.filter(d=>d.temDado);
+  const mediaIn=comDado.length?Math.round(comDado.reduce((s,d)=>s+d.kin,0)/comDado.length):0;
+  const mediaOut=comDado.length?Math.round(comDado.reduce((s,d)=>s+d.kout,0)/comDado.length):0;
+  const mediaProt=comDado.length?Math.round(comDado.reduce((s,d)=>s+d.prot,0)/comDado.length):0;
+  const naMeta=comDado.filter(d=>{const b=cal.modo==='liquido'?d.kin-d.kout:d.kin;return b>0&&b<=(cal.metaKcal||0);}).length;
+
+  function shiftDia(n){const d=new Date(dia+'T12:00:00');d.setDate(d.getDate()+n);setDia(localDateStr(d));}
+  const ehHoje=dia===TODAY();
+
+  const corSaldo=restante>=0?'#22c55e':'#ef4444';
+  const pctKcal=(cal.metaKcal||0)>0?Math.min(100,Math.round((base/cal.metaKcal)*100)):0;
+  const pctProt=(cal.metaProt||0)>0?Math.min(100,Math.round((prot/cal.metaProt)*100)):0;
+
+  return<div className="sec">
+    {/* navegação de dia */}
+    <div className="fcb mb14"style={{background:'var(--card)',border:'1px solid var(--bd)',borderRadius:'var(--r)',padding:'10px 14px'}}>
+      <button className="btn-ic"style={{fontSize:'1.3rem',padding:'2px 10px',color:'var(--tx2)'}}onClick={()=>shiftDia(-1)}>‹</button>
+      <div style={{textAlign:'center',flex:1}}>
+        <div style={{fontWeight:700,fontSize:'.95rem'}}>{ehHoje?'Hoje':ptDate(dia)}</div>
+        <div style={{fontSize:'.67rem',color:'var(--tx3)',textTransform:'uppercase',letterSpacing:'.07em'}}>contador de calorias</div>
+      </div>
+      <div className="fc g6">
+        {!ehHoje&&<button className="btn btn-gh"style={{padding:'4px 10px',fontSize:'.72rem'}}onClick={()=>setDia(TODAY())}>Hoje</button>}
+        <button className="btn-ic"style={{fontSize:'1.3rem',padding:'2px 10px',color:'var(--tx2)'}}onClick={()=>shiftDia(1)}>›</button>
+      </div>
+    </div>
+
+    <div className="stabs mb14">
+      <button className={`stab${aba==='dia'?' on':''}`}onClick={()=>setAba('dia')}>📋 Do dia</button>
+      <button className={`stab${aba==='graficos'?' on':''}`}onClick={()=>setAba('graficos')}>📊 Gráficos</button>
+      <button className="stab"onClick={()=>setCfgOpen(true)}>⚙️ Metas</button>
+    </div>
+
+    {aba==='dia'&&<>
+      {/* resumo */}
+      <div className="g2c mb14">
+        <div className="mcrd"><div className="mval">{kin}</div><div className="mlbl">🍽️ Consumido (kcal)</div></div>
+        <div className="mcrd"><div className="mval"style={{color:CAL_OUT_COLOR}}>{kout}</div><div className="mlbl">🔥 Gasto (kcal)</div></div>
+        <div className="mcrd"><div className="mval"style={{color:corSaldo}}>{restante>=0?restante:'-'+Math.abs(restante)}</div><div className="mlbl">{restante>=0?'Restam p/ meta':'Acima da meta'}</div></div>
+        <div className="mcrd"><div className="mval"style={{color:CAL_PROT_COLOR}}>{Math.round(prot)}<span style={{fontSize:'.9rem'}}>g</span></div><div className="mlbl">🥩 Proteína</div></div>
+      </div>
+
+      <div className="card mb14">
+        <div className="fcb"style={{marginBottom:'5px'}}>
+          <span style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)'}}>CALORIAS {cal.modo==='liquido'?'(líquidas)':'(brutas)'}</span>
+          <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>{base} / {cal.metaKcal}</span>
+        </div>
+        <PBar val={pctKcal}max={100}color={restante>=0?accent:'#ef4444'}/>
+        <div className="fcb"style={{marginTop:'12px',marginBottom:'5px'}}>
+          <span style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)'}}>PROTEÍNA</span>
+          <span style={{fontSize:'.72rem',fontFamily:'var(--fm)',color:'var(--tx3)'}}>{Math.round(prot)}g / {cal.metaProt}g</span>
+        </div>
+        <PBar val={pctProt}max={100}color={CAL_PROT_COLOR}/>
+      </div>
+
+      {/* registro por IA */}
+      <div className="card mb14">
+        <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'10px'}}>Registrar com IA</div>
+        <textarea rows={3}value={txt}onChange={e=>setTxt(e.target.value)}
+          placeholder="Ex: 2 ovos mexidos, 1 pão francês e um café com leite — ou — corri 40 min no parque"
+          style={{width:'100%'}}/>
+        {img&&<div style={{position:'relative',marginTop:'8px'}}>
+          <img src={img}style={{width:'100%',maxHeight:'190px',objectFit:'cover',borderRadius:'8px',display:'block'}}/>
+          <button className="btn-ic"onClick={()=>setImg(null)}
+            style={{position:'absolute',top:6,right:6,background:'rgba(0,0,0,.65)',color:'#fff',borderRadius:'50%',width:26,height:26,fontSize:'.9rem'}}>×</button>
+        </div>}
+        <div className="fc g6"style={{marginTop:'10px',flexWrap:'wrap'}}>
+          <button className="btn btn-gh"onClick={()=>fileRef.current.click()}disabled={busy}>📷 {img?'Trocar foto':'Foto'}</button>
+          <input ref={fileRef}type="file"accept="image/*"style={{display:'none'}}
+            onChange={e=>{handleFile(e.target.files&&e.target.files[0]);e.target.value='';}}/>
+          <button className="btn btn-ac"style={{flex:1,minWidth:'110px'}}disabled={busy}onClick={()=>analisar('in')}>{busy?'⏳ Analisando...':'🍽️ Consumi'}</button>
+          <button className="btn btn-gh"style={{flex:1,minWidth:'110px',borderColor:CAL_OUT_COLOR+'55',color:CAL_OUT_COLOR}}disabled={busy}onClick={()=>analisar('out')}>{busy?'⏳':'🔥 Gastei'}</button>
+        </div>
+        {err&&<div style={{marginTop:'8px',fontSize:'.75rem',color:'#ef4444'}}>{err}</div>}
+        {!aiReady()&&<div style={{marginTop:'8px',fontSize:'.72rem',color:'var(--tx3)'}}>IA não configurada — dá pra registrar manualmente no botão abaixo.</div>}
+      </div>
+
+      {/* revisão do que a IA estimou */}
+      {pend&&<div className="card mb14"style={{borderColor:accent+'66'}}>
+        <div style={{fontSize:'.78rem',fontWeight:700,color:accent,textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'10px'}}>
+          {pend.tipo==='in'?'🍽️ Estimativa do consumo':'🔥 Estimativa do gasto'} — confira e ajuste
+        </div>
+        {pend.itens.map(i=><div key={i.id}style={{padding:'8px 0',borderBottom:'1px solid var(--bd)'}}>
+          <div className="fcb"style={{gap:'8px'}}>
+            <div style={{flex:1,minWidth:0}}>
+              <div style={{fontSize:'.82rem',fontWeight:600}}>{i.nome}</div>
+              {i.qtd&&<div style={{fontSize:'.7rem',color:'var(--tx3)'}}>{i.qtd}</div>}
+            </div>
+            <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delPend(i.id)}>×</button>
+          </div>
+          <div className="fc g6"style={{marginTop:'6px'}}>
+            <div style={{flex:1}}>
+              <label style={{fontSize:'.62rem',color:'var(--tx3)',textTransform:'uppercase'}}>kcal</label>
+              <input type="number"value={i.kcal}onChange={e=>editPend(i.id,'kcal',e.target.value)}style={{width:'100%'}}/>
+            </div>
+            {pend.tipo==='in'&&<div style={{flex:1}}>
+              <label style={{fontSize:'.62rem',color:'var(--tx3)',textTransform:'uppercase'}}>proteína (g)</label>
+              <input type="number"value={i.prot}onChange={e=>editPend(i.id,'prot',e.target.value)}style={{width:'100%'}}/>
+            </div>}
+          </div>
+        </div>)}
+        <div className="fcb"style={{marginTop:'10px'}}>
+          <div style={{fontSize:'.78rem',fontFamily:'var(--fm)',color:'var(--tx2)'}}>
+            Total: <b style={{color:pend.tipo==='in'?accent:CAL_OUT_COLOR}}>{pend.itens.reduce((s,i)=>s+(+i.kcal||0),0)} kcal</b>
+            {pend.tipo==='in'&&<span> · {Math.round(pend.itens.reduce((s,i)=>s+(+i.prot||0),0)*10)/10}g prot</span>}
+          </div>
+          <div className="fc g6">
+            <button className="btn btn-gh"onClick={()=>setPend(null)}>Descartar</button>
+            <button className="btn btn-ac"onClick={confirmar}>✓ Adicionar</button>
+          </div>
+        </div>
+      </div>}
+
+      {/* lista do dia */}
+      <div className="card">
+        <div className="fcb mb10">
+          <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em'}}>Registros ({doDia.length})</div>
+          <button className="btn btn-gh"style={{fontSize:'.72rem',padding:'4px 10px'}}onClick={()=>setManOpen(true)}>+ Manual</button>
+        </div>
+        {!doDia.length&&<div style={{fontSize:'.78rem',color:'var(--tx3)',padding:'10px 0'}}>Nada registrado nesse dia ainda.</div>}
+        {doDia.map(i=><div key={i.id}className="fcb"style={{padding:'8px 0',borderBottom:'1px solid var(--bd)',gap:'8px'}}>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:'.82rem',fontWeight:600}}>{i.tipo==='in'?'🍽️':'🔥'} {i.nome}</div>
+            {i.qtd&&<div style={{fontSize:'.7rem',color:'var(--tx3)'}}>{i.qtd}</div>}
+          </div>
+          <div style={{textAlign:'right',flexShrink:0}}>
+            <div style={{fontFamily:'var(--fm)',fontSize:'.82rem',fontWeight:700,color:i.tipo==='in'?accent:CAL_OUT_COLOR}}>
+              {i.tipo==='in'?'+':'−'}{i.kcal}
+            </div>
+            {i.tipo==='in'&&i.prot>0&&<div style={{fontSize:'.66rem',color:CAL_PROT_COLOR}}>{i.prot}g prot</div>}
+          </div>
+          <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(i.id)}>×</button>
+        </div>)}
+      </div>
+    </>}
+
+    {aba==='graficos'&&<>
+      <div className="stabs mb14">
+        <button className={`stab${periodo==='semana'?' on':''}`}onClick={()=>setPeriodo('semana')}>7 dias</button>
+        <button className={`stab${periodo==='mes'?' on':''}`}onClick={()=>setPeriodo('mes')}>Mês</button>
+      </div>
+
+      <div className="g2c mb14">
+        <div className="mcrd"><div className="mval">{mediaIn}</div><div className="mlbl">Média consumida</div></div>
+        <div className="mcrd"><div className="mval"style={{color:CAL_OUT_COLOR}}>{mediaOut}</div><div className="mlbl">Média gasta</div></div>
+        <div className="mcrd"><div className="mval"style={{color:CAL_PROT_COLOR}}>{mediaProt}<span style={{fontSize:'.9rem'}}>g</span></div><div className="mlbl">Média proteína</div></div>
+        <div className="mcrd"><div className="mval">{naMeta}/{comDado.length}</div><div className="mlbl">Dias na meta</div></div>
+      </div>
+
+      <div className="card mb14">
+        <div className="fcb mb10">
+          <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em'}}>Calorias por dia</div>
+          <div className="fc g8"style={{fontSize:'.66rem',color:'var(--tx3)'}}>
+            <span><span style={{display:'inline-block',width:8,height:8,borderRadius:2,background:accent,marginRight:4}}/>consumo</span>
+            <span><span style={{display:'inline-block',width:8,height:8,borderRadius:2,background:CAL_OUT_COLOR,marginRight:4}}/>gasto</span>
+          </div>
+        </div>
+        <CalChart dias={dias}accent={accent}meta={cal.metaKcal}modo="kcal"/>
+      </div>
+
+      <div className="card mb14">
+        <div className="fcb mb10">
+          <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em'}}>Proteína por dia (g)</div>
+        </div>
+        <CalChart dias={dias}accent={accent}meta={cal.metaProt}modo="prot"/>
+      </div>
+
+      <div className="card">
+        <div style={{fontSize:'.78rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.07em',marginBottom:'10px'}}>Detalhe do período</div>
+        {!comDado.length&&<div style={{fontSize:'.78rem',color:'var(--tx3)'}}>Sem registros nesse período.</div>}
+        {comDado.slice().reverse().map(d=>{
+          const b=cal.modo==='liquido'?d.kin-d.kout:d.kin;
+          const ok=b>0&&b<=(cal.metaKcal||0);
+          return<div key={d.data}className="fcb"style={{padding:'7px 0',borderBottom:'1px solid var(--bd)',cursor:'pointer'}}
+            onClick={()=>{setDia(d.data);setAba('dia');}}>
+            <div style={{fontSize:'.78rem',fontWeight:d.isToday?700:500}}>{ptDate(d.data)}</div>
+            <div className="fc g8"style={{fontFamily:'var(--fm)',fontSize:'.74rem'}}>
+              <span style={{color:accent}}>+{d.kin}</span>
+              <span style={{color:CAL_OUT_COLOR}}>−{d.kout}</span>
+              <span style={{color:CAL_PROT_COLOR}}>{Math.round(d.prot)}g</span>
+              <span style={{color:ok?'#22c55e':'#ef4444',fontWeight:700,minWidth:'46px',textAlign:'right'}}>{b}</span>
+            </div>
+          </div>;
+        })}
+      </div>
+    </>}
+
+    {/* modal metas */}
+    <Modal open={cfgOpen}onClose={()=>setCfgOpen(false)}title="Metas e perfil">
+      <div className="g2c">
+        <Fld label="Meta de calorias (kcal/dia)">
+          <input type="number"value={cal.metaKcal}onChange={e=>setCal(p=>({...p,metaKcal:+e.target.value||0}))}/>
+        </Fld>
+        <Fld label="Meta de proteína (g/dia)">
+          <input type="number"value={cal.metaProt}onChange={e=>setCal(p=>({...p,metaProt:+e.target.value||0}))}/>
+        </Fld>
+      </div>
+      <Fld label="Peso corporal (kg) — usado pra calcular o gasto">
+        <input type="number"value={cal.peso}onChange={e=>setCal(p=>({...p,peso:+e.target.value||0}))}/>
+      </Fld>
+      <Fld label="Como contar a meta">
+        <select value={cal.modo}onChange={e=>setCal(p=>({...p,modo:e.target.value}))}>
+          <option value="liquido">Líquida (consumido − gasto)</option>
+          <option value="bruto">Bruta (só o consumido)</option>
+        </select>
+      </Fld>
+      <Btns><button className="btn btn-ac"onClick={()=>setCfgOpen(false)}>Fechar</button></Btns>
+    </Modal>
+
+    {/* modal manual */}
+    <Modal open={manOpen}onClose={()=>setManOpen(false)}title="Registro manual">
+      <div className="stabs mb10">
+        <button className={`stab${man.tipo==='in'?' on':''}`}onClick={()=>setMan(p=>({...p,tipo:'in'}))}>🍽️ Consumo</button>
+        <button className={`stab${man.tipo==='out'?' on':''}`}onClick={()=>setMan(p=>({...p,tipo:'out'}))}>🔥 Gasto</button>
+      </div>
+      <Fld label="Nome"><input value={man.nome}onChange={e=>setMan(p=>({...p,nome:e.target.value}))}placeholder={man.tipo==='in'?'Ex: Frango grelhado':'Ex: Pelada de futebol'}/></Fld>
+      <Fld label="Quantidade / duração (opcional)"><input value={man.qtd}onChange={e=>setMan(p=>({...p,qtd:e.target.value}))}placeholder={man.tipo==='in'?'150 g':'60 min'}/></Fld>
+      <div className="g2c">
+        <Fld label="Calorias (kcal)"><input type="number"value={man.kcal}onChange={e=>setMan(p=>({...p,kcal:e.target.value}))}/></Fld>
+        {man.tipo==='in'&&<Fld label="Proteína (g)"><input type="number"value={man.prot}onChange={e=>setMan(p=>({...p,prot:e.target.value}))}/></Fld>}
+      </div>
+      <Btns>
+        <button className="btn btn-gh"onClick={()=>setManOpen(false)}>Cancelar</button>
+        <button className="btn btn-ac"onClick={salvarManual}>Adicionar</button>
+      </Btns>
+    </Modal>
+  </div>;
+}
+
 function App(){
   const[st,setSt]=useState(loadSt);
   const[tab,setTab]=useState('skilltree');
@@ -6239,6 +6684,7 @@ function App(){
     skilltree:<SkillTreeSection st={st}setSt={setSt}setTab={setTab}/>,
     conquistas:<ConquistasSection st={st}setSt={setSt}/>,
     eixo:<EixoSection st={st}setSt={setSt}/>,
+    calorias:<CaloriasSection st={st}setSt={setSt}/>,
     config:<ConfigSection st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={manualSync}/>,
   };
 
