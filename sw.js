@@ -1,9 +1,14 @@
-const CACHE_NAME = 'segundo-cerebro-v1';
+const CACHE_NAME = 'segundo-cerebro-v2';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
   './manifest.json',
   './icon.svg',
+  './classes/1.jpg',
+  './classes/2.jpg',
+  './classes/3.jpg',
+  './classes/4.jpg',
+  './classes/5.jpg',
   // CDN resources
   'https://unpkg.com/react@18/umd/react.production.min.js',
   'https://unpkg.com/react-dom@18/umd/react-dom.production.min.js',
