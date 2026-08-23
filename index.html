@@ -346,6 +346,8 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d);height:var(--sk-d);border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 58%,var(--sk-rim) 92%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom) var(--sk-glow);transition:width .4s ease,height .4s ease;}
 .sk-aura{position:absolute;inset:2.5px;border-radius:50%;z-index:1;pointer-events:none;border:1px solid var(--sk-c);opacity:var(--sk-aura-op);box-shadow:0 0 7px var(--sk-glow),inset 0 0 9px var(--sk-glow);}
 .sk-orbit{position:absolute;inset:0;z-index:2;pointer-events:none;animation:sk-spin 9s linear infinite;}
+/* brilho especular: o disco chapado vira esfera de vidro */
+.sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d);height:var(--sk-d);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 33% 27%,rgba(255,255,255,.9) 0%,rgba(255,255,255,.32) 16%,rgba(255,255,255,0) 44%),radial-gradient(circle at 68% 78%,var(--sk-hot) 0%,rgba(255,255,255,0) 34%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.7);transition:width .4s ease,height .4s ease,opacity .25s ease;}
 .sk-orbit i{position:absolute;left:50%;top:50%;width:3.5px;height:3.5px;margin:-1.75px 0 0 -1.75px;border-radius:50%;background:var(--sk-spark);box-shadow:0 0 5px var(--sk-glow);}
 .sk-rays{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:50%;opacity:.6;background:repeating-conic-gradient(from 0deg,var(--sk-spark) 0deg 3deg,transparent 3deg 30deg);animation:sk-spin 30s linear infinite;}
 /* Forma final: coroa pulsante e corona de raios, ambas POR FORA do disco (que já está cheio) */
@@ -353,7 +355,24 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-corona{position:absolute;left:50%;top:35px;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;z-index:0;pointer-events:none;opacity:.55;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 2.5deg,transparent 2.5deg 22.5deg);animation:sk-spin 22s linear infinite;}
 @keyframes sk-spin{to{transform:rotate(360deg)}}
 @keyframes sk-crown{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.7;transform:scale(1.06)}}
-@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona{animation:none}}
+/* ── VIDA: o orbe respira. Batida mais rápida e forte conforme o nível sobe ── */
+@keyframes sk-breathe{0%,100%{transform:translate(-50%,-50%) scale(1);filter:brightness(1) saturate(1)}50%{transform:translate(-50%,-50%) scale(1.05);filter:brightness(var(--sk-beat-hi,1.2)) saturate(1.12)}}
+@keyframes sk-glossbeat{0%,100%{opacity:calc(var(--sk-gloss-op,.7) * .8)}50%{opacity:var(--sk-gloss-op,.7)}}
+@keyframes sk-aurabeat{0%,100%{opacity:var(--sk-aura-op);transform:scale(1)}50%{opacity:1;transform:scale(1.035)}}
+.sk-live .sk-light{animation:sk-breathe var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
+.sk-live .sk-gloss{animation:sk-glossbeat var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
+.sk-live .sk-aura{animation:sk-aurabeat var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
+/* ── FLARE: passar o mouse acende o nó de verdade ── */
+.skill-frame{transition:box-shadow .25s,border-color .25s,filter .25s ease;}
+.skill-node:hover .skill-frame{filter:brightness(1.24) saturate(1.14);}
+.skill-node:hover .sk-light{box-shadow:0 0 calc(var(--sk-bloom) * 2.4) var(--sk-glow);}
+.skill-node:hover .sk-gloss{opacity:1;}
+.skill-node:hover .sk-orbit{animation-duration:3s;}
+.skill-node:hover .sk-rays{opacity:.95;animation-duration:9s;}
+.skill-node:hover .sk-corona{opacity:.9;animation-duration:7s;}
+.sk-light{transition:width .4s ease,height .4s ease,box-shadow .3s ease;}
+.sk-rays,.sk-corona{transition:opacity .25s ease;}
+@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 /* responsive */
@@ -982,11 +1001,11 @@ function treePalette(tree){
   return{d:c,s:c};
 }
 // Parâmetros visuais editáveis pelo usuário (painel de personalização)
-const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false};
+const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false,vida:true};
 const SKILL_STYLE_PRESETS={
-  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false},
-  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true},
-  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false},
+  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false,vida:true},
+  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true,vida:false},
+  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false,vida:true},
 };
 function readStyle(st){return{...DEF_STYLE,...((st&&st.skilltree&&st.skilltree.style)||{})};}
 // alpha 0..1 → hex 2 dígitos
@@ -996,6 +1015,7 @@ function _hx(c){const h=String(c).replace('#','');return[parseInt(h.slice(0,2),1
 function _rgbHex(r,g,b){return'#'+[r,g,b].map(v=>Math.round(Math.max(0,Math.min(255,v))).toString(16).padStart(2,'0')).join('');}
 function _mix(a,b,t){const A=_hx(a),B=_hx(b),k=Math.max(0,Math.min(1,t));return _rgbHex(A[0]+(B[0]-A[0])*k,A[1]+(B[1]-A[1])*k,A[2]+(B[2]-A[2])*k);}
 function _rgba(c,a){const p=_hx(c);return`rgba(${p[0]},${p[1]},${p[2]},${a})`;}
+function _hash(x){let h=0;const t=String(x||'');for(let i=0;i<t.length;i++)h=(h*31+t.charCodeAt(i))|0;return Math.abs(h);}
 function _ramp(stops,t){const x=Math.max(0,Math.min(1,t))*(stops.length-1),i=Math.min(stops.length-2,Math.floor(x));return _mix(stops[i],stops[i+1],x-i);}
 // Rampa de luz de uma habilidade, tirada da paleta da própria árvore: começa
 // como brasa na cor secundária e termina incandescente na cor de destaque.
@@ -4486,6 +4506,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   const gk=stl&&typeof stl.glow==='number'?stl.glow:1;   // slider "Brilho"
   const nk=stl&&typeof stl.neon==='number'?stl.neon:1;   // slider "Borda neon"
   const hideEmoji=!!(stl&&stl.semEmoji);                  // toggle "Sem emojis" — foco no nome
+  const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
 
   // ── ESTÁGIOS DE IGNIÇÃO ──
   // A luz nasce no centro e cresce nível a nível (raio = nível ÷ máximo), mas cada
@@ -4507,7 +4528,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   // claro pra borda escura — a luz clareia no meio e afunda na beirada.
   const lightMain=_ramp(skillLightRamp(pal),tone);
   const lightHot=_mix(lightMain,'#FFFFFF',0.4);            // núcleo sempre mais claro que o corpo
-  const lightRim=_mix(lightMain,'#05070D',0.16+tone*0.2);  // borda sempre mais funda que o corpo
+  const lightRim=_mix(_mix(lightMain,s,0.32),'#05070D',0.16+tone*0.2); // borda funda E puxando a cor secundária (duotone)
   const glowTone=_mix(lightMain,d,0.35+tone*0.4);          // halo não some quando o orbe escurece
   const spark=_mix(d,'#FFFFFF',0.3);                       // satélites e raios seguem acesos
   const maxHi=_mix(d,'#FFFFFF',0.4);                       // acabamento da forma final
@@ -4544,6 +4565,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
     '--sk-spark':spark,
     '--sk-bloom':Math.round((4+levelRatio*13)*gk)+'px',
     '--sk-aura-op':(maxed?0.9:0.55).toFixed(2),
+    // vida: batida mais rápida e mais forte conforme o nível sobe
+    '--sk-beat':(4.4-tone*1.6).toFixed(2)+'s',
+    '--sk-beat-hi':(1.12+tone*0.18).toFixed(2),
+    '--sk-phase':(-(_hash(skill.id)%100)/100*4).toFixed(2)+'s',  // dessincroniza os nós
+    '--sk-gloss-op':(0.42+levelRatio*0.4).toFixed(2),
   };
 
   // Pips: bolinhas abaixo do badge indicando nível (como estrelas)
@@ -4568,18 +4594,19 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   // Hint
   const nextHint=maxed?'Já dominada. Mantém afiado e ensina.':(skill.levels&&skill.levels[lv+1])||null;
 
-  return<div className="skill-node"onClick={onClick}style={{position:'relative'}}>
+  return<div className={"skill-node"+(alive?" sk-live":"")}onClick={onClick}style={{position:'relative'}}>
     {/* Forma final: corona de raios e coroa pulsante em volta do disco cheio */}
     {maxed&&<div className="sk-corona"style={{'--sk-hot':maxHi}}/>}
     {maxed&&<div className="sk-crown"style={{'--sk-hot':_rgba(maxHi,0.85)}}/>}
     {/* Frame: poço escuro + camadas que acendem por estágio */}
-    <div className="skill-frame"style={{...skVars,background:well,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .25s,border-color .25s'}}>
+    <div className="skill-frame"style={{...skVars,background:well,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .25s,border-color .25s,filter .25s'}}>
       {stage>=4&&!maxed&&<div className="sk-rays"/>}
       {stage>=3&&<div className="sk-aura"/>}
       {sats>0&&<div className="sk-orbit">
         {Array.from({length:sats},(_,i)=><i key={i}style={{transform:`rotate(${i*360/sats}deg) translateY(${-orbitR}px)`}}/>)}
       </div>}
       {started&&<div className="sk-light"/>}
+      {started&&<div className="sk-gloss"/>}
       <div className="skill-ring"style={{background:'transparent',padding:0}}>
         <div className="skill-core">
           {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s'}}>{skill.emoji}</span>}
@@ -4786,6 +4813,7 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
     {slider('Crescimento da aura','auraStep',0,10,1,v=>v+'px/nível')}
     {slider('Intensidade do fundo','fundoIntensidade',0,1.6,0.1,v=>Math.round(v*100)+'%')}
     <div style={{height:1,background:'#2B394C',margin:'6px 0'}}/>
+    {toggle('Vida (orbe respirando)','vida')}
     {toggle('Sem emojis (só o nome)','semEmoji')}
     {toggle('Moldura (rim)','moldura')}
     {toggle('Entalhes','entalhes')}
