@@ -667,41 +667,85 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 <script type="text/babel">
 const{useState,useEffect,useMemo,useRef,useCallback}=React;
 
-// ── INTELIGÊNCIA ARTIFICIAL (Claude API) ─────────────────────────────────────
+// ── INTELIGÊNCIA ARTIFICIAL (Claude ou Gemini) ──────────────────────
 const AI_CFG_KEY='sc-ai-cfg';
+const AI_DEF_MODEL={anthropic:'claude-3-5-haiku-latest',gemini:'gemini-2.5-flash'};
 function aiLoadCfg(){try{const s=localStorage.getItem(AI_CFG_KEY);return s?JSON.parse(s):null;}catch{return null;}}
 function aiSaveCfg(c){localStorage.setItem(AI_CFG_KEY,JSON.stringify(c));}
 function aiClearCfg(){localStorage.removeItem(AI_CFG_KEY);}
 function aiReady(){const c=aiLoadCfg();return !!(c&&c.key);}
-async function aiCall(system,prompt,maxTokens){
+// Provedor: usa o salvo, senão adivinha pela cara da chave (Google começa com "AIza").
+function aiProvider(c){
+  c=c===undefined?aiLoadCfg():c;
+  if(c&&c.provider)return c.provider;
+  return /^AIza/.test((c&&c.key)||'')?'gemini':'anthropic';
+}
+function aiModel(c,override){
+  c=c===undefined?aiLoadCfg():c;
+  return String(override||(c&&c.model)||AI_DEF_MODEL[aiProvider(c)]||AI_DEF_MODEL.anthropic).trim();
+}
+// Blocos no formato Anthropic -> "parts" do Gemini.
+function aiBlocksToGemini(blocks){
+  return blocks.map(b=>b&&b.type==='image'
+    ?{inlineData:{mimeType:b.source.media_type,data:b.source.data}}
+    :{text:(b&&b.text)||''});
+}
+async function aiErr(res){
+  let m='';try{m=(await res.json()).error?.message||'';}catch(e){}
+  if(res.status===401||res.status===403)m=m||'Chave inválida ou sem permissão.';
+  throw new Error('IA '+res.status+(m?': '+m:''));
+}
+// Chamada única: recebe blocos (texto e/ou imagem) e fala com o provedor configurado.
+async function aiRequest(system,blocks,maxTokens,modelOverride){
   const c=aiLoadCfg();
   if(!c||!c.key)throw new Error('IA não configurada');
+  const model=aiModel(c,modelOverride);
+  if(aiProvider(c)==='gemini'){
+    const body={
+      contents:[{role:'user',parts:aiBlocksToGemini(blocks)}],
+      generationConfig:{maxOutputTokens:(maxTokens||300)+256},
+    };
+    if(system)body.systemInstruction={parts:[{text:system}]};
+    // Flash 2.x "pensa" por padrão e o raciocínio consome o orçamento de saída → desliga.
+    if(/flash/i.test(model))body.generationConfig.thinkingConfig={thinkingBudget:0};
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{
+      method:'POST',
+      headers:{'content-type':'application/json','x-goog-api-key':c.key},
+      body:JSON.stringify(body),
+    });
+    if(!res.ok)await aiErr(res);
+    const data=await res.json();
+    const cand=(data.candidates&&data.candidates[0])||null;
+    const parts=(cand&&cand.content&&cand.content.parts)||[];
+    const out=parts.map(p=>p.text||'').join('').trim();
+    if(!out){
+      const fr=(cand&&cand.finishReason)||(data.promptFeedback&&data.promptFeedback.blockReason)||'';
+      throw new Error('IA sem resposta'+(fr?' ('+fr+')':''));
+    }
+    return out;
+  }
   const res=await fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:c.model||'claude-3-5-haiku-latest',max_tokens:maxTokens||300,system:system||'',messages:[{role:'user',content:prompt}]}),
+    body:JSON.stringify({model,max_tokens:maxTokens||300,system:system||'',messages:[{role:'user',content:blocks}]}),
   });
-  if(!res.ok){let m='';try{m=(await res.json()).error?.message||'';}catch(e){}throw new Error('IA '+res.status+(m?': '+m:''));}
+  if(!res.ok)await aiErr(res);
   const data=await res.json();
   return((data.content&&data.content[0]&&data.content[0].text)||'').trim();
+}
+async function aiCall(system,prompt,maxTokens){
+  return aiRequest(system,[{type:'text',text:prompt}],maxTokens||300);
 }
 // Chamada com blocos de conteúdo (texto + imagem). Aceita override de modelo.
 async function aiCallBlocks(system,blocks,maxTokens,modelOverride){
-  const c=aiLoadCfg();
-  if(!c||!c.key)throw new Error('IA não configurada');
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
-    method:'POST',
-    headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model:modelOverride||c.model||'claude-3-5-haiku-latest',max_tokens:maxTokens||600,system:system||'',messages:[{role:'user',content:blocks}]}),
-  });
-  if(!res.ok){let m='';try{m=(await res.json()).error?.message||'';}catch(e){}throw new Error('IA '+res.status+(m?': '+m:''));}
-  const data=await res.json();
-  return((data.content&&data.content[0]&&data.content[0].text)||'').trim();
+  return aiRequest(system,blocks,maxTokens||600,modelOverride);
 }
 // Claude 3.5 Haiku não aceita imagem — cai para um modelo com visão quando necessário.
+// Nos modelos Gemini atuais a visão já vem inclusa, então mantém o mesmo.
 const AI_VISION_MODEL='claude-opus-5';
 function aiModelForImage(){
   const c=aiLoadCfg();const m=(c&&c.model)||'';
+  if(aiProvider(c)==='gemini')return aiModel(c);
   if(!m)return AI_VISION_MODEL;
   if(/haiku/i.test(m)&&!/haiku-4/i.test(m))return AI_VISION_MODEL; // 3/3.5 haiku = sem visão
   return m;
@@ -5251,25 +5295,47 @@ function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
 
 function CfgIA(){
   const saved=aiLoadCfg();
+  const provSalvo=saved?aiProvider(saved):'gemini'; // sem nada salvo, Gemini é o caminho mais fácil (cota gratuita)
+  const[prov,setProv]=useState(provSalvo);
   const[key,setKey]=useState((saved&&saved.key)||'');
-  const[model,setModel]=useState((saved&&saved.model)||'claude-3-5-haiku-latest');
+  const[model,setModel]=useState((saved&&saved.model)||AI_DEF_MODEL[provSalvo]);
   const[status,setStatus]=useState('');
   const[testing,setTesting]=useState(false);
-  function save(){if(!key.trim()){setStatus('Cole a chave de API primeiro.');return;}aiSaveCfg({key:key.trim(),model:model.trim()||'claude-3-5-haiku-latest'});setStatus('✓ Salvo! As funções de IA estão ativas.');}
+  const info=prov==='gemini'
+    ?{nome:'Google Gemini',ph:'AIza...',mph:AI_DEF_MODEL.gemini,link:'https://aistudio.google.com/apikey',linkLabel:'Google AI Studio'}
+    :{nome:'Anthropic Claude',ph:'sk-ant-...',mph:AI_DEF_MODEL.anthropic,link:'https://console.anthropic.com/settings/keys',linkLabel:'Console da Anthropic'};
+  // Ao trocar de provedor, só mexe no modelo se ele ainda for o padrão do outro.
+  function trocaProv(v){
+    setProv(v);
+    if(!model.trim()||model.trim()===AI_DEF_MODEL.anthropic||model.trim()===AI_DEF_MODEL.gemini)setModel(AI_DEF_MODEL[v]);
+    setStatus('');
+  }
+  function cfgAtual(){return{provider:prov,key:key.trim(),model:model.trim()||AI_DEF_MODEL[prov]};}
+  function save(){
+    if(!key.trim()){setStatus('Cole a chave de API primeiro.');return;}
+    aiSaveCfg(cfgAtual());setStatus('✓ Salvo! As funções de IA estão ativas.');
+  }
   function clear(){aiClearCfg();setKey('');setStatus('Configuração removida.');}
   async function test(){
     if(!key.trim()){setStatus('Cole a chave primeiro.');return;}
-    setTesting(true);setStatus('Testando…');
-    aiSaveCfg({key:key.trim(),model:model.trim()||'claude-3-5-haiku-latest'});
+    setTesting(true);setStatus('Testando...');
+    aiSaveCfg(cfgAtual());
     try{const r=await aiCall('Responda em 1 palavra.','Diga: funcionando',20);setStatus('✓ Conectado! Resposta: '+r);}
     catch(e){setStatus('✗ '+e.message);}
     setTesting(false);
   }
   return<div className="cfg-s">
-    <div className="cfg-t">🤖 Inteligência Artificial (Claude)</div>
-    <p style={{fontSize:'.8rem',color:'var(--tx2)',lineHeight:1.5,marginBottom:12}}>Com uma chave da Anthropic, o app ganha: <b>frase do dia personalizada</b>, <b>história ao subir de classe</b> e <b>reflexão pós-Pomodoro</b>.</p>
-    <Fld label="Chave de API (x-api-key)"><input type="password"value={key}onChange={e=>setKey(e.target.value)}placeholder="sk-ant-..."/></Fld>
-    <Fld label="Modelo"><input value={model}onChange={e=>setModel(e.target.value)}placeholder="claude-3-5-haiku-latest"/></Fld>
+    <div className="cfg-t">🤖 Inteligência Artificial</div>
+    <p style={{fontSize:'.8rem',color:'var(--tx2)',lineHeight:1.5,marginBottom:12}}>Com uma chave de IA, o app ganha: <b>frase do dia personalizada</b>, <b>história ao subir de classe</b>, <b>reflexão pós-Pomodoro</b> e <b>estimativa de calorias por foto</b>. Funciona com <b>Google Gemini</b> (tem cota gratuita) ou <b>Anthropic Claude</b>.</p>
+    <Fld label="Provedor">
+      <select value={prov}onChange={e=>trocaProv(e.target.value)}>
+        <option value="gemini">Google Gemini</option>
+        <option value="anthropic">Anthropic Claude</option>
+      </select>
+    </Fld>
+    <Fld label={'Chave de API — '+info.nome}><input type="password"value={key}onChange={e=>setKey(e.target.value)}placeholder={info.ph}/></Fld>
+    <Fld label="Modelo"><input value={model}onChange={e=>setModel(e.target.value)}placeholder={info.mph}/></Fld>
+    <div style={{fontSize:'.72rem',color:'var(--tx3)',marginTop:-4}}>Pegue a chave em <a href={info.link}target="_blank"rel="noreferrer"style={{color:'var(--ac)'}}>{info.linkLabel}</a>.</div>
     <div className="fc g8"style={{marginTop:10,flexWrap:'wrap'}}>
       <button className="btn btn-ac"onClick={save}>Salvar</button>
       <button className="btn btn-gh"onClick={test}disabled={testing}>Testar conexão</button>
@@ -5277,7 +5343,7 @@ function CfgIA(){
     </div>
     {status&&<div style={{marginTop:10,fontSize:'.78rem',color:'var(--tx2)',wordBreak:'break-word'}}>{status}</div>}
     <div style={{marginTop:14,padding:'10px 12px',background:'rgba(234,179,8,.08)',border:'1px solid rgba(234,179,8,.25)',borderRadius:8,fontSize:'.72rem',color:'var(--tx2)',lineHeight:1.5}}>
-      ⚠️ A chave fica salva <b>só neste aparelho</b> (não vai pra nuvem). Como o app é estático, use uma chave sua, pessoal, com limite de gasto. As gerações são curtas e o modelo Haiku é barato.
+      ⚠️ A chave fica salva <b>só neste aparelho</b> (não vai pra nuvem). Como o app é estático, use uma chave sua, pessoal, com limite de gasto. As gerações são curtas e tanto o Gemini Flash quanto o Haiku são baratos.
     </div>
   </div>;
 }
