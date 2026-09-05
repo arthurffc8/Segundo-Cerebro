@@ -1077,11 +1077,11 @@ function treePalette(tree){
   return{d:c,s:c};
 }
 // Parâmetros visuais editáveis pelo usuário (painel de personalização)
-const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false,vida:true};
+const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false,vida:true,ramoFundo:1};
 const SKILL_STYLE_PRESETS={
-  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false,vida:true},
-  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true,vida:false},
-  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false,vida:true},
+  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false,vida:true, ramoFundo:1},
+  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true,vida:false,ramoFundo:1},
+  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false,vida:true, ramoFundo:0.5},
 };
 function readStyle(st){return{...DEF_STYLE,...((st&&st.skilltree&&st.skilltree.style)||{})};}
 // alpha 0..1 → hex 2 dígitos
@@ -5082,6 +5082,7 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
     {slider('Borda neon','neon',0,2,0.1,v=>Math.round(v*100)+'%')}
     {slider('Crescimento da aura','auraStep',0,10,1,v=>v+'px/nível')}
     {slider('Intensidade do fundo','fundoIntensidade',0,1.6,0.1,v=>Math.round(v*100)+'%')}
+    {slider('Fundo das subcategorias','ramoFundo',0,1,0.05,v=>v>=1?'sólido':(v<=0?'vidro':Math.round(v*100)+'%'))}
     <div style={{height:1,background:'#2B394C',margin:'6px 0'}}/>
     {toggle('Vida (orbe respirando)','vida')}
     {toggle('Sem emojis (só o nome)','semEmoji')}
@@ -5209,7 +5210,11 @@ function SkillTreeSection({st,setSt,setTab}){
   const treeBg=_washes+(stl.fundoTema?`, url("data:image/svg+xml,${encodeURIComponent(_bgSvg)}")`:'');
   // borda neon dos ramos (personalizável)
   const neon=stl.neon!=null?stl.neon:1;
-  const branchBg=`linear-gradient(180deg, ${pal.s}18, rgba(11,21,34,0.35))`;
+  // fundo da coluna (subcategoria): 0 = vidro (deixa o fundo do app aparecer),
+  // 1 = sólido (a leitura dos nós não briga com a imagem de fundo)
+  const rf=Math.max(0,Math.min(1,stl.ramoFundo!=null?stl.ramoFundo:1));
+  const rTop=_mix('#0C1726',pal.s,0.14),rBot='#070C15';
+  const branchBg=`linear-gradient(180deg, ${_rgba(rTop,(0.10+rf*0.90).toFixed(2))}, ${_rgba(rBot,(0.22+rf*0.78).toFixed(2))})`;
   const branchBorder=`1.5px solid ${pal.d}${_ah(Math.min(0.95,0.3+neon*0.32))}`;
   const branchGlow=`0 0 ${Math.round(5+neon*13)}px ${pal.d}${_ah(Math.min(0.75,neon*0.4))}, inset 0 0 ${Math.round(neon*16)}px ${pal.s}${_ah(Math.min(0.45,neon*0.18))}`;
 
