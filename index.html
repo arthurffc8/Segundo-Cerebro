@@ -1028,6 +1028,7 @@ const DEF_BADGES=[
 ];
 // ── SKILL TREES ──────────────────────────────────────────────────────────────
 const SKILL_GOLD='#e8b84b';
+const SKILL_NAME_COLOR='#F2EFE7'; // off-white: nome da habilidade legível sobre qualquer fundo
 const SKILL_GOLD_HI='#f7d268';
 const _S=(id,emoji,nome,maxNivel,tier,nivel,sub,levels)=>({id,emoji,nome,maxNivel,tier,nivel:nivel||0,subcat:sub||'',desc:'',levels:levels||null});
 // Paletas por área (destaque + secundária) — estilo templo RPG
@@ -4773,14 +4774,12 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
     pips.push({filled:i<=lv,gold:maxed&&i<=lv});
   }
 
-  // Nome: é a informação principal do nó, então nasce já legível e ganha
-  // um halo na cor do tema conforme sobe de nível
-  const nameColor=maxed?maxHi
-    :started?_rgba(d,Math.min(1,0.66+levelRatio*0.34).toFixed(2))
-    :'rgba(126,142,160,0.8)';
+  // Nome: cor NEUTRA (off-white) em todos os nós — assim ele se lê por cima de
+  // qualquer fundo/paleta. O nível continua aparecendo só no halo colorido.
+  const nameColor=started?SKILL_NAME_COLOR:_rgba(SKILL_NAME_COLOR,0.6);
   const nameGlow=started
-    ?`0 1px 3px rgba(0,0,0,.85), 0 0 ${Math.round(6+levelRatio*9)}px ${_rgba(maxed?maxHi:d,(0.2+levelRatio*0.32).toFixed(2))}`
-    :'0 1px 3px rgba(0,0,0,.85)';
+    ?`0 1px 3px rgba(0,0,0,.9), 0 0 5px rgba(0,0,0,.75), 0 0 ${Math.round(7+levelRatio*10)}px ${_rgba(maxed?maxHi:d,(0.24+levelRatio*0.34).toFixed(2))}`
+    :'0 1px 3px rgba(0,0,0,.9), 0 0 5px rgba(0,0,0,.7)';
 
   // Badge
   const badgeColor=maxed?maxHi:started?d:'rgba(92,107,124,0.55)';
