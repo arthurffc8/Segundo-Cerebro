@@ -370,8 +370,8 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-swirl{position:absolute;inset:1.5px;border-radius:50%;z-index:2;pointer-events:none;opacity:var(--sk-swirl-op,.3);background:conic-gradient(from 0deg,transparent 0deg,var(--sk-spark) 34deg,transparent 96deg,transparent 180deg,var(--sk-spark) 214deg,transparent 276deg);-webkit-mask:radial-gradient(circle closest-side,transparent 56%,#000 68%,#000 100%);mask:radial-gradient(circle closest-side,transparent 56%,#000 68%,#000 100%);animation:sk-spin var(--sk-swirl-dur,16s) linear infinite;}
 .skill-node:hover .sk-swirl{opacity:.75;animation-duration:4s;}
 /* ── FORMA FINAL: coroa centralizada no topo do orbe ── */
-.sk-maxcrown{position:absolute;left:50%;top:1px;width:30px;height:22px;margin-left:-15px;z-index:6;pointer-events:none;animation:sk-crownfloat 3.4s ease-in-out infinite var(--sk-phase,0s);}
-@keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2.5px) scale(1.08)}}
+.sk-maxcrown{position:absolute;left:50%;top:25px;width:32px;height:23px;margin:-11.5px 0 0 -16px;z-index:6;pointer-events:none;animation:sk-crownfloat 3.4s ease-in-out infinite var(--sk-phase,0s);}
+@keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.07)}}
 /* ── TRAVA: habilidade que ainda depende de outra ── */
 .st-locked .skill-frame{filter:grayscale(.8) brightness(.6);}
 .st-locked:hover .skill-frame{filter:grayscale(.5) brightness(.8);}
@@ -1733,6 +1733,14 @@ function ClassAvatar({cls,locked,size,baseImg,mini}){
 
 // ── APPLY THEME ──────────────────────────────────────────────────────────────
 
+// Retrato da classe atual (Moleque → Lenda), usado como fundo do app
+function classBgImage(st){
+  try{
+    const info=getLevelInfo(calcTotalXP(st||{}));
+    const c=info&&info.cls;
+    return(c&&(c.img||CLASS_IMAGES[c.id]))||(st&&st.classBaseImg)||null;
+  }catch(e){return(st&&st.classBaseImg)||null;}
+}
 function applyTheme(config, st){
   const r=document.documentElement.style;
   const html=document.documentElement;
@@ -1777,8 +1785,10 @@ function applyTheme(config, st){
 
   // Background image + destaque (0 = fundo apagado, 1 = imagem no talo)
   const body=document.body;
-  const bgImg=config.bgImage?BG_IMAGES.find(b=>b.id===config.bgImage):null;
-  const src=bgImg?bgImg.path:(st?.classBaseImg||null);
+  const bgImg=config.bgImage&&config.bgImage!=='none'?BG_IMAGES.find(b=>b.id===config.bgImage):null;
+  // sem imagem escolhida → o fundo do app é o retrato da CLASSE ATUAL (muda ao subir de classe)
+  const clsSrc=config.bgImage==='none'?null:classBgImage(st);
+  const src=bgImg?bgImg.path:clsSrc;
   const bgOp=src?Math.max(0,Math.min(1,config.bgOpacity!=null?config.bgOpacity:DEF_BG_OPACITY)):0;
   if(src){
     // véu da cor do tema por cima da imagem — quanto mais opaco, mais discreto o fundo
@@ -4587,16 +4597,67 @@ function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
 }
 
 
-// Coroa da forma final — substitui a estrelinha antiga, centralizada no orbe
-function CrownIcon({color,deep}){
-  const hi=_mix(color,'#FFFFFF',0.5);
-  return<svg viewBox="0 0 30 22"style={{width:'100%',height:'100%',display:'block',filter:`drop-shadow(0 0 5px ${_rgba(color,0.75)})`}}>
-    <path d="M3 17 L1.6 5.2 L8.4 10.6 L15 2.4 L21.6 10.6 L28.4 5.2 L27 17 Z"fill={color}stroke={hi}strokeWidth="1"strokeLinejoin="round"/>
-    <rect x="3.2"y="16.6"width="23.6"height="3.6"rx="1.6"fill={_mix(color,'#FFFFFF',0.28)}stroke={hi}strokeWidth="0.6"/>
-    <circle cx="1.9"cy="4.4"r="1.9"fill={_mix(color,'#FFFFFF',0.7)}/>
-    <circle cx="28.1"cy="4.4"r="1.9"fill={_mix(color,'#FFFFFF',0.7)}/>
-    <circle cx="15"cy="2"r="2.2"fill={_mix(color,'#FFFFFF',0.85)}/>
-    <circle cx="15"cy="13.4"r="1.6"fill={_mix(deep||color,'#3B1B08',0.35)}opacity="0.7"/>
+// ── COROAS DA FORMA FINAL ───────────────────────────────────────────────────
+// Cinco desenhos: quanto mais alta a prateleira, mais imponente a coroa.
+// (0 = tiara simples · 4 = coroa imperial)
+const CROWN_SHAPES=[
+  // 0 — Tiara: três pontas baixas
+  (c,hi,gem,band)=><g>
+    <path d="M4 17 L2.6 8.4 L9 12.4 L15 5.6 L21 12.4 L27.4 8.4 L26 17 Z"fill={c}stroke={hi}strokeWidth="0.9"strokeLinejoin="round"/>
+    <rect x="3.8"y="16.4"width="22.4"height="3.4"rx="1.5"fill={band}stroke={hi}strokeWidth="0.6"/>
+    <circle cx="15"cy="5"r="1.7"fill={hi}/>
+  </g>,
+  // 1 — Clássica: pontas altas com joias nas extremidades
+  (c,hi,gem,band)=><g>
+    <path d="M3 17 L1.6 5.2 L8.4 10.6 L15 2.4 L21.6 10.6 L28.4 5.2 L27 17 Z"fill={c}stroke={hi}strokeWidth="1"strokeLinejoin="round"/>
+    <rect x="3.2"y="16.4"width="23.6"height="3.6"rx="1.6"fill={band}stroke={hi}strokeWidth="0.6"/>
+    <circle cx="1.9"cy="4.4"r="1.9"fill={hi}/>
+    <circle cx="28.1"cy="4.4"r="1.9"fill={hi}/>
+    <circle cx="15"cy="2"r="2.2"fill={hi}/>
+    <circle cx="15"cy="13.6"r="1.5"fill={gem}opacity="0.75"/>
+  </g>,
+  // 2 — Cinco pontas: coroa de rei
+  (c,hi,gem,band)=><g>
+    <path d="M2.4 17 L1.1 6.4 L6.4 11 L10.7 4 L15 9.4 L19.3 4 L23.6 11 L28.9 6.4 L27.6 17 Z"fill={c}stroke={hi}strokeWidth="0.9"strokeLinejoin="round"/>
+    <rect x="2.6"y="16.4"width="24.8"height="3.6"rx="1.6"fill={band}stroke={hi}strokeWidth="0.6"/>
+    <circle cx="1.3"cy="5.4"r="1.6"fill={hi}/>
+    <circle cx="28.7"cy="5.4"r="1.6"fill={hi}/>
+    <circle cx="10.7"cy="3.1"r="1.5"fill={hi}/>
+    <circle cx="19.3"cy="3.1"r="1.5"fill={hi}/>
+    <circle cx="8"cy="14"r="1.2"fill={gem}opacity="0.7"/>
+    <circle cx="22"cy="14"r="1.2"fill={gem}opacity="0.7"/>
+  </g>,
+  // 3 — Radiante: coroa de raios
+  (c,hi,gem,band)=><g>
+    {[0,1,2,3,4,5,6].map(i=>{
+      const x=4+i*3.67,h=i===3?9.5:(i===2||i===4?6.4:(i===1||i===5?4.4:3));
+      return<path key={i}d={`M${(x-1.5).toFixed(1)} 16 L${x.toFixed(1)} ${(16-h).toFixed(1)} L${(x+1.5).toFixed(1)} 16 Z`}fill={c}stroke={hi}strokeWidth="0.7"strokeLinejoin="round"/>;
+    })}
+    <rect x="2.4"y="15.2"width="25.2"height="4.4"rx="1.8"fill={band}stroke={hi}strokeWidth="0.7"/>
+    <circle cx="15"cy="17.4"r="1.5"fill={gem}opacity="0.8"/>
+    <circle cx="15"cy="5.2"r="1.5"fill={hi}/>
+  </g>,
+  // 4 — Imperial: arcos fechados com orbe no topo
+  (c,hi,gem,band)=><g>
+    <path d="M4 16 L4 12.6 Q15 3.2 26 12.6 L26 16 Z"fill={c}stroke={hi}strokeWidth="0.9"strokeLinejoin="round"/>
+    <path d="M4 13.6 Q15 6 26 13.6"fill="none"stroke={hi}strokeWidth="0.8"opacity="0.75"/>
+    <path d="M15 5.6 L15 12"stroke={hi}strokeWidth="0.9"/>
+    <rect x="2.6"y="15.4"width="24.8"height="4.2"rx="1.8"fill={band}stroke={hi}strokeWidth="0.7"/>
+    <circle cx="15"cy="4"r="2.3"fill={c}stroke={hi}strokeWidth="0.9"/>
+    <circle cx="15"cy="17.5"r="1.4"fill={gem}opacity="0.8"/>
+    <circle cx="7.5"cy="17.5"r="1.1"fill={gem}opacity="0.6"/>
+    <circle cx="22.5"cy="17.5"r="1.1"fill={gem}opacity="0.6"/>
+  </g>,
+];
+// prateleira 1 → tiara · prateleira 5+ → imperial
+function crownVariant(tier){return Math.max(0,Math.min(CROWN_SHAPES.length-1,(tier||1)-1));}
+function CrownIcon({color,deep,variant}){
+  const hi=_mix(color,'#FFFFFF',0.72);
+  const band=_mix(color,'#FFFFFF',0.28);
+  const gem=_mix(deep||color,'#2A1206',0.45);
+  const v=CROWN_SHAPES[Math.max(0,Math.min(CROWN_SHAPES.length-1,variant||0))];
+  return<svg viewBox="0 0 30 22"style={{width:'100%',height:'100%',display:'block',filter:`drop-shadow(0 0 5px ${_rgba(color,0.8)})`}}>
+    {v(color,hi,gem,band)}
   </svg>;
 }
 
@@ -4746,12 +4807,12 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
       {started&&<div className="sk-gloss"/>}
       <div className="skill-ring"style={{background:'transparent',padding:0}}>
         <div className="skill-core">
-          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s'}}>{skill.emoji}</span>}
+          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s',transform:maxed?'translateY(12px) scale(.88)':'none'}}>{skill.emoji}</span>}
         </div>
       </div>
     </div>
     {/* Selo de dominada: coroa centralizada no topo do orbe */}
-    {maxed&&<div className="sk-maxcrown"style={{'--sk-phase':skVars['--sk-phase']}}><CrownIcon color={maxHi}deep={s}/></div>}
+    {maxed&&<div className="sk-maxcrown"style={{'--sk-phase':skVars['--sk-phase']}}><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
     {/* Cadeado: ainda depende de outra habilidade */}
     {locked&&<div className="sk-lock">🔒</div>}
     {/* Badge */}
@@ -4938,16 +4999,51 @@ function TreeFormModal({open,onClose,onSave,onDelete,init}){
   const[f,setF]=useState(init||blank);
   useEffect(()=>{setF(init||blank);},[open]);
   function save(){if(!f.nome.trim())return;onSave({...f,cor:f.destaque});onClose();}
+  // degradê: destaque (luz) + profundidade (sombra). A rampa dos níveis sai daí.
+  const dst=f.destaque||SKILL_GOLD, sec=f.secundaria||dst;
+  const ramp=skillLightRamp({d:dst,s:sec}).slice().reverse();   // nível 1 → máximo
+  const setPal=(a,b)=>setF(p=>({...p,destaque:a,secundaria:b,cor:a}));
+  const isPreset=SKILL_PALETTE_PRESETS.some(pp=>pp.d===dst&&pp.s===sec);
+  const colorField=(label,val,on)=>(
+    <label style={{display:'flex',alignItems:'center',gap:7,padding:'5px 9px',borderRadius:8,background:'var(--card2)',border:'1px solid var(--bd2)',cursor:'pointer'}}>
+      <input type="color"value={val}onChange={e=>on(e.target.value)}style={{width:26,height:26,padding:0,border:'none',background:'none',cursor:'pointer',flexShrink:0}}/>
+      <span style={{fontSize:'.72rem',color:'var(--tx2)'}}>{label}</span>
+      <span style={{fontFamily:'var(--fm)',fontSize:'.64rem',color:'var(--tx3)'}}>{String(val).toUpperCase()}</span>
+    </label>
+  );
   return<Modal open={open}onClose={onClose}title={init?'Editar Área':'Nova Área'}>
     <div className="g2c">
       <Fld label="Emoji"><input value={f.emoji}onChange={e=>setF(p=>({...p,emoji:e.target.value}))}maxLength={4}/></Fld>
       <Fld label="Nome"><input value={f.nome}onChange={e=>setF(p=>({...p,nome:e.target.value}))}placeholder="Ex: Violão"/></Fld>
     </div>
-    <Fld label="Paleta da árvore">
-      <div className="fc g8 mt4"style={{flexWrap:'wrap'}}>
+    <Fld label="Degradê da área">
+      {/* prévia ao vivo: orbe, nome e a rampa de luz que os níveis vão percorrer */}
+      <div style={{display:'flex',alignItems:'center',gap:14,padding:'12px 12px',borderRadius:10,marginTop:4,marginBottom:12,background:`linear-gradient(135deg, ${_rgba(sec,.18)}, rgba(0,0,0,.28))`,border:`1px solid ${_rgba(dst,.35)}`}}>
+        <div style={{width:62,height:62,borderRadius:'50%',flexShrink:0,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.4rem',background:`radial-gradient(circle closest-side, ${_mix(dst,'#FFFFFF',.55)} 0%, ${dst} 52%, ${_mix(sec,'#05070D',.28)} 100%)`,border:`1.5px solid ${_mix(dst,'#FFFFFF',.45)}`,boxShadow:`0 0 20px ${_rgba(dst,.6)}`}}>{f.emoji}</div>
+        <div style={{flex:1,minWidth:0}}>
+          <div style={{fontFamily:'var(--serif)',fontWeight:700,letterSpacing:'.05em',fontSize:'.95rem',color:dst,textShadow:`0 0 12px ${_rgba(dst,.5)}`,marginBottom:7,whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{f.nome||'Nome da área'}</div>
+          <div style={{height:10,borderRadius:6,background:`linear-gradient(90deg, ${ramp.join(', ')})`,border:'1px solid rgba(255,255,255,.12)'}}/>
+          <div className="fc g4"style={{marginTop:7}}>
+            {ramp.map((c,i)=><div key={i}title={`Nível ${i+1}`}style={{width:16,height:16,borderRadius:'50%',background:`radial-gradient(circle at 34% 30%, ${_mix(c,'#FFFFFF',.4)}, ${c})`,border:`1px solid ${_rgba(dst,.5)}`}}/>)}
+            <span style={{fontSize:'.6rem',color:'var(--tx3)',marginLeft:4}}>nível 1 → máx</span>
+          </div>
+        </div>
+      </div>
+      {/* degradê personalizado: duas cores livres */}
+      <div className="fc g8"style={{flexWrap:'wrap',marginBottom:12}}>
+        {colorField('Destaque',dst,v=>setPal(v,sec))}
+        {colorField('Profundidade',sec,v=>setPal(dst,v))}
+        <button className="btn btn-gh"style={{padding:'7px 10px',fontSize:'.72rem'}}onClick={()=>setPal(sec,dst)}>⇄ inverter</button>
+      </div>
+      {/* degradês prontos */}
+      <div className="fcb"style={{marginBottom:6}}>
+        <span className="st-label">Degradês prontos</span>
+        {!isPreset&&<span style={{fontSize:'.62rem',color:'var(--tx3)'}}>degradê personalizado ativo</span>}
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(34px,1fr))',gap:7}}>
         {SKILL_PALETTE_PRESETS.map(pp=>{
-          const on=f.destaque===pp.d;
-          return<div key={pp.d}onClick={()=>setF(p=>({...p,destaque:pp.d,secundaria:pp.s}))}title={pp.nome}style={{width:30,height:30,borderRadius:'50%',cursor:'pointer',background:`radial-gradient(circle at 50% 35%, ${pp.d}, ${pp.s})`,border:`2px solid ${on?'#FFF1B3':'#2B394C'}`,boxShadow:on?`0 0 10px ${pp.d}`:'none',transform:on?'scale(1.15)':'none',transition:'all .15s'}}/>;
+          const on=dst===pp.d&&sec===pp.s;
+          return<div key={pp.nome}onClick={()=>setPal(pp.d,pp.s)}title={pp.nome}style={{aspectRatio:'1',borderRadius:'50%',cursor:'pointer',background:`radial-gradient(circle at 40% 30%, ${_mix(pp.d,'#FFFFFF',.4)} 0%, ${pp.d} 44%, ${pp.s} 100%)`,border:`2px solid ${on?'#FFF1B3':'transparent'}`,boxShadow:on?`0 0 10px ${pp.d}`:'inset 0 0 7px rgba(0,0,0,.55)',transform:on?'scale(1.14)':'none',transition:'all .15s'}}/>;
         })}
       </div>
     </Fld>
@@ -5594,13 +5690,25 @@ function CfgAparencia({st,setCfg,setSt}){
     <div className="cfg-s">
       <div className="cfg-t">Plano de fundo</div>
       <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
-        Escolha uma imagem de fundo para o app. Use o controle de destaque abaixo para deixá-la mais discreta ou mais presente.
+        Por padrão o app usa o retrato da sua <b>classe atual</b> — ele troca sozinho quando você evolui. Use o controle de destaque abaixo para deixá-lo mais discreto ou mais presente.
       </div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(140px,1fr))',gap:'12px'}}>
+        {/* Classe atual (padrão) */}
+        {(()=>{
+          const isActive=!st.config.bgImage;
+          const cls=getLevelInfo(calcTotalXP(st)).cls;
+          const src=classBgImage(st);
+          return<div style={{position:'relative',cursor:'pointer',borderRadius:8,overflow:'hidden',border:`2px solid ${isActive?'var(--ac)':'var(--bd2)'}`,minHeight:80,background:'var(--card)'}}onClick={()=>setCfg('bgImage',null)}>
+            {src?<img src={src}alt={cls.nome}style={{width:'100%',height:'100%',objectFit:'cover',display:'block',minHeight:80}}/>:<div style={{minHeight:80,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.6rem'}}>🃏</div>}
+            <div style={{position:'absolute',inset:0,background:'linear-gradient(to top, rgba(0,0,0,0.75), transparent)',pointerEvents:'none'}}/>
+            <div style={{position:'absolute',bottom:6,left:8,fontSize:'.72rem',color:'#fff',fontWeight:600,textShadow:'0 1px 3px rgba(0,0,0,0.8)'}}>Classe atual · {cls.nome}</div>
+            {isActive&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
+          </div>;
+        })()}
         {/* None option */}
-        <div style={{position:'relative',cursor:'pointer',borderRadius:8,overflow:'hidden',border:`2px solid ${!st.config.bgImage?'var(--ac)':'var(--bd2)'}`,background:'var(--card)',padding:'20px',textAlign:'center',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center'}}onClick={()=>setCfg('bgImage',null)}>
+        <div style={{position:'relative',cursor:'pointer',borderRadius:8,overflow:'hidden',border:`2px solid ${st.config.bgImage==='none'?'var(--ac)':'var(--bd2)'}`,background:'var(--card)',padding:'20px',textAlign:'center',minHeight:80,display:'flex',alignItems:'center',justifyContent:'center'}}onClick={()=>setCfg('bgImage','none')}>
           <div style={{fontSize:'.85rem',color:'var(--tx2)'}}>Sem imagem</div>
-          {!st.config.bgImage&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
+          {st.config.bgImage==='none'&&<div style={{position:'absolute',top:4,right:4,fontSize:'.6rem',background:'var(--ac)',color:'#000',padding:'2px 6px',borderRadius:4,fontWeight:700}}>ATIVO</div>}
         </div>
         {/* Background image options */}
         {BG_IMAGES.map(bg=>{
@@ -5624,7 +5732,7 @@ function CfgAparencia({st,setCfg,setSt}){
           <span>Discreto</span><span>No talo</span>
         </div>
         <div style={{fontSize:'.75rem',color:'var(--tx3)',marginTop:8,lineHeight:1.5}}>
-          Vale para a imagem escolhida acima e também para a foto do avatar, quando não há imagem selecionada.
+          Vale para a imagem escolhida acima e também para o retrato da classe.
         </div>
       </div>
     </div>
