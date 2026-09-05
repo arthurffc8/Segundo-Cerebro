@@ -361,6 +361,28 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-corona{position:absolute;left:50%;top:35px;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;z-index:0;pointer-events:none;opacity:.55;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 2.5deg,transparent 2.5deg 22.5deg);animation:sk-spin 22s linear infinite;}
 @keyframes sk-spin{to{transform:rotate(360deg)}}
 @keyframes sk-crown{0%,100%{opacity:.28;transform:scale(.96)}50%{opacity:.7;transform:scale(1.06)}}
+/* ── MOVIMENTO POR NÍVEL: cada estágio gira, pulsa e varre mais rápido ── */
+.sk-orbit{animation-duration:var(--sk-orbit-dur,9s);}
+.sk-rays{animation-duration:var(--sk-ray-dur,30s);}
+.sk-orbit i{animation:sk-sat var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
+@keyframes sk-sat{0%,100%{opacity:.5;box-shadow:0 0 4px var(--sk-glow)}50%{opacity:1;box-shadow:0 0 10px var(--sk-glow)}}
+/* varredura: um facho de luz girando por dentro da borda do orbe */
+.sk-swirl{position:absolute;inset:1.5px;border-radius:50%;z-index:2;pointer-events:none;opacity:var(--sk-swirl-op,.3);background:conic-gradient(from 0deg,transparent 0deg,var(--sk-spark) 34deg,transparent 96deg,transparent 180deg,var(--sk-spark) 214deg,transparent 276deg);-webkit-mask:radial-gradient(circle closest-side,transparent 56%,#000 68%,#000 100%);mask:radial-gradient(circle closest-side,transparent 56%,#000 68%,#000 100%);animation:sk-spin var(--sk-swirl-dur,16s) linear infinite;}
+.skill-node:hover .sk-swirl{opacity:.75;animation-duration:4s;}
+/* ── FORMA FINAL: coroa centralizada no topo do orbe ── */
+.sk-maxcrown{position:absolute;left:50%;top:1px;width:30px;height:22px;margin-left:-15px;z-index:6;pointer-events:none;animation:sk-crownfloat 3.4s ease-in-out infinite var(--sk-phase,0s);}
+@keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2.5px) scale(1.08)}}
+/* ── TRAVA: habilidade que ainda depende de outra ── */
+.st-locked .skill-frame{filter:grayscale(.8) brightness(.6);}
+.st-locked:hover .skill-frame{filter:grayscale(.5) brightness(.8);}
+.sk-lock{position:absolute;left:50%;top:35px;transform:translate(-50%,-50%);z-index:6;font-size:.95rem;opacity:.85;pointer-events:none;text-shadow:0 1px 4px #000;}
+/* ── PRATELEIRAS (tiers): separação discreta entre as fileiras ── */
+.st-shelf{position:relative;border-radius:9px;padding:11px 4px 7px;}
+.st-shelf+.st-shelf{margin-top:2px;border-top:1px dashed var(--shelf-line,rgba(159,179,200,.16));}
+.st-shelf-tag{position:absolute;left:8px;top:1px;font-family:var(--serif);font-size:.5rem;font-weight:700;letter-spacing:.13em;opacity:.55;pointer-events:none;user-select:none;white-space:nowrap;}
+.st-shelf-row{display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
+.st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
+.st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 /* ── VIDA: o orbe respira. Batida mais rápida e forte conforme o nível sobe ── */
 @keyframes sk-breathe{0%,100%{transform:translate(-50%,-50%) scale(1);filter:brightness(1) saturate(1)}50%{transform:translate(-50%,-50%) scale(1.05);filter:brightness(var(--sk-beat-hi,1.2)) saturate(1.12)}}
 @keyframes sk-glossbeat{0%,100%{opacity:calc(var(--sk-gloss-op,.7) * .8)}50%{opacity:var(--sk-gloss-op,.7)}}
@@ -378,7 +400,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-node:hover .sk-corona{opacity:.9;animation-duration:7s;}
 .sk-light{transition:width .4s ease,height .4s ease,box-shadow .3s ease;}
 .sk-rays,.sk-corona{transition:opacity .25s ease;}
-@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
+@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona,.sk-swirl,.sk-maxcrown,.sk-orbit i,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 /* responsive */
@@ -1613,7 +1635,18 @@ function getMonthScores(st,year,month){
 
 // ── RPG — CLASSES, NÍVEIS E XP (movido pela Skill Tree) ──────────────────────
 
-const XP_PER_SKILL_LEVEL=50; // cada nível de habilidade na Skill Tree vale isso
+const XP_PER_SKILL_LEVEL=50; // nível 1 de uma habilidade da PRATELEIRA 1
+const XP_TIER_STEP=10;       // cada prateleira acima vale +10 XP por nível
+const XP_LEVEL_STEP=5;       // cada nível acima vale +5 XP que o anterior
+// XP de UM nível n (1..max) numa habilidade da prateleira t:
+//   prateleira 1 → 50, 55, 60...  ·  prateleira 2 → 60, 65, 70...
+function skillLevelXP(tier,n){return XP_PER_SKILL_LEVEL+(Math.max(1,tier||1)-1)*XP_TIER_STEP+(Math.max(1,n||1)-1)*XP_LEVEL_STEP;}
+// XP acumulado por uma habilidade no nível atual (soma de todos os níveis subidos)
+function skillTotalXP(s){
+  const lv=Math.min(s.nivel||0,s.maxNivel||1),t=Math.max(1,s.tier||1);
+  let x=0;for(let n=1;n<=lv;n++)x+=skillLevelXP(t,n);
+  return x;
+}
 // XP é EXCLUSIVAMENTE da Skill Tree (que já é o resultado das tarefas e hábitos)
 // 100 níveis — curva crescente gerada automaticamente
 const LEVEL_XP=(()=>{const a=[0];let x=0;for(let n=1;n<100;n++){x+=60+8*(n-1);a.push(x);}return a;})();
@@ -1638,7 +1671,11 @@ function calcSkillLevels(st){
   ((st.skilltree&&st.skilltree.trees)||[]).forEach(t=>(t.skills||[]).forEach(s=>{n+=Math.min(s.nivel||0,s.maxNivel||1);}));
   return n;
 }
-function calcSkillXP(st){return calcSkillLevels(st)*XP_PER_SKILL_LEVEL;}
+function calcSkillXP(st){
+  let x=0;
+  ((st.skilltree&&st.skilltree.trees)||[]).forEach(t=>(t.skills||[]).forEach(s=>{x+=skillTotalXP(s);}));
+  return x;
+}
 function calcTotalXP(st){return calcSkillXP(st);}
 function classForLevel(lvl){let c=CLASSES[0];for(const x of CLASSES){if(lvl>=x.minLevel)c=x;}return c;}
 function getLevelInfo(xp){
@@ -2120,7 +2157,7 @@ function MissaoSection({st,setSt}){
 
     {/* ── AURA DA CLASSE (cresce até a próxima classe) ── */}
     <div style={{fontFamily:'var(--serif)',fontWeight:700,fontSize:'.82rem',letterSpacing:'.1em',textTransform:'uppercase',color:'var(--tx2)',marginBottom:4}}>🔮 Aura da Classe</div>
-    <div style={{fontSize:'.7rem',color:'var(--tx3)',marginBottom:2,lineHeight:1.45}}>Sua aura cresce conforme você se aproxima da próxima classe. Suba habilidades na <b style={{color:'var(--tx2)'}}>Skill Tree</b> (+{XP_PER_SKILL_LEVEL} XP por nível) — é a <b style={{color:'var(--tx2)'}}>única fonte de XP</b>.</div>
+    <div style={{fontSize:'.7rem',color:'var(--tx3)',marginBottom:2,lineHeight:1.45}}>Sua aura cresce conforme você se aproxima da próxima classe. Suba habilidades na <b style={{color:'var(--tx2)'}}>Skill Tree</b> (a partir de +{XP_PER_SKILL_LEVEL} XP por nível — prateleiras e níveis mais altos valem mais) — é a <b style={{color:'var(--tx2)'}}>única fonte de XP</b>.</div>
 
     <div className="ms-aura-wrap">
       <div className="ms-aura-stage">
@@ -4550,7 +4587,46 @@ function SkillRitual({skill,tree,newLevel,onClose,onGoReel}){
 }
 
 
-function SkillNode({skill,pal,selected,stl,onClick,practiced}){
+// Coroa da forma final — substitui a estrelinha antiga, centralizada no orbe
+function CrownIcon({color,deep}){
+  const hi=_mix(color,'#FFFFFF',0.5);
+  return<svg viewBox="0 0 30 22"style={{width:'100%',height:'100%',display:'block',filter:`drop-shadow(0 0 5px ${_rgba(color,0.75)})`}}>
+    <path d="M3 17 L1.6 5.2 L8.4 10.6 L15 2.4 L21.6 10.6 L28.4 5.2 L27 17 Z"fill={color}stroke={hi}strokeWidth="1"strokeLinejoin="round"/>
+    <rect x="3.2"y="16.6"width="23.6"height="3.6"rx="1.6"fill={_mix(color,'#FFFFFF',0.28)}stroke={hi}strokeWidth="0.6"/>
+    <circle cx="1.9"cy="4.4"r="1.9"fill={_mix(color,'#FFFFFF',0.7)}/>
+    <circle cx="28.1"cy="4.4"r="1.9"fill={_mix(color,'#FFFFFF',0.7)}/>
+    <circle cx="15"cy="2"r="2.2"fill={_mix(color,'#FFFFFF',0.85)}/>
+    <circle cx="15"cy="13.4"r="1.6"fill={_mix(deep||color,'#3B1B08',0.35)}opacity="0.7"/>
+  </svg>;
+}
+
+// ── REQUISITOS: uma habilidade pode depender de níveis de outras ────────────
+// skill.reqs = [{id:'<id da outra skill>', lv:<nível mínimo>}]
+function skillReqs(s){return Array.isArray(s&&s.reqs)?s.reqs.filter(r=>r&&r.id):[];}
+// null = liberada · {missing:[{skill,need}]} = ainda travada
+function skillLock(skill,tree){
+  const reqs=skillReqs(skill);
+  if(!reqs.length)return null;
+  const list=(tree&&tree.skills)||[];
+  const missing=[];
+  reqs.forEach(r=>{
+    const src=list.find(x=>x.id===r.id);
+    if(!src)return;                        // requisito apagado → ignora
+    const need=Math.max(1,Math.min(src.maxNivel||1,r.lv||1));
+    if((src.nivel||0)<need)missing.push({skill:src,need});
+  });
+  return missing.length?{missing}:null;
+}
+function skillReqLabel(items){return items.map(m=>`${m.skill.nome} nv ${m.need}`).join(' · ');}
+function skillReqListLabel(skill,tree){
+  const list=(tree&&tree.skills)||[];
+  return skillReqs(skill).map(r=>{
+    const src=list.find(x=>x.id===r.id);
+    return src?`${src.nome} nv ${Math.max(1,Math.min(src.maxNivel||1,r.lv||1))}`:null;
+  }).filter(Boolean).join(' · ');
+}
+
+function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const started=lv>0;
@@ -4560,6 +4636,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   const nk=stl&&typeof stl.neon==='number'?stl.neon:1;   // slider "Borda neon"
   const hideEmoji=!!(stl&&stl.semEmoji);                  // toggle "Sem emojis" — foco no nome
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
+  const locked=!!lock;                                   // depende de outra habilidade
 
   // ── ESTÁGIOS DE IGNIÇÃO ──
   // A luz nasce no centro e cresce nível a nível (raio = nível ÷ máximo), mas cada
@@ -4595,7 +4672,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
 
   const halo=started?`0 0 ${Math.round((7+levelRatio*20)*gk)}px ${_rgba(glowTone,Math.min(0.85,(0.14+levelRatio*0.4)*gk).toFixed(2))}`:null;
   const maxHalo=maxed?`0 0 ${Math.round(34*gk)}px ${_rgba(maxHi,Math.min(0.6,0.3*gk).toFixed(2))}`:null;
-  const stateHalo=selected?`0 0 14px ${_rgba(d,0.55)}`:focus?`0 0 10px ${_rgba(d,0.4)}`:null;
+  const stateHalo=selected?`0 0 14px ${_rgba(d,0.55)}`:null;
   const frameShadow=[stateHalo,maxHalo,halo].filter(Boolean).join(', ')||'none';
 
   // Emoji: grayscale → colorido conforme a luz cresce
@@ -4605,7 +4682,6 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   // Frame: a borda do círculo acende junto com a luz
   const frameBorder=maxed?maxHi
     :selected?_rgba(d,0.95)
-    :focus?_rgba(d,0.8)
     :started?_rgba(d,Math.min(1,(0.22+levelRatio*0.6)*(0.4+nk*0.6)).toFixed(2))
     :'rgba(51,69,91,0.4)';
 
@@ -4623,6 +4699,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
     '--sk-beat-hi':(1.12+tone*0.18).toFixed(2),
     '--sk-phase':(-(_hash(skill.id)%100)/100*4).toFixed(2)+'s',  // dessincroniza os nós
     '--sk-gloss-op':(0.42+levelRatio*0.4).toFixed(2),
+    // movimento: órbita, raios e varredura aceleram a cada nível
+    '--sk-orbit-dur':(11-tone*6.5).toFixed(1)+'s',
+    '--sk-ray-dur':(34-tone*20).toFixed(1)+'s',
+    '--sk-swirl-dur':(17-tone*11).toFixed(1)+'s',
+    '--sk-swirl-op':(0.16+tone*0.3).toFixed(2),
   };
 
   // Pips: bolinhas abaixo do badge indicando nível (como estrelas)
@@ -4635,7 +4716,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   // um halo na cor do tema conforme sobe de nível
   const nameColor=maxed?maxHi
     :started?_rgba(d,Math.min(1,0.66+levelRatio*0.34).toFixed(2))
-    :focus?d:'rgba(126,142,160,0.8)';
+    :'rgba(126,142,160,0.8)';
   const nameGlow=started
     ?`0 1px 3px rgba(0,0,0,.85), 0 0 ${Math.round(6+levelRatio*9)}px ${_rgba(maxed?maxHi:d,(0.2+levelRatio*0.32).toFixed(2))}`
     :'0 1px 3px rgba(0,0,0,.85)';
@@ -4647,7 +4728,9 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   // Hint
   const nextHint=maxed?'Já dominada. Mantém afiado e ensina.':(skill.levels&&skill.levels[lv+1])||null;
 
-  return<div className={"skill-node"+(alive?" sk-live":"")}onClick={onClick}style={{position:'relative'}}>
+  const lockText=locked?skillReqLabel(lock.missing):'';
+
+  return<div className={"skill-node"+(alive?" sk-live":"")+(locked?" st-locked":"")}onClick={onClick}style={{position:'relative'}}>
     {/* Forma final: corona de raios e coroa pulsante em volta do disco cheio */}
     {maxed&&<div className="sk-corona"style={{'--sk-hot':maxHi}}/>}
     {maxed&&<div className="sk-crown"style={{'--sk-hot':_rgba(maxHi,0.85)}}/>}
@@ -4655,6 +4738,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
     <div className="skill-frame"style={{...skVars,background:well,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .25s,border-color .25s,filter .25s'}}>
       {stage>=4&&!maxed&&<div className="sk-rays"/>}
       {stage>=3&&<div className="sk-aura"/>}
+      {stage>=2&&<div className="sk-swirl"/>}
       {sats>0&&<div className="sk-orbit">
         {Array.from({length:sats},(_,i)=><i key={i}style={{transform:`rotate(${i*360/sats}deg) translateY(${-orbitR}px)`}}/>)}
       </div>}
@@ -4666,8 +4750,10 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
         </div>
       </div>
     </div>
-    {/* Selo de dominada */}
-    {maxed&&<div style={{position:'absolute',top:28,left:'50%',transform:'translate(-50%,-50%)',fontSize:'.7rem',opacity:0.85,zIndex:4,pointerEvents:'none',textShadow:`0 0 6px ${_rgba(maxHi,0.6)}`}}>{d==='#FFF7D1'?'👑':'⭐'}</div>}
+    {/* Selo de dominada: coroa centralizada no topo do orbe */}
+    {maxed&&<div className="sk-maxcrown"style={{'--sk-phase':skVars['--sk-phase']}}><CrownIcon color={maxHi}deep={s}/></div>}
+    {/* Cadeado: ainda depende de outra habilidade */}
+    {locked&&<div className="sk-lock">🔒</div>}
     {/* Badge */}
     <div className="skill-badge"style={{background:'rgba(11,21,34,0.8)',color:badgeColor,border:`1px solid ${badgeBorder}`}}>{lv}/{max}</div>
     {/* Pratica de hoje */}
@@ -4680,7 +4766,9 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
     <div className="skill-name"style={{color:nameColor,textShadow:nameGlow,marginTop:max>1?3:5,...(hideEmoji?{fontSize:'.76rem',maxWidth:80}:null)}}>{skill.nome}</div>
     {/* Hint ao selecionar */}
     {selected&&<div className="st-hint">
-      {nextHint
+      {locked
+        ?<><div className="st-hint-eyebrow">🔒 Travada</div><div className="st-hint-text">Requer {lockText}</div></>
+        :nextHint
         ?<><div className="st-hint-eyebrow">Próximo passo (nv {lv+1})</div><div className="st-hint-text">{nextHint}</div></>
         :<div className="st-hint-empty">{maxed?'✓ Dominada. Hora de ensinar.':'Adicione critérios pra saber o que falta.'}</div>
       }
@@ -4688,11 +4776,13 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced}){
   </div>;
 }
 
-function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoReel}){
+function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoReel,lock}){
   if(!skill)return null;
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const mastery=lv>=max?'✓ Dominado':lv===0?'Não iniciado':'Em progresso';
+  const tier=Math.max(1,skill.tier||1);
+  const reqLabel=skillReqListLabel(skill,tree);
   const sBtn=(en)=>({width:48,height:48,borderRadius:'50%',background:en?cor+'22':'var(--card2)',border:`1px solid ${en?cor+'66':'var(--bd2)'}`,color:en?cor:'var(--tx4)',fontSize:'1.6rem',fontWeight:700,cursor:en?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0});
   // detecta level-up (quando lv aumenta) — dispara ritual
   const prevLvRef=useRef(lv);
@@ -4706,13 +4796,16 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoR
   const streak=useMemo(()=>skillStreak(st,skill.id),[st,skill.id]);
   return<Modal open onClose={onClose}title={`${skill.emoji} ${skill.nome}`}>
     {skill.desc?<p style={{fontSize:'.85rem',color:'var(--tx2)',lineHeight:1.5,marginBottom:14}}>{skill.desc}</p>:null}
+    {lock
+      ?<div className="st-lockbar">🔒 Travada — suba antes: {skillReqLabel(lock.missing)}</div>
+      :reqLabel?<div className="st-reqbar">🔗 Liberada por {reqLabel}</div>:null}
     <div className="fc"style={{justifyContent:'center',gap:24,margin:'4px 0 14px'}}>
       <button style={sBtn(lv>0)}onClick={()=>lv>0&&onLevel(-1)}>−</button>
       <div style={{textAlign:'center',minWidth:84}}>
         <div style={{fontFamily:'var(--fm)',fontSize:'2.3rem',fontWeight:700,color:cor,lineHeight:1}}>{lv}<span style={{color:'var(--tx3)',fontSize:'1.2rem'}}>/{max}</span></div>
         <div style={{fontSize:'.66rem',color:lv>=max?'#22c55e':'var(--tx3)',textTransform:'uppercase',letterSpacing:'.08em',marginTop:4}}>{mastery}</div>
       </div>
-      <button style={sBtn(lv<max)}onClick={()=>lv<max&&onLevel(1)}>+</button>
+      <button style={sBtn(lv<max&&!lock)}onClick={()=>{if(lv<max&&!lock)onLevel(1);}}>+</button>
     </div>
     <div style={{height:7,background:'rgba(255,255,255,.07)',borderRadius:4,overflow:'hidden',marginBottom:10}}>
       <div style={{height:'100%',width:(lv/max*100)+'%',background:lv>=max?'#22c55e':cor,borderRadius:4,transition:'width .3s'}}/>
@@ -4742,7 +4835,10 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoR
           </div>)}
         </div>}
     </div>
-    <div style={{textAlign:'center',fontSize:'.68rem',color:'var(--tx3)',marginTop:12,marginBottom:14}}>⚡ Cada nível vale <b style={{color:cor}}>+{XP_PER_SKILL_LEVEL} XP</b> no seu nível (aba Missão)</div>
+    <div style={{textAlign:'center',fontSize:'.68rem',color:'var(--tx3)',marginTop:12,marginBottom:14,lineHeight:1.6}}>
+      ⚡ Prateleira <b style={{color:cor}}>{roman(tier)}</b> · {lv<max?<>próximo nível vale <b style={{color:cor}}>+{skillLevelXP(tier,lv+1)} XP</b></>:<>habilidade completa</>}
+      {lv>0&&<><br/>Já rendeu <b style={{color:cor}}>{skillTotalXP(skill)} XP</b> no seu nível (aba Missão)</>}
+    </div>
     <Btns>
       <button className="btn btn-gh"onClick={onEdit}>✏️ Editar</button>
       <button className="btn btn-ac"style={{flex:1}}onClick={()=>{onClose();onGoReel&&onGoReel(skill.id);}}>▶ Treinar nos Reels</button>
@@ -4754,16 +4850,22 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoR
   </Modal>;
 }
 
-function SkillFormModal({open,onClose,onSave,init,subcats,maxTier}){
+function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
   const list=subcats||[];
-  const blank={nome:'',emoji:'⭐',maxNivel:3,subcat:list[0]?list[0].id:'',tier:1,desc:''};
+  const blank={nome:'',emoji:'⭐',maxNivel:3,subcat:list[0]?list[0].id:'',tier:1,desc:'',reqs:[]};
   const[f,setF]=useState(init||blank);
   useEffect(()=>{
     const base=init?{...blank,...init}:{...blank};
     if(!base.levels)base.levels=Array.from({length:(base.maxNivel||3)+1},()=>'');
+    base.reqs=(base.reqs||[]).map(r=>({id:r.id,lv:r.lv||1}));
     setF(base);
   },[open]);
-  function save(){if(!f.nome.trim())return;onSave({...f,maxNivel:Math.max(1,Math.min(9,+f.maxNivel||1)),tier:Math.max(1,+f.tier||1),subcat:f.subcat||(list[0]?list[0].id:''),levels:(f.levels||[]).slice(0,Math.max(1,Math.min(9,+f.maxNivel||1))+1)});onClose();}
+  function save(){
+    if(!f.nome.trim())return;
+    const reqs=(f.reqs||[]).filter(r=>r&&r.id&&r.id!==(init&&init.id)).map(r=>({id:r.id,lv:Math.max(1,+r.lv||1)}));
+    onSave({...f,maxNivel:Math.max(1,Math.min(9,+f.maxNivel||1)),tier:Math.max(1,+f.tier||1),subcat:f.subcat||(list[0]?list[0].id:''),levels:(f.levels||[]).slice(0,Math.max(1,Math.min(9,+f.maxNivel||1))+1),reqs});
+    onClose();
+  }
   function handleMaxChange(val){
     const n=Math.max(1,Math.min(9,+val||1));
     setF(p=>{
@@ -4773,6 +4875,11 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier}){
     });
   }
   function setLv(i,v){setF(p=>({...p,levels:(p.levels||[]).map((d,j)=>j===i?v:d)}));}
+  // requisitos: outras habilidades da MESMA árvore que precisam estar num nível mínimo
+  const others=(allSkills||[]).filter(x=>!init||x.id!==init.id);
+  function addReq(){if(!others.length)return;setF(p=>({...p,reqs:[...(p.reqs||[]),{id:others[0].id,lv:1}]}));}
+  function setReq(i,patch){setF(p=>({...p,reqs:(p.reqs||[]).map((r,j)=>j===i?{...r,...patch}:r)}));}
+  function delReq(i){setF(p=>({...p,reqs:(p.reqs||[]).filter((r,j)=>j!==i)}));}
   const tierOpts=[];for(let i=1;i<=(maxTier||1)+1;i++)tierOpts.push(i);
   return<Modal open={open}onClose={onClose}title={init&&init.id?'Editar Habilidade':'Nova Habilidade'}>
     <div className="g2c">
@@ -4787,12 +4894,27 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier}){
       </Fld>
       <Fld label="Prateleira (fileira)">
         <select value={f.tier}onChange={e=>setF(p=>({...p,tier:+e.target.value}))}>
-          {tierOpts.map(i=><option key={i}value={i}>{i===(maxTier||1)+1?`${i} (nova)`:i}</option>)}
+          {tierOpts.map(i=><option key={i}value={i}>{`${i}${i===(maxTier||1)+1?' (nova)':''} · nv1 = ${skillLevelXP(i,1)} XP`}</option>)}
         </select>
       </Fld>
     </div>
     <Fld label="Níveis (máximo)"><input type="number"min={1}max={9}value={f.maxNivel}onChange={e=>handleMaxChange(e.target.value)}/></Fld>
     <Fld label="Descrição (opcional)"><textarea rows={2}value={f.desc}onChange={e=>setF(p=>({...p,desc:e.target.value}))}placeholder="Detalhes, referências, o que dominar..."/></Fld>
+    {others.length>0&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
+      <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>🔗 Requisitos (destravam esta habilidade)</div>
+      {(f.reqs||[]).map((r,i)=>(
+        <div key={i}style={{display:'flex',gap:5,alignItems:'center',marginBottom:4}}>
+          <select value={r.id}onChange={e=>setReq(i,{id:e.target.value})}style={{flex:1,minWidth:0}}>
+            {others.map(o=><option key={o.id}value={o.id}>{o.emoji} {o.nome}</option>)}
+          </select>
+          <span style={{fontSize:'.62rem',color:'var(--tx3)',flexShrink:0}}>nv</span>
+          <input type="number"min={1}max={9}value={r.lv||1}onChange={e=>setReq(i,{lv:+e.target.value})}style={{width:54,flexShrink:0}}/>
+          <button className="btn-ic"style={{color:'#ef4444',flexShrink:0}}onClick={()=>delReq(i)}>×</button>
+        </div>
+      ))}
+      <button className="btn btn-gh"style={{width:'100%',fontSize:'.72rem',padding:'6px'}}onClick={addReq}>＋ adicionar requisito</button>
+      <div style={{fontSize:'.62rem',color:'var(--tx4)',marginTop:5,lineHeight:1.4,textAlign:'center'}}>Enquanto os requisitos não forem cumpridos, esta habilidade fica travada (🔒) e não sobe de nível.</div>
+    </div>}
     {(f.levels||[]).length>0&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
       <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>📏 Critérios por Nível</div>
       <div style={{display:'flex',flexDirection:'column',gap:3,marginBottom:8}}>
@@ -4919,7 +5041,12 @@ function SkillTreeSection({st,setSt,setTab}){
 
   // ── ações ──
   function setLevel(treeId,skillId,delta){
-    setTrees(ts=>ts.map(t=>t.id!==treeId?t:{...t,skills:t.skills.map(s=>s.id!==skillId?s:{...s,nivel:Math.max(0,Math.min(s.maxNivel||1,(s.nivel||0)+delta))})}));
+    setTrees(ts=>ts.map(t=>{
+      if(t.id!==treeId)return t;
+      const cur=t.skills.find(s=>s.id===skillId);
+      if(delta>0&&cur&&skillLock(cur,t))return t;   // requisito não cumprido → não sobe
+      return{...t,skills:t.skills.map(s=>s.id!==skillId?s:{...s,nivel:Math.max(0,Math.min(s.maxNivel||1,(s.nivel||0)+delta))})};
+    }));
   }
   function saveSkill(f){
     if(!tree)return;
@@ -4976,6 +5103,9 @@ function SkillTreeSection({st,setSt,setTab}){
   const COLW=82,nCols=columns.length;
 
   const liveSkill=nodeSel?tree.skills.find(s=>s.id===nodeSel):null;
+  // travas por requisito (recalculadas a cada render — dependem do nível das outras)
+  const locks={};
+  tree.skills.forEach(s=>{const l=skillLock(s,tree);if(l)locks[s.id]=l;});
 
   // Fundo temático da árvore (emoji da área como marca d'água + lavagem na cor predominante)
   const fi=stl.fundoIntensidade;
@@ -5058,9 +5188,11 @@ function SkillTreeSection({st,setSt,setTab}){
             {colMaxTier>1&&col.skills.length>0&&<div style={{position:'absolute',top:40,bottom:40,left:'50%',width:2,transform:'translateX(-50%)',background:`linear-gradient(to bottom, ${pal.d}00,${pal.d}44,${pal.d}44,${pal.d}00)`,zIndex:0,borderRadius:1}}/>}
             {Array.from({length:colMaxTier},(_,i)=>{
               const t=i+1,items=col.byTier[t]||[];
-              const tierHeight=80;
-              return<div key={t}style={{position:'relative',zIndex:1,minHeight:tierHeight,display:'flex',alignItems:'flex-start',justifyContent:'center',gap:10,flexWrap:'wrap',overflowX:'visible',padding:'8px 4px'}}>
-                {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}practiced={practicedToday.has(s.id)}onClick={()=>setNodeSel(s.id)}/>)}
+              return<div key={t}className="st-shelf"style={{zIndex:1,minHeight:80,'--shelf-line':`${pal.d}33`,background:i%2?`linear-gradient(180deg,${pal.d}0d,transparent 78%)`:'transparent'}}>
+                <span className="st-shelf-tag"style={{color:pal.d}}>{roman(t)} · {skillLevelXP(t,1)} XP</span>
+                <div className="st-shelf-row">
+                  {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onClick={()=>setNodeSel(s.id)}/>)}
+                </div>
               </div>;
             })}
             {!isOrphan&&<div style={{position:'relative',zIndex:1,minHeight:42,display:'flex',alignItems:'center',justifyContent:'center',marginTop:'auto',paddingTop:8}}>
@@ -5072,15 +5204,15 @@ function SkillTreeSection({st,setSt,setTab}){
     </div>
     </div>
 
-    <div style={{textAlign:'center',fontFamily:'var(--serif)',fontSize:'.65rem',letterSpacing:'.05em',color:'#44566D',marginTop:12,lineHeight:1.5}}>💡 <strong>Subcategorias</strong> se organizam verticalmente • <strong>Bordas</strong> se adaptam à quantidade de habilidades • <strong>+</strong> adiciona nova habilidade</div>
+    <div style={{textAlign:'center',fontFamily:'var(--serif)',fontSize:'.65rem',letterSpacing:'.05em',color:'#44566D',marginTop:12,lineHeight:1.5}}>💡 <strong>Prateleiras</strong> (I, II, III…) valem mais XP conforme sobem • <strong>🔒</strong> = precisa de outra habilidade antes • <strong>+</strong> adiciona nova habilidade</div>
 
     {/* Modais */}
-    {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}st={st}tree={tree}onGoReel={goReelsFor}
+    {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}st={st}tree={tree}onGoReel={goReelsFor}lock={locks[liveSkill.id]}
       onClose={()=>setNodeSel(null)}
       onLevel={d=>setLevel(tree.id,liveSkill.id,d)}
       onEdit={()=>{setEditSkill(liveSkill);setSkillPreset(null);setNodeSel(null);setSkillModal(true);}}
       onDelete={()=>{delSkill(tree.id,liveSkill.id);setNodeSel(null);}}/>}
-    <SkillFormModal open={skillModal}onClose={()=>{setSkillModal(false);setEditSkill(null);setSkillPreset(null);}}onSave={saveSkill}init={editSkill||skillPreset}subcats={subcats}maxTier={maxTier}/>
+    <SkillFormModal open={skillModal}onClose={()=>{setSkillModal(false);setEditSkill(null);setSkillPreset(null);}}onSave={saveSkill}init={editSkill||skillPreset}subcats={subcats}maxTier={maxTier}allSkills={tree.skills}/>
     <TreeFormModal open={treeModal}onClose={()=>{setTreeModal(false);setEditTree(null);}}onSave={saveTree}onDelete={editTree?()=>delTree(editTree.id):null}init={editTree}/>
   </div>;
 }
