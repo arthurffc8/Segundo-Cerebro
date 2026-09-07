@@ -183,6 +183,63 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* status btn */
 .st-btn { padding:5px 9px; border-radius:5px; font-size:.75rem; font-weight:600; cursor:pointer; transition:all .15s; border: var(--bdw) solid var(--bd2); }
 
+/* ── CALENDÁRIO (visão do mês) ─────────────────────────────────────────── */
+.cal-wrap{background:var(--card);border:var(--bdw) solid var(--bd);border-radius:var(--r);padding:12px 12px 14px;margin-bottom:14px;box-shadow:var(--sh);}
+.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px;}
+.cal-mes{font-family:var(--ft);font-size:1.45rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;line-height:1;}
+.cal-ano{font-family:var(--fm);font-size:.72rem;color:var(--tx3);letter-spacing:.18em;}
+.cal-nav{width:32px;height:32px;border-radius:50%;border:1px solid var(--bd2);background:var(--card2);color:var(--tx2);font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.cal-nav:hover{border-color:var(--ac);color:var(--ac);}
+.cal-resumo{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:10px 0 12px;font-size:.68rem;font-family:var(--fm);color:var(--tx3);}
+.cal-resumo b{color:var(--tx2);font-weight:700;}
+.cal-bar{height:5px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;margin-bottom:12px;}
+.cal-bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ac),color-mix(in srgb,var(--ac) 45%,#fff));transition:width .4s ease;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;}
+.cal-wd{font-family:var(--fm);font-size:.56rem;letter-spacing:.12em;text-transform:uppercase;color:var(--tx4);text-align:center;padding-bottom:4px;}
+.cal-wd.fds{color:color-mix(in srgb,var(--ac) 55%,var(--tx4));}
+.cal-cell{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:3px;padding:6px 2px 5px;border-radius:9px;border:1px solid transparent;background:var(--card2);cursor:pointer;transition:all .15s;min-height:60px;}
+.cal-cell:hover{border-color:var(--bd3);transform:translateY(-1px);}
+.cal-cell.fora{opacity:.32;}
+.cal-cell.fds{background:color-mix(in srgb,var(--card2) 82%,#000);}
+.cal-cell.sel{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac2),0 0 12px color-mix(in srgb,var(--ac) 28%,transparent);}
+.cal-cell.hoje .cal-num{color:var(--ac);font-weight:800;}
+.cal-ring{position:relative;width:34px;height:34px;flex-shrink:0;}
+.cal-ring svg{position:absolute;inset:0;transform:rotate(-90deg);}
+.cal-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.78rem;font-weight:700;color:var(--tx2);}
+.cal-dots{display:flex;gap:2.5px;align-items:center;justify-content:center;min-height:7px;flex-wrap:wrap;}
+.cal-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.cal-more{font-family:var(--fm);font-size:.5rem;color:var(--tx4);line-height:1;}
+.cal-flag{position:absolute;top:4px;right:5px;width:5px;height:5px;border-radius:50%;background:#ef4444;box-shadow:0 0 5px #ef4444;}
+/* painel do dia */
+.cal-day{background:var(--card);border:var(--bdw) solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px;box-shadow:var(--sh);}
+.cal-day-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.cal-day-t{font-family:var(--ft);font-size:1.15rem;letter-spacing:.05em;text-transform:uppercase;line-height:1.1;}
+.cal-day-s{font-size:.68rem;font-family:var(--fm);color:var(--tx3);margin-top:3px;}
+.cal-sec-t{font-size:.6rem;font-family:var(--fm);letter-spacing:.14em;text-transform:uppercase;color:var(--tx4);margin:14px 0 7px;}
+.cal-sec-t:first-child{margin-top:0;}
+.cal-ev{display:flex;gap:10px;align-items:stretch;padding:8px 10px;border-radius:8px;background:var(--card2);border:1px solid var(--bd);border-left:3px solid var(--ac);margin-bottom:6px;cursor:pointer;transition:all .15s;}
+.cal-ev:hover{border-color:var(--bd3);transform:translateX(2px);}
+.cal-ev-time{font-family:var(--fm);font-size:.66rem;font-weight:700;min-width:38px;flex-shrink:0;padding-top:1px;}
+.cal-ev-t{font-size:.83rem;font-weight:600;color:var(--tx);line-height:1.25;word-break:break-word;}
+.cal-ev-m{font-size:.66rem;color:var(--tx3);margin-top:2px;}
+.cal-tk{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border-radius:8px;background:var(--card2);border:1px solid var(--bd);border-left:3px solid var(--bd3);margin-bottom:6px;transition:all .15s;}
+.cal-tk:hover{border-color:var(--bd3);}
+.cal-tk-t{flex:1;font-size:.82rem;font-weight:600;line-height:1.3;color:var(--tx);word-break:break-word;cursor:pointer;}
+.cal-tk.done .cal-tk-t{text-decoration:line-through;color:var(--tx3);}
+.cal-vazio{font-size:.75rem;color:var(--tx4);padding:8px 2px;font-style:italic;}
+.cal-prox{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;}
+.cal-prox::-webkit-scrollbar{display:none;}
+.cal-prox-c{min-width:150px;flex:0 0 150px;padding:9px 11px;border-radius:9px;background:var(--card2);border:1px solid var(--bd);border-top:2px solid var(--ac);cursor:pointer;transition:all .15s;}
+.cal-prox-c:hover{transform:translateY(-2px);border-color:var(--bd3);}
+.cal-prox-d{font-family:var(--fm);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:var(--tx3);margin-bottom:4px;}
+.cal-prox-t{font-size:.8rem;font-weight:600;line-height:1.25;word-break:break-word;}
+@media(max-width:500px){
+  .cal-cell{min-height:54px;padding:5px 1px 4px;}
+  .cal-ring{width:30px;height:30px;}
+  .cal-num{font-size:.7rem;}
+  .cal-mes{font-size:1.2rem;}
+}
+
 /* ── SKILL TREE — radar, ritual, histórico ── */
 
 /* Radar chart */
@@ -1415,6 +1472,7 @@ function makeInit(){
       {id:'t3',title:'Ler 20 páginas',weight:4,date:td,cat:'pessoal',prio:'baixa',done:false,createdAt:td,subtasks:[]},
     ],
     fixedTasks:[],
+    eventos:[],
     taskLists:[
       {id:'tl1',nome:'💡 Ideias',items:[{id:'tli1',text:'Anotar ideias de conteúdo',done:false},{id:'tli2',text:'Estudar edição de vídeo',done:false}]},
       {id:'tl2',nome:'🛒 Comprar',items:[{id:'tli3',text:'Chuteira nova',done:false}]},
@@ -2833,10 +2891,243 @@ function HojeSection({st,setSt}){
 
 // ── TAREFAS ──────────────────────────────────────────────────────────────────
 
+// ── EVENTOS & CALENDÁRIO ────────────────────────────────────────────────────
+// evento = {id,title,date,time,fim,emoji,cor,local,desc}
+const EVENT_COLORS=[
+  {id:'ambar',  nome:'Âmbar',  c:'#F5B942'},
+  {id:'rosa',   nome:'Rosa',   c:'#FF6EB3'},
+  {id:'azul',   nome:'Azul',   c:'#63B6FF'},
+  {id:'verde',  nome:'Verde',  c:'#58D68D'},
+  {id:'violeta',nome:'Violeta',c:'#A569FF'},
+  {id:'coral',  nome:'Coral',  c:'#FF8A5B'},
+  {id:'ciano',  nome:'Ciano',  c:'#5EEAD4'},
+  {id:'rubi',   nome:'Rubi',   c:'#FF6B6B'},
+];
+const MES_NOMES=['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+const WD_CAL=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+const DIA_NOMES=['Domingo','Segunda-feira','Terça-feira','Quarta-feira','Quinta-feira','Sexta-feira','Sábado'];
+const evCor=e=>(EVENT_COLORS.find(c=>c.id===(e&&e.cor))||EVENT_COLORS[0]).c;
+// matriz do mês (semanas de 7 dias) começando na SEGUNDA
+function monthMatrix(yr,mo){
+  const first=new Date(yr,mo-1,1);
+  const off=(first.getDay()===0?6:first.getDay()-1);
+  const start=new Date(yr,mo-1,1-off);
+  const weeks=[];
+  for(let w=0;w<6;w++){
+    const row=[];
+    for(let d=0;d<7;d++){
+      const x=new Date(start);x.setDate(start.getDate()+w*7+d);
+      row.push({ds:localDateStr(x),day:x.getDate(),dow:x.getDay(),inMonth:x.getMonth()===mo-1});
+    }
+    weeks.push(row);
+  }
+  if(weeks[5].every(c=>!c.inMonth))weeks.pop();
+  return weeks;
+}
+
+function EventModal({open,onClose,onSave,onDelete,init}){
+  const blank={title:'',date:TODAY(),time:'',fim:'',emoji:'📌',cor:'ambar',local:'',desc:''};
+  const[f,setF]=useState({...blank});
+  useEffect(()=>{setF({...blank,...(init||{})});},[open]);
+  const isEdit=!!(init&&init.id);
+  function save(){if(!f.title.trim())return;onSave({...f,title:f.title.trim()});onClose();}
+  return<Modal open={open}onClose={onClose}title={isEdit?'Editar Evento':'Novo Evento'}>
+    <div className="g2c">
+      <Fld label="Emoji"><input value={f.emoji}onChange={e=>setF(p=>({...p,emoji:e.target.value}))}maxLength={4}placeholder="📌"/></Fld>
+      <Fld label="Título"><input value={f.title}onChange={e=>setF(p=>({...p,title:e.target.value}))}placeholder="Ex: Pelada no campo do Zé"/></Fld>
+    </div>
+    <Fld label="Data"><input type="date"value={f.date}onChange={e=>setF(p=>({...p,date:e.target.value}))}/></Fld>
+    <div className="g2c">
+      <Fld label="Começa (opcional)"><input type="time"value={f.time||''}onChange={e=>setF(p=>({...p,time:e.target.value}))}/></Fld>
+      <Fld label="Termina (opcional)"><input type="time"value={f.fim||''}onChange={e=>setF(p=>({...p,fim:e.target.value}))}/></Fld>
+    </div>
+    <Fld label="Local (opcional)"><input value={f.local||''}onChange={e=>setF(p=>({...p,local:e.target.value}))}placeholder="Onde vai ser"/></Fld>
+    <Fld label="Cor">
+      <div className="fc g8 mt4"style={{flexWrap:'wrap'}}>
+        {EVENT_COLORS.map(c=>{
+          const on=f.cor===c.id;
+          return<div key={c.id}onClick={()=>setF(p=>({...p,cor:c.id}))}title={c.nome}style={{width:28,height:28,borderRadius:'50%',cursor:'pointer',background:`radial-gradient(circle at 40% 32%, ${_mix(c.c,'#FFFFFF',.38)}, ${c.c})`,border:`2px solid ${on?'#fff':'transparent'}`,boxShadow:on?`0 0 10px ${c.c}`:'inset 0 0 6px rgba(0,0,0,.5)',transform:on?'scale(1.12)':'none',transition:'all .15s'}}/>;
+        })}
+      </div>
+    </Fld>
+    <Fld label="Notas (opcional)"><textarea rows={2}value={f.desc||''}onChange={e=>setF(p=>({...p,desc:e.target.value}))}placeholder="Detalhes, com quem, o que levar..."/></Fld>
+    <Btns style={{justifyContent:'space-between'}}>
+      {isEdit&&onDelete?<button className="btn"style={{background:'rgba(239,68,68,.12)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)'}}onClick={()=>{onDelete();onClose();}}>🗑 Excluir</button>:<span/>}
+      <div className="fc g8">
+        <button className="btn btn-gh"onClick={onClose}>Cancelar</button>
+        <button className="btn btn-ac"onClick={save}>Salvar</button>
+      </div>
+    </Btns>
+  </Modal>;
+}
+
+// Visão do MÊS: cada dia é um anel de progresso das tarefas + pontinhos dos
+// eventos. Abaixo, o dia selecionado abre em detalhe (agenda + tarefas).
+function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spawnVirtual}){
+  const td=TODAY();
+  const[cur,setCur]=useState(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()+1};});
+  const[sel,setSel]=useState(td);
+  const[evModal,setEvModal]=useState(false);
+  const[evEdit,setEvEdit]=useState(null);
+  const[evPreset,setEvPreset]=useState(null);
+  const eventos=st.eventos||[];
+
+  function saveEvento(f){
+    if(evEdit)setSt(p=>({...p,eventos:(p.eventos||[]).map(e=>e.id===evEdit.id?{...e,...f}:e)}));
+    else setSt(p=>({...p,eventos:[...(p.eventos||[]),{...f,id:uid()}]}));
+    setEvEdit(null);setEvPreset(null);
+  }
+  function delEvento(id){setSt(p=>({...p,eventos:(p.eventos||[]).filter(e=>e.id!==id)}));}
+  function novoEvento(ds){setEvEdit(null);setEvPreset({date:ds||sel});setEvModal(true);}
+  function editEvento(e){setEvEdit(e);setEvPreset(null);setEvModal(true);}
+
+  const weeks=useMemo(()=>monthMatrix(cur.y,cur.m),[cur.y,cur.m]);
+  const evByDay=useMemo(()=>{
+    const m={};
+    eventos.forEach(e=>{if(!e.date)return;(m[e.date]=m[e.date]||[]).push(e);});
+    Object.values(m).forEach(a=>a.sort((x,y)=>((x.time||'99:99')<(y.time||'99:99')?-1:1)));
+    return m;
+  },[eventos]);
+  // tarefas do dia (reais + fixas ainda não geradas), sem as âncoras de refeição
+  const stats=ds=>{const it=dayItems(ds).filter(i=>!i.meal);return{tot:it.length,done:it.filter(i=>i.done).length,items:it};};
+
+  const mk=monthKey(cur.y,cur.m);
+  const mesTasks=(st.tasks||[]).filter(t=>t.date&&t.date.startsWith(mk));
+  const mesDone=mesTasks.filter(t=>t.done).length;
+  const mesEv=eventos.filter(e=>e.date&&e.date.startsWith(mk)).length;
+  const pctMes=mesTasks.length?Math.round(mesDone/mesTasks.length*100):0;
+  const noMesAtual=mk===td.slice(0,7);
+
+  function shift(k){setCur(c=>{let m=c.m+k,y=c.y;if(m<1){m=12;y--;}if(m>12){m=1;y++;}return{y,m};});}
+  function irHoje(){const d=new Date();setCur({y:d.getFullYear(),m:d.getMonth()+1});setSel(td);}
+
+  const proximos=useMemo(()=>eventos.filter(e=>e.date&&e.date>=td)
+    .sort((a,b)=>((a.date+(a.time||'99:99'))<(b.date+(b.time||'99:99'))?-1:1)).slice(0,6),[eventos,td]);
+
+  const selD=new Date(sel+'T12:00:00');
+  const selStats=stats(sel);
+  const selEv=evByDay[sel]||[];
+  const R=15,CIRC=2*Math.PI*R;
+
+  return<div>
+    {/* ── grade do mês ── */}
+    <div className="cal-wrap">
+      <div className="cal-head">
+        <button className="cal-nav"onClick={()=>shift(-1)}>‹</button>
+        <div style={{textAlign:'center',flex:1,minWidth:0}}>
+          <div className="cal-mes"style={{color:'var(--ac)'}}>{MES_NOMES[cur.m-1]}</div>
+          <div className="cal-ano">{cur.y}</div>
+        </div>
+        <button className="cal-nav"onClick={()=>shift(1)}>›</button>
+      </div>
+      <div className="cal-resumo">
+        <span>📌 <b>{mesEv}</b> eventos</span>
+        <span>✅ <b>{mesDone}/{mesTasks.length}</b> tarefas</span>
+        <span style={{marginLeft:'auto'}}>
+          {!noMesAtual&&<button className="btn btn-gh"style={{padding:'3px 10px',fontSize:'.68rem'}}onClick={irHoje}>Hoje</button>}
+        </span>
+      </div>
+      <div className="cal-bar"><i style={{width:pctMes+'%'}}/></div>
+      <div className="cal-grid">
+        {WD_CAL.map((w,i)=><div key={w}className={"cal-wd"+(i>=5?' fds':'')}>{w}</div>)}
+        {weeks.map(row=>row.map(c=>{
+          const s2=stats(c.ds);
+          const evs=evByDay[c.ds]||[];
+          const cheio=s2.tot>0&&s2.done>=s2.tot;
+          const atrasado=c.ds<td&&s2.tot>0&&s2.done<s2.tot;
+          const pct=s2.tot?s2.done/s2.tot:0;
+          const ring=cheio?'#22c55e':'var(--ac)';
+          const cls="cal-cell"+(c.inMonth?'':' fora')+(c.dow===0||c.dow===6?' fds':'')+(c.ds===sel?' sel':'')+(c.ds===td?' hoje':'');
+          return<div key={c.ds}className={cls}onClick={()=>setSel(c.ds)}onDoubleClick={()=>novoEvento(c.ds)}>
+            {atrasado&&<span className="cal-flag"/>}
+            <div className="cal-ring">
+              <svg viewBox="0 0 34 34">
+                <circle cx="17"cy="17"r={R}fill="none"stroke={s2.tot>0?'rgba(255,255,255,.16)':'rgba(255,255,255,.055)'}strokeWidth="2.6"/>
+                {s2.done>0&&<circle cx="17"cy="17"r={R}fill="none"stroke={ring}strokeWidth="2.6"strokeLinecap="round"strokeDasharray={`${(pct*CIRC).toFixed(1)} ${CIRC.toFixed(1)}`}style={{transition:'stroke-dasharray .4s ease'}}/>}
+              </svg>
+              <span className="cal-num">{c.day}</span>
+            </div>
+            <div className="cal-dots">
+              {evs.slice(0,4).map(e=><span key={e.id}className="cal-dot"style={{background:evCor(e),boxShadow:`0 0 4px ${evCor(e)}`}}/>)}
+              {evs.length>4&&<span className="cal-more">+{evs.length-4}</span>}
+            </div>
+          </div>;
+        }))}
+      </div>
+    </div>
+
+    {/* ── dia selecionado ── */}
+    <div className="cal-day">
+      <div className="cal-day-h">
+        <div style={{minWidth:0}}>
+          <div className="cal-day-t"style={{color:sel===td?'var(--ac)':'var(--tx)'}}>{selD.getDate()} de {MES_NOMES[selD.getMonth()]}{sel===td?' · hoje':''}</div>
+          <div className="cal-day-s">{DIA_NOMES[selD.getDay()]} · {selEv.length} evento{selEv.length===1?'':'s'} · {selStats.done}/{selStats.tot} tarefas</div>
+        </div>
+        <div className="fc g6"style={{flexShrink:0}}>
+          <button className="btn btn-gh"style={{padding:'5px 11px',fontSize:'.74rem'}}onClick={()=>novoEvento(sel)}>+ Evento</button>
+          <button className="btn btn-ac"style={{padding:'5px 11px',fontSize:'.74rem'}}onClick={()=>onNewTask({date:sel})}>+ Tarefa</button>
+        </div>
+      </div>
+
+      <div className="cal-sec-t">📌 Eventos</div>
+      {selEv.length===0
+        ?<div className="cal-vazio">Nada marcado nesse dia.</div>
+        :selEv.map(e=>{
+          const cor=evCor(e);
+          return<div key={e.id}className="cal-ev"style={{borderLeftColor:cor}}onClick={()=>editEvento(e)}>
+            <div className="cal-ev-time"style={{color:cor}}>{e.time||'dia'}</div>
+            <div style={{flex:1,minWidth:0}}>
+              <div className="cal-ev-t">{e.emoji||'📌'} {e.title}</div>
+              {(e.fim||e.local||e.desc)&&<div className="cal-ev-m">
+                {e.fim?`até ${e.fim}`:''}{e.fim&&e.local?' · ':''}{e.local||''}
+                {(e.fim||e.local)&&e.desc?' · ':''}{e.desc||''}
+              </div>}
+            </div>
+          </div>;
+        })}
+
+      <div className="cal-sec-t">✅ Tarefas</div>
+      {selStats.items.length===0
+        ?<div className="cal-vazio">Nenhuma tarefa nesse dia.</div>
+        :selStats.items.map(t=>{
+          const pc={alta:'#ef4444',media:'#eab308',baixa:'#22c55e'}[t.prio]||'var(--bd3)';
+          const isV=!!t.virtualFixed;
+          const doTog=()=>{if(isV){const sp=spawnVirtual(t.fixedId,sel);if(sp)onToggleTask(sp.id);}else onToggleTask(t.id);};
+          const doEdit=()=>{if(isV){const sp=spawnVirtual(t.fixedId,sel);if(sp)onEditTask(sp);}else onEditTask(t);};
+          return<div key={t.id}className={"cal-tk"+(t.done?' done':'')}style={{borderLeftColor:pc,opacity:t.done?.6:1}}>
+            <Chk on={!!t.done}onChange={doTog}/>
+            <div className="cal-tk-t"onClick={doEdit}>{t.title}</div>
+            {t.time&&<span style={{fontFamily:'var(--fm)',fontSize:'.64rem',color:'var(--tx3)',flexShrink:0,paddingTop:2}}>{t.time}</span>}
+            {t.fixedId&&<span className="tsk-fixed"style={{flexShrink:0}}>fixa</span>}
+          </div>;
+        })}
+    </div>
+
+    {/* ── próximos eventos ── */}
+    {proximos.length>0&&<div style={{marginBottom:6}}>
+      <div className="cal-sec-t"style={{marginTop:0}}>⏭ Próximos</div>
+      <div className="cal-prox">
+        {proximos.map(e=>{
+          const cor=evCor(e);
+          const d=new Date(e.date+'T12:00:00');
+          const dias=Math.round((d-new Date(td+'T12:00:00'))/86400000);
+          return<div key={e.id}className="cal-prox-c"style={{borderTopColor:cor}}onClick={()=>{setCur({y:d.getFullYear(),m:d.getMonth()+1});setSel(e.date);}}>
+            <div className="cal-prox-d"style={{color:cor}}>{dias===0?'hoje':dias===1?'amanhã':`em ${dias} dias`}{e.time?` · ${e.time}`:''}</div>
+            <div className="cal-prox-t">{e.emoji||'📌'} {e.title}</div>
+            <div style={{fontSize:'.62rem',color:'var(--tx4)',marginTop:3,fontFamily:'var(--fm)'}}>{d.getDate()}/{d.getMonth()+1}</div>
+          </div>;
+        })}
+      </div>
+    </div>}
+
+    <EventModal open={evModal}onClose={()=>{setEvModal(false);setEvEdit(null);setEvPreset(null);}}onSave={saveEvento}onDelete={evEdit?()=>delEvento(evEdit.id):null}init={evEdit||evPreset}/>
+  </div>;
+}
+
 function TarefasSection({st,setSt}){
   const td=TODAY();
   const po={alta:0,media:1,baixa:2};
-  const[view,setView]=useState('lista');
+  const[view,setView]=useState('mes');
   const[modal,setModal]=useState(false);
   const[edit,setEdit]=useState(null);
   const[preset,setPreset]=useState(null);
@@ -2952,18 +3243,23 @@ function TarefasSection({st,setSt}){
 
   return<div className="sec">
     <div className="sch">
-      <div className="sch-t">Tarefas</div>
-      {view==='lista'
+      <div className="sch-t">{view==='mes'?'Agenda':'Tarefas'}</div>
+      {view==='mes'
+        ?null
+        :view==='lista'
         ?<button className="btn btn-ac"onClick={addList}>+ Nova Lista</button>
         :view==='quadro'
         ?<button className="btn btn-ac"onClick={()=>openNew({date:td})}>+ Nova Tarefa</button>
         :<button className="btn btn-ac"onClick={()=>{setEditFixed(null);setModal(true);}}>+ Tarefa Fixa</button>}
     </div>
     <div className="stabs mb14">
+      <button className={`stab${view==='mes'?' on':''}`}onClick={()=>setView('mes')}>📅 Mês</button>
+      <button className={`stab${view==='quadro'?' on':''}`}onClick={()=>setView('quadro')}>🗓 Semana</button>
       <button className={`stab${view==='lista'?' on':''}`}onClick={()=>setView('lista')}>📋 Listas</button>
-      <button className={`stab${view==='quadro'?' on':''}`}onClick={()=>setView('quadro')}>🗓 Quadro Semanal</button>
       <button className={`stab${view==='fixos'?' on':''}`}onClick={()=>setView('fixos')}>🔁 Fixas</button>
     </div>
+
+    {view==='mes'&&<CalendarioView st={st}setSt={setSt}dayItems={dayItems}onNewTask={openNew}onEditTask={openEdit}onToggleTask={tog}spawnVirtual={spawnVirtual}/>}
 
     {view==='lista'&&<div>
       {lists.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'30px 0',textAlign:'center'}}>
