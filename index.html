@@ -4,13 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
 <title>Segundo Cérebro</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👑</text></svg>">
+<link rel="icon" href="icons/favicon-64.png" sizes="64x64" type="image/png">
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#FF6B00">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="2°Cérebro">
-<link rel="apple-touch-icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<script>
+// Captura o convite de instalação antes do React montar (o evento dispara cedo).
+window.scDeferredInstall=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();window.scDeferredInstall=e;window.dispatchEvent(new Event('sc-installable'));});
+window.addEventListener('appinstalled',function(){window.scDeferredInstall=null;window.dispatchEvent(new Event('sc-installed'));});
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cinzel:wght@500;700;900&family=DM+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;900&family=Press+Start+2P&family=Space+Grotesk:wght@300;700&family=Unbounded:wght@400;900&family=VT323&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -1475,6 +1481,14 @@ function makeInit(){
       accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
       tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,bgOpacity:DEF_BG_OPACITY,
+    },
+    notif:{
+      on:false,
+      manha:{on:true,hora:'07:30'},
+      noite:{on:true,hora:'21:00'},
+      tarefas:{on:true},
+      eventos:{on:true,lead:15},
+      fired:{},
     },
     categories:DEF_CATS,
     tasks:[
@@ -5957,7 +5971,7 @@ function CfgIA(){
 
 function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
   const[sub,setSub]=useState('aparencia');
-  const subs=[{k:'aparencia',l:'🎨 Aparência'},{k:'ia',l:'🤖 IA'},{k:'sync',l:'☁️ Sync'},{k:'navbar',l:'🗂 Navbar'},{k:'score',l:'🏅 Score'},{k:'cats',l:'🏷 Categorias'},{k:'dados',l:'💾 Dados'},{k:'perfil',l:'👤 Perfil'}];
+  const subs=[{k:'aparencia',l:'🎨 Aparência'},{k:'ia',l:'🤖 IA'},{k:'notif',l:'🔔 Alertas'},{k:'sync',l:'☁️ Sync'},{k:'navbar',l:'🗂 Navbar'},{k:'score',l:'🏅 Score'},{k:'cats',l:'🏷 Categorias'},{k:'dados',l:'💾 Dados'},{k:'perfil',l:'👤 Perfil'}];
   function setCfg(f,v){setSt(p=>({...p,config:{...p.config,[f]:v}}));}
 
   return<div className="sec">
@@ -5966,6 +5980,7 @@ function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
     </div>
     {sub==='aparencia'&&<CfgAparencia st={st}setSt={setSt}setCfg={setCfg}/>}
     {sub==='ia'&&<CfgIA/>}
+    {sub==='notif'&&<CfgNotif st={st}setSt={setSt}/>}
     {sub==='sync'&&<CfgSync st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={onManualSync}/>}
     {sub==='navbar'&&<CfgNavbar st={st}setSt={setSt}/>}
     {sub==='score'&&<CfgScore st={st}setCfg={setCfg}/>}
@@ -6250,6 +6265,157 @@ function CfgDados({st,setSt}){
     <div className="cfg-s">
       <div className="cfg-t">Zona de perigo</div>
       <button className="btn-er"onClick={reset}>🗑 Resetar app</button>
+    </div>
+  </div>;
+}
+
+
+function CfgNotif({st,setSt}){
+  const c=notifCfg(st);
+  const[perm,setPerm]=useState(notifPerm());
+  const[installable,setInstallable]=useState(!!window.scDeferredInstall);
+  const[installed,setInstalled]=useState(isStandalone());
+  const[msg,setMsg]=useState('');
+  useEffect(()=>{
+    const a=()=>setInstallable(true),b=()=>{setInstallable(false);setInstalled(true);};
+    window.addEventListener('sc-installable',a);window.addEventListener('sc-installed',b);
+    return()=>{window.removeEventListener('sc-installable',a);window.removeEventListener('sc-installed',b);};
+  },[]);
+  function setN(patch){setSt(p=>({...p,notif:{...notifCfg(p),...patch}}));}
+  function setSub(k,patch){setSt(p=>{const n=notifCfg(p);return{...p,notif:{...n,[k]:{...n[k],...patch}}};});}
+
+  async function toggleMaster(){
+    if(c.on){setN({on:false});return;}
+    let pm=notifPerm();
+    if(pm==='default')pm=await notifAsk();
+    setPerm(pm);
+    if(pm!=='granted'){
+      setMsg(pm==='denied'
+        ?'Permissão bloqueada. Libere as notificações deste site nas configurações do navegador e tente de novo.'
+        :'Este navegador não suporta notificações.');
+      return;
+    }
+    setMsg('');setN({on:true});
+  }
+  async function testar(){
+    let pm=notifPerm();
+    if(pm==='default')pm=await notifAsk();
+    setPerm(pm);
+    if(pm!=='granted'){setMsg('Permissão negada — não dá pra testar.');return;}
+    const ok=await notifShow('👑 Segundo Cérebro',{body:'Se você está lendo isso, os alertas estão funcionando.',tag:'sc-teste',data:{tab:'tarefas'}});
+    setMsg(ok?'Enviado. Se não apareceu, cheque o "não perturbe" do sistema.':'Falhou ao enviar.');
+  }
+  async function instalar(){
+    const d=window.scDeferredInstall;
+    if(!d)return;
+    d.prompt();
+    try{await d.userChoice;}catch(e){}
+    window.scDeferredInstall=null;setInstallable(false);
+  }
+
+  const td=TODAY(),now=Date.now();
+  const plano=notifPlan(st).slice().sort((a,b)=>a.at-b.at);
+  const hhmm=d=>String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');
+  const pend=pendingToday(st);
+
+  const permLabel={granted:['Autorizado','var(--ok)'],denied:['Bloqueado no navegador','var(--er)'],
+    'default':['Ainda não pedido','var(--warn)'],unsupported:['Sem suporte neste navegador','var(--er)']}[perm]||['?','var(--tx3)'];
+  const Row=({on,onClick,label,hint})=><div className="fc"style={{justifyContent:'space-between',gap:10,padding:'9px 0',borderBottom:'1px solid var(--bd2)'}}>
+    <div style={{minWidth:0}}>
+      <div style={{fontSize:'.84rem'}}>{label}</div>
+      {hint&&<div style={{fontSize:'.7rem',color:'var(--tx3)',marginTop:2}}>{hint}</div>}
+    </div>
+    <button onClick={onClick}style={{flexShrink:0,width:46,height:26,borderRadius:14,border:'1px solid '+(on?'var(--ac)':'var(--bd3)'),background:on?'var(--ac)':'var(--card3)',position:'relative',cursor:'pointer',transition:'.15s'}}>
+      <span style={{position:'absolute',top:2,left:on?22:2,width:20,height:20,borderRadius:'50%',background:on?'#000':'var(--tx3)',transition:'.15s'}}/>
+    </button>
+  </div>;
+
+  return<div>
+    {/* Instalação */}
+    <div className="cfg-s">
+      <div className="cfg-t">📲 Instalar como app</div>
+      {installed
+        ?<div style={{fontSize:'.8rem',color:'var(--ok)'}}>✓ Rodando em modo app (janela própria, sem barra do navegador).</div>
+        :installable
+          ?<><div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:8}}>Instala na tela de início / barra de tarefas com ícone e janela próprios.</div>
+            <button className="btn btn-ac"onClick={instalar}>📲 Instalar Segundo Cérebro</button></>
+          :<div style={{fontSize:'.78rem',color:'var(--tx2)',lineHeight:1.6}}>
+            {isIOS()
+              ?<>No iPhone: toque em <b>Compartilhar</b> → <b>Adicionar à Tela de Início</b>. Notificações no iOS só funcionam depois disso.</>
+              :<>Use o menu do navegador → <b>Instalar app</b>. (No Chrome/Edge também aparece um ícone de instalação na barra de endereço.)</>}
+          </div>}
+    </div>
+
+    {/* Permissão + chave geral */}
+    <div className="cfg-s">
+      <div className="cfg-t">🔔 Lembretes</div>
+      <div className="fc"style={{justifyContent:'space-between',marginBottom:10}}>
+        <span style={{fontSize:'.75rem',color:'var(--tx2)'}}>Permissão do sistema</span>
+        <span style={{fontSize:'.75rem',fontWeight:700,color:permLabel[1]}}>{permLabel[0]}</span>
+      </div>
+      <button className={c.on?'btn btn-ac':'btn btn-gh'}onClick={toggleMaster}style={{width:'100%'}}>
+        {c.on?'🔔 Lembretes ligados — desligar':'🔕 Ligar lembretes'}
+      </button>
+      {msg&&<div style={{fontSize:'.75rem',color:'var(--warn)',marginTop:8,lineHeight:1.5}}>{msg}</div>}
+      <button className="btn btn-gh mt8"onClick={testar}style={{width:'100%'}}>🧪 Enviar notificação de teste</button>
+    </div>
+
+    {c.on&&<>
+      <div className="cfg-s">
+        <div className="cfg-t">O que avisar</div>
+        <Row on={c.manha.on}onClick={()=>setSub('manha',{on:!c.manha.on})}label="☀️ Resumo da manhã"hint="Tarefas, eventos e hábitos do dia"/>
+        {c.manha.on&&<div className="fc g8"style={{padding:'8px 0'}}>
+          <span style={{fontSize:'.74rem',color:'var(--tx3)'}}>Horário</span>
+          <input type="time"value={c.manha.hora}onChange={e=>setSub('manha',{hora:e.target.value})}style={{width:120}}/>
+        </div>}
+        <Row on={c.noite.on}onClick={()=>setSub('noite',{on:!c.noite.on})}label="🌙 Fechamento da noite"hint="O que ficou pendente antes de dormir"/>
+        {c.noite.on&&<div className="fc g8"style={{padding:'8px 0'}}>
+          <span style={{fontSize:'.74rem',color:'var(--tx3)'}}>Horário</span>
+          <input type="time"value={c.noite.hora}onChange={e=>setSub('noite',{hora:e.target.value})}style={{width:120}}/>
+        </div>}
+        <Row on={c.tarefas.on}onClick={()=>setSub('tarefas',{on:!c.tarefas.on})}label="✅ Tarefas com horário"hint="Avisa na hora marcada da tarefa"/>
+        <Row on={c.eventos.on}onClick={()=>setSub('eventos',{on:!c.eventos.on})}label="📌 Eventos da agenda"hint="Avisa antes do evento começar"/>
+        {c.eventos.on&&<div className="fc g8"style={{padding:'8px 0',flexWrap:'wrap'}}>
+          <span style={{fontSize:'.74rem',color:'var(--tx3)'}}>Antecedência</span>
+          {[0,5,15,30,60].map(m=><button key={m}className="btn"onClick={()=>setSub('eventos',{lead:m})}
+            style={{padding:'4px 10px',fontSize:'.72rem',background:c.eventos.lead===m?'var(--ac)':'var(--card2)',color:c.eventos.lead===m?'#000':'var(--tx2)',border:'1px solid '+(c.eventos.lead===m?'var(--ac)':'var(--bd2)')}}>
+            {m===0?'na hora':m+' min'}</button>)}
+        </div>}
+      </div>
+
+      <div className="cfg-s">
+        <div className="cfg-t">Agenda de hoje ({plano.length})</div>
+        {plano.length===0
+          ?<div style={{fontSize:'.78rem',color:'var(--tx3)'}}>Nenhum lembrete previsto pra hoje.</div>
+          :<div className="flex col"style={{gap:6}}>
+            {plano.map(p=>{
+              const ja=!!(c.fired||{})[td+'|'+p.key],passou=p.at.getTime()<=now;
+              return<div key={p.key}className="fc g8"style={{fontSize:'.76rem',opacity:ja?.45:1}}>
+                <span style={{fontFamily:'var(--fm)',color:'var(--ac)',minWidth:44}}>{hhmm(p.at)}</span>
+                <span style={{flex:1,minWidth:0,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.title}</span>
+                <span style={{color:'var(--tx3)',fontSize:'.68rem'}}>{ja?'enviado':passou?'atrasado':''}</span>
+              </div>;
+            })}
+          </div>}
+      </div>
+    </>}
+
+    <div className="cfg-s">
+      <div className="cfg-t">Contador no ícone</div>
+      <div style={{fontSize:'.78rem',color:'var(--tx2)',lineHeight:1.6}}>
+        {('setAppBadge' in navigator)
+          ?<>Ativo. Agora marcando <b style={{color:'var(--ac)'}}>{pend.total}</b> pendência{pend.total===1?'':'s'} ({pend.tasks} tarefa{pend.tasks===1?'':'s'} · {pend.habits} hábito{pend.habits===1?'':'s'}). Só aparece com o app instalado.</>
+          :<>Este navegador não suporta contador no ícone.</>}
+      </div>
+    </div>
+
+    <div className="cfg-s">
+      <div className="cfg-t">Como funciona</div>
+      <div style={{fontSize:'.75rem',color:'var(--tx3)',lineHeight:1.65}}>
+        Os lembretes são disparados pelo próprio app. Com o app aberto (mesmo em segundo plano) eles saem na hora certa;
+        se você abrir o app depois, um lembrete atrasado em até <b>90 min</b> ainda é entregue.
+        Pra receber com o app totalmente fechado, ative o <b>push</b> — veja a aba ☁️ Sync.
+      </div>
     </div>
   </div>;
 }
@@ -7371,9 +7537,157 @@ function CaloriasSection({st,setSt}){
   </div>;
 }
 
+
+// ── NOTIFICAÇÕES ──────────────────────────────────────────────────────
+const NOTIF_DEF={on:false,manha:{on:true,hora:'07:30'},noite:{on:true,hora:'21:00'},tarefas:{on:true},eventos:{on:true,lead:15},fired:{}};
+function notifCfg(st){
+  const n=(st&&st.notif)||{};
+  return{...NOTIF_DEF,...n,
+    manha:{...NOTIF_DEF.manha,...(n.manha||{})},
+    noite:{...NOTIF_DEF.noite,...(n.noite||{})},
+    tarefas:{...NOTIF_DEF.tarefas,...(n.tarefas||{})},
+    eventos:{...NOTIF_DEF.eventos,...(n.eventos||{})},
+    fired:n.fired||{}};
+}
+const notifSupported=()=>typeof Notification!=='undefined'&&'serviceWorker' in navigator;
+const notifPerm=()=>notifSupported()?Notification.permission:'unsupported';
+// iOS só libera Notification depois que o PWA foi instalado na tela de início
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
+const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
+
+async function notifAsk(){
+  if(!notifSupported())return'unsupported';
+  try{return await Notification.requestPermission();}catch(e){return'denied';}
+}
+async function notifShow(title,opts){
+  if(notifPerm()!=='granted')return false;
+  const o={icon:'icons/icon-192.png',badge:'icons/badge-96.png',lang:'pt-BR',...opts};
+  try{const reg=await navigator.serviceWorker.ready;await reg.showNotification(title,o);return true;}
+  catch(e){try{new Notification(title,o);return true;}catch(e2){return false;}}
+}
+// 'HH:MM' do dia ds → Date local
+function hhmmDate(ds,hhmm){
+  const[h,m]=String(hhmm||'00:00').split(':').map(Number);
+  const d=new Date(ds+'T00:00:00');d.setHours(h||0,m||0,0,0);return d;
+}
+function pendingToday(st){
+  const td=TODAY();
+  const tasks=(st.tasks||[]).filter(t=>t.date===td&&!t.done).length;
+  const h=habitDayStats(st,td);
+  const habits=Math.max(0,h.tot-h.done);
+  return{tasks,habits,total:tasks+habits};
+}
+// Lembretes previstos para HOJE — recalculado a cada tick
+function notifPlan(st){
+  const c=notifCfg(st),td=TODAY(),out=[];
+  const tasks=(st.tasks||[]).filter(t=>t.date===td);
+  const evs=(st.eventos||[]).filter(e=>e.date===td);
+  const h=habitDayStats(st,td);
+  const pend=tasks.filter(t=>!t.done).length;
+  if(c.manha.on){
+    const p=[];
+    if(pend)p.push(pend+' tarefa'+(pend>1?'s':''));
+    if(evs.length)p.push(evs.length+' evento'+(evs.length>1?'s':''));
+    if(h.tot)p.push(h.tot+' hábito'+(h.tot>1?'s':''));
+    out.push({key:'manha',at:hhmmDate(td,c.manha.hora),
+      title:'☀️ Bom dia'+(st.user&&st.user.name?', '+st.user.name:'')+'!',
+      body:p.length?'Hoje você tem '+p.join(' · '):'Nada agendado — dia livre pra atacar as metas.',tab:'tarefas'});
+  }
+  if(c.noite.on){
+    const falta=Math.max(0,h.tot-h.done);
+    let body;
+    if(!falta&&!pend)body='Dia fechado 100%. Descansa, guerreiro. 👑';
+    else{const p=[];if(pend)p.push(pend+' tarefa'+(pend>1?'s':''));if(falta)p.push(falta+' hábito'+(falta>1?'s':''));
+      body='Ainda dá tempo: '+p.join(' e ')+' pendente'+((pend+falta)>1?'s':'')+'.';}
+    out.push({key:'noite',at:hhmmDate(td,c.noite.hora),title:'🌙 Fechamento do dia',body,tab:'tarefas'});
+  }
+  if(c.tarefas.on)tasks.forEach(t=>{
+    if(!t.time||t.done)return;
+    out.push({key:'t:'+t.id,at:hhmmDate(td,t.time),title:'✅ '+t.title,
+      body:t.time+(t.prio==='alta'?' · prioridade alta':' · na sua agenda de hoje'),tab:'tarefas'});
+  });
+  if(c.eventos.on)evs.forEach(e=>{
+    if(!e.time)return;
+    const lead=Math.max(0,c.eventos.lead||0);
+    out.push({key:'e:'+e.id,at:new Date(hhmmDate(td,e.time).getTime()-lead*60000),
+      title:(e.emoji||'📌')+' '+e.title,
+      body:(lead?'Começa em '+lead+' min':'Começa agora')+' ('+e.time+')'+(e.local?' · '+e.local:''),tab:'tarefas'});
+  });
+  return out;
+}
+// Dispara o que venceu, marca como enviado e limpa marcas de dias antigos
+function useNotifEngine(st,setSt){
+  const ref=useRef(st);ref.current=st;
+  useEffect(()=>{
+    let alive=true;
+    async function tick(){
+      const s=ref.current,c=notifCfg(s),td=TODAY();
+      const fired=c.fired||{};
+      const stale=Object.keys(fired).filter(k=>k.indexOf(td+'|')!==0);
+      if(stale.length)setSt(p=>{const f={...notifCfg(p).fired};stale.forEach(k=>delete f[k]);return{...p,notif:{...notifCfg(p),fired:f}};});
+      if(!c.on||notifPerm()!=='granted')return;
+      const now=Date.now();
+      const due=notifPlan(s).filter(p=>{
+        if(fired[td+'|'+p.key])return false;
+        const t=p.at.getTime();
+        return now>=t&&now-t<90*60*1000; // até 90 min de atraso (app estava fechado)
+      });
+      if(!due.length)return;
+      for(const p of due)await notifShow(p.title,{body:p.body,tag:'sc-'+p.key,data:{tab:p.tab},renotify:true});
+      if(!alive)return;
+      setSt(p=>{const f={...notifCfg(p).fired};due.forEach(d=>{f[td+'|'+d.key]=1;});return{...p,notif:{...notifCfg(p),fired:f}};});
+    }
+    tick();
+    const iv=setInterval(tick,30000);
+    const onVis=()=>{if(!document.hidden)tick();};
+    document.addEventListener('visibilitychange',onVis);
+    return()=>{alive=false;clearInterval(iv);document.removeEventListener('visibilitychange',onVis);};
+  },[]);
+}
+// Contador de pendências no ícone do app (Windows / Android / macOS)
+function useAppBadge(st){
+  useEffect(()=>{
+    if(!('setAppBadge' in navigator))return;
+    const n=pendingToday(st).total;
+    try{n>0?navigator.setAppBadge(n):navigator.clearAppBadge();}catch(e){}
+  },[st.tasks,st.habits,st.habitLog]);
+}
+
+// Snapshot de hoje para o widget do Windows (o SW guarda e redesenha o card)
+function widgetPayload(st){
+  const td=TODAY();
+  const evs=(st.eventos||[]).filter(e=>e.date===td).map(e=>({hora:e.time||'--:--',titulo:(e.emoji||'\u{1F4CC}')+' '+e.title}));
+  const tks=(st.tasks||[]).filter(t=>t.date===td&&!t.done).map(t=>({hora:t.time||'--:--',titulo:'✅ '+t.title}));
+  const ord=x=>x.hora==='--:--'?'99:99':x.hora;
+  const itens=[...evs,...tks].sort((a,b)=>ord(a)<ord(b)?-1:1).slice(0,6);
+  const p=pendingToday(st);
+  const resumo=p.total
+    ?p.tasks+' tarefa'+(p.tasks===1?'':'s')+' · '+p.habits+' hábito'+(p.habits===1?'':'s')+' pendentes'
+    :'Tudo em dia hoje \u{1F451}';
+  return{resumo,itens,vazio:itens.length?'':'Nada agendado pra hoje.'};
+}
+function useWidgetSync(st){
+  useEffect(()=>{
+    if(!('serviceWorker' in navigator))return;
+    const id=setTimeout(()=>{
+      navigator.serviceWorker.ready.then(reg=>{
+        if(reg.active)reg.active.postMessage({type:'SC_WIDGET_DATA',payload:widgetPayload(st)});
+      }).catch(()=>{});
+    },1500);
+    return()=>clearTimeout(id);
+  },[st.tasks,st.eventos,st.habits,st.habitLog]);
+}
+
+function initialTab(){
+  try{
+    const t=new URLSearchParams(location.search).get('tab');
+    if(t&&DEF_TABS.some(x=>x.id===t))return t;
+  }catch(e){}
+  return'skilltree';
+}
 function App(){
   const[st,setSt]=useState(loadSt);
-  const[tab,setTab]=useState('skilltree');
+  const[tab,setTab]=useState(initialTab);
   const[fbUser,setFbUser]=useState(null);
   const[syncStatus,setSyncStatus]=useState('idle'); // 'idle'|'syncing'|'ok'|'err'
   const syncTimer=useRef(null);
@@ -7383,6 +7697,34 @@ function App(){
   useEffect(()=>{
     try{localStorage.setItem('sc-v3',JSON.stringify(st));}catch(e){}
   },[st]);
+
+  // Lembretes + contador no ícone do app
+  useNotifEngine(st,setSt);
+  useAppBadge(st);
+  useWidgetSync(st);
+
+  // Clique numa notificação com o app aberto → troca de aba
+  useEffect(()=>{
+    if(!('serviceWorker' in navigator))return;
+    const h=e=>{if(e.data&&e.data.type==='SC_NAVIGATE'&&e.data.tab)setTab(e.data.tab);};
+    navigator.serviceWorker.addEventListener('message',h);
+    return()=>navigator.serviceWorker.removeEventListener('message',h);
+  },[]);
+
+  // Share target: texto/link compartilhado de outro app vira anotação
+  useEffect(()=>{
+    let q;
+    try{q=new URLSearchParams(location.search);}catch(e){return;}
+    const title=q.get('st_title')||'',text=q.get('st_text')||'',url=q.get('st_url')||'';
+    if(!title&&!text&&!url)return;
+    const body=[text,url].filter(Boolean).join('\n');
+    setSt(p=>({...p,notes:[{id:uid(),title:title||(body.slice(0,60)||'Capturado'),type:'texto',
+      content:body,items:[],imageData:null,color:'blue',
+      catId:(p.noteCategories&&p.noteCategories[2]&&p.noteCategories[2].id)||'',
+      pinned:false,archived:false,createdAt:TODAY()},...(p.notes||[])]}));
+    setTab('anotacoes');
+    try{history.replaceState(null,'',location.pathname);}catch(e){}
+  },[]);
 
   // Apply theme
   useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.config.bgOpacity,st.classBaseImg,st.skilltree]);
