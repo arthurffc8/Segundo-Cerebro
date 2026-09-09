@@ -3,3 +3,11 @@ push/VAPID.local.txt
 *.local.txt
 push/serviceAccount.json
 .env
+
+# Capacitor — gerados por sync-www.mjs / cap sync
+mobile/www/
+mobile/android/app/src/main/assets/public/
+mobile/android/app/src/main/assets/capacitor.config.json
+mobile/android/app/src/main/assets/capacitor.plugins.json
+mobile/android/app/capacitor.build.gradle
+mobile/android/capacitor-cordova-android-plugins/

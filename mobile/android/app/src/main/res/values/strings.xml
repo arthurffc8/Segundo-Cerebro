@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Segundo Cérebro</string>
+    <string name="title_activity_main">Segundo Cérebro</string>
+    <string name="package_name">com.arthurffc.segundocerebro</string>
+    <string name="custom_url_scheme">com.arthurffc.segundocerebro</string>
+    <string name="widget_desc">Tarefas e eventos de hoje</string>
+    <string name="widget_carregando">Abra o app pra sincronizar</string>
+    <string name="widget_sem_dados">Nada carregado ainda.</string>
+    <string name="widget_mais">+%1$d itens</string>
+</resources>

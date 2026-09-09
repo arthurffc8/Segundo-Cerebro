@@ -6520,9 +6520,12 @@ function CfgNotif({st,setSt,fbUser}){
     <div className="cfg-s">
       <div className="cfg-t">Como funciona</div>
       <div style={{fontSize:'.75rem',color:'var(--tx3)',lineHeight:1.65}}>
-        Os lembretes são disparados pelo próprio app. Com o app aberto (mesmo em segundo plano) eles saem na hora certa;
+        {isNative()
+          ?<>Você está no <b>app Android</b>: os lembretes são agendados no próprio sistema e
+            chegam com o app fechado, sem internet. O widget da tela de início se atualiza junto.</>
+          :<>Os lembretes são disparados pelo próprio app. Com o app aberto (mesmo em segundo plano) eles saem na hora certa;
         se você abrir o app depois, um lembrete atrasado em até <b>90 min</b> ainda é entregue.
-        Com o <b>push</b> ligado aqui em cima, esse intervalo cai pra 5 min — quem avisa com o app fechado passa a ser o servidor.
+        Com o <b>push</b> ligado aqui em cima, esse intervalo cai pra 5 min — quem avisa com o app fechado passa a ser o servidor.</>}
       </div>
     </div>
   </div>;
@@ -7686,8 +7689,8 @@ function pendingToday(st){
   return{tasks,habits,total:tasks+habits};
 }
 // Lembretes previstos para HOJE — recalculado a cada tick
-function notifPlan(st){
-  const c=notifCfg(st),td=TODAY(),out=[];
+function notifPlan(st,ds){
+  const c=notifCfg(st),td=ds||TODAY(),out=[];
   const tasks=(st.tasks||[]).filter(t=>t.date===td);
   const evs=(st.eventos||[]).filter(e=>e.date===td);
   const h=habitDayStats(st,td);
@@ -7727,6 +7730,7 @@ function notifPlan(st){
 function useNotifEngine(st,setSt){
   const ref=useRef(st);ref.current=st;
   useEffect(()=>{
+    if(isNative())return; // no APK o Android agenda tudo (ver useNative)
     let alive=true;
     async function tick(){
       const s=ref.current,c=notifCfg(s),td=TODAY();
@@ -7762,6 +7766,68 @@ function useAppBadge(st){
   },[st.tasks,st.habits,st.habitLog]);
 }
 
+// ── APP NATIVO (APK Capacitor) ──────────────────────────────────────────────
+// No APK quem dispara os lembretes é o próprio Android: eles são agendados no
+// sistema e chegam com o app fechado, sem servidor e sem internet.
+const capPlugins=()=>(window.Capacitor&&window.Capacitor.Plugins)||{};
+const isNative=()=>!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
+
+async function nativeSchedule(st){
+  const LN=capPlugins().LocalNotifications;
+  if(!LN)return;
+  try{
+    const pend=await LN.getPending();
+    if(pend&&pend.notifications&&pend.notifications.length)
+      await LN.cancel({notifications:pend.notifications.map(n=>({id:n.id}))});
+    if(!notifCfg(st).on)return;
+    let perm=await LN.checkPermissions();
+    if(perm.display!=='granted')perm=await LN.requestPermissions();
+    if(perm.display!=='granted')return;
+    // hoje + 2 dias, pra continuar avisando mesmo se o app ficar dias sem abrir
+    const dias=[0,1,2].map(o=>{const d=new Date();d.setDate(d.getDate()+o);return localDateStr(d);});
+    const agora=Date.now();
+    const lista=[];
+    dias.forEach(ds=>notifPlan(st,ds).forEach(p=>{if(p.at.getTime()>agora+5000)lista.push(p);}));
+    lista.sort((a,b)=>a.at-b.at);
+    const notifs=lista.slice(0,60).map((p,i)=>({
+      id:1000+i,title:p.title,body:p.body,
+      schedule:{at:p.at,allowWhileIdle:true},
+      extra:{tab:p.tab},smallIcon:'ic_stat_coroa',iconColor:'#FF6B00',channelId:'lembretes',
+    }));
+    if(notifs.length)await LN.schedule({notifications:notifs});
+  }catch(e){console.log('[nativo] falha ao agendar',e);}
+}
+async function nativeWidget(st){
+  const WB=capPlugins().WidgetBridge;
+  if(!WB)return;
+  try{await WB.update({payload:JSON.stringify(widgetPayload(st))});}catch(e){}
+}
+function useNative(st,setTab){
+  const ref=useRef(st);ref.current=st;
+  useEffect(()=>{
+    if(!isNative())return;
+    const LN=capPlugins().LocalNotifications;
+    let handle=null;
+    if(LN){
+      if(LN.createChannel)LN.createChannel({id:'lembretes',name:'Lembretes',description:'Tarefas, eventos e hábitos',importance:4,visibility:1,vibration:true}).catch(()=>{});
+      LN.addListener('localNotificationActionPerformed',ev=>{
+        const tab=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.tab;
+        if(tab)setTab(tab);
+      }).then(h=>{handle=h;}).catch(()=>{});
+    }
+    const reagendar=()=>{nativeSchedule(ref.current);nativeWidget(ref.current);};
+    reagendar();
+    const iv=setInterval(reagendar,15*60*1000);
+    const onVis=()=>{if(!document.hidden)reagendar();};
+    document.addEventListener('visibilitychange',onVis);
+    return()=>{
+      clearInterval(iv);
+      document.removeEventListener('visibilitychange',onVis);
+      if(handle&&handle.remove)handle.remove();
+    };
+  },[]);
+}
+
 // Snapshot de hoje para o widget do Windows (o SW guarda e redesenha o card)
 function widgetPayload(st){
   const td=TODAY();
@@ -7777,7 +7843,7 @@ function widgetPayload(st){
 }
 function useWidgetSync(st){
   useEffect(()=>{
-    if(!('serviceWorker' in navigator))return;
+    if(isNative()||!('serviceWorker' in navigator))return;
     const id=setTimeout(()=>{
       navigator.serviceWorker.ready.then(reg=>{
         if(reg.active)reg.active.postMessage({type:'SC_WIDGET_DATA',payload:widgetPayload(st)});
@@ -7811,6 +7877,7 @@ function App(){
   useNotifEngine(st,setSt);
   useAppBadge(st);
   useWidgetSync(st);
+  useNative(st,setTab);
 
   // Clique numa notificação com o app aberto → troca de aba
   useEffect(()=>{
@@ -7953,8 +8020,8 @@ function App(){
 
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 
-// Register Service Worker
-if ('serviceWorker' in navigator) {
+// Register Service Worker (no APK nativo não faz sentido — o conteúdo já é local)
+if ('serviceWorker' in navigator && !isNative()) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(reg => {

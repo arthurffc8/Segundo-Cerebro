@@ -1,0 +1,15 @@
+{
+  "appId": "com.arthurffc.segundocerebro",
+  "appName": "Segundo Cérebro",
+  "webDir": "www",
+  "android": {
+    "allowMixedContent": false,
+    "backgroundColor": "#0a0a0a"
+  },
+  "plugins": {
+    "LocalNotifications": {
+      "smallIcon": "ic_stat_coroa",
+      "iconColor": "#FF6B00"
+    }
+  }
+}
