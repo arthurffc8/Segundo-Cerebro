@@ -210,6 +210,18 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .cal-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0;}
 .cal-more{font-family:var(--fm);font-size:.5rem;color:var(--tx4);line-height:1;}
 .cal-flag{position:absolute;top:4px;right:5px;width:5px;height:5px;border-radius:50%;background:#ef4444;box-shadow:0 0 5px #ef4444;}
+.cal-hb{position:absolute;left:2px;top:7px;bottom:7px;width:3px;border-radius:3px;background:rgba(255,255,255,.07);overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;}
+.cal-hb i{display:block;width:100%;border-radius:3px;transition:height .35s ease,background .35s ease;}
+/* tracker de hábitos embutido no mês */
+.trk-card{background:var(--card);border:var(--bdw) solid var(--bd);border-radius:var(--r);padding:12px 14px;margin-bottom:14px;box-shadow:var(--sh);}
+.trk-h{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;}
+.trk-h-t{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx2);}
+.trk-h-s{font-family:var(--fm);font-size:.66rem;color:var(--tx3);margin-top:2px;}
+.trk-name{background:none;border:none;padding:0;font:inherit;color:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;}
+.trk-name:hover{opacity:.72;}
+.trk-legend{display:flex;align-items:center;gap:5px;font-size:.58rem;font-family:var(--fm);color:var(--tx4);}
+.trk-legend i{display:block;width:38px;height:5px;border-radius:3px;background:linear-gradient(90deg,hsl(2,72%,52%),hsl(66,72%,49%),hsl(130,72%,46%));}
+.trk-vazio{font-size:.78rem;color:var(--tx3);padding:14px 0;text-align:center;}
 /* painel do dia */
 .cal-day{background:var(--card);border:var(--bdw) solid var(--bd);border-radius:var(--r);padding:14px;margin-bottom:14px;box-shadow:var(--sh);}
 .cal-day-h{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
@@ -1441,7 +1453,6 @@ const DEF_TABS=[
   {id:'hoje',label:'Hoje',emoji:'🏠',visible:true},
   {id:'reels',label:'Reels',emoji:'🎞️',visible:true},
   {id:'tarefas',label:'Tarefas',emoji:'✅',visible:true},
-  {id:'habitos',label:'Hábitos',emoji:'🔁',visible:true},
   {id:'dashboard',label:'Dashboard',emoji:'📊',visible:true},
   {id:'metas',label:'Metas',emoji:'🎯',visible:true},
   {id:'anotacoes',label:'Anotações',emoji:'📝',visible:true},
@@ -1590,9 +1601,10 @@ function makeInit(){
 // Garante que abas novas sempre aparecem após updates (evita sumir ao sincronizar)
 function sanitizeTabs(state){
   if(!state?.config?.tabs)return state;
+  const valid=new Set(DEF_TABS.map(t=>t.id));
   const existing=new Set(state.config.tabs.map(t=>t.id));
   const missing=DEF_TABS.filter(t=>!existing.has(t.id));
-  const tabs=[...state.config.tabs];
+  const tabs=state.config.tabs.filter(t=>valid.has(t.id));
   if(missing.length){
     const cfgIdx=tabs.findIndex(t=>t.id==='config');
     if(cfgIdx>=0)tabs.splice(cfgIdx,0,...missing);
@@ -2963,6 +2975,16 @@ function EventModal({open,onClose,onSave,onDelete,init}){
 
 // Visão do MÊS: cada dia é um anel de progresso das tarefas + pontinhos dos
 // eventos. Abaixo, o dia selecionado abre em detalhe (agenda + tarefas).
+// ── HÁBITOS: progresso de um dia (compartilhado pelo calendário e pelo tracker) ──
+function habitDayStats(st,ds){
+  const hs=(st.habits||[]).filter(h=>h.active);
+  const log=(st.habitLog||{})[ds]||{};
+  const done=hs.filter(h=>log[h.id]).length;
+  return{tot:hs.length,done,pct:hs.length?done/hs.length:0};
+}
+// rampa: vermelho (pouco feito) → verde (tudo feito)
+function habitRampColor(pct){return`hsl(${Math.round(2+pct*128)},72%,${Math.round(53-pct*7)}%)`;}
+
 function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spawnVirtual}){
   const td=TODAY();
   const[cur,setCur]=useState(()=>{const d=new Date();return{y:d.getFullYear(),m:d.getMonth()+1};});
@@ -3036,10 +3058,15 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
           const cheio=s2.tot>0&&s2.done>=s2.tot;
           const atrasado=c.ds<td&&s2.tot>0&&s2.done<s2.tot;
           const pct=s2.tot?s2.done/s2.tot:0;
+          const hb=habitDayStats(st,c.ds);
+          const showHb=hb.tot>0&&c.inMonth&&c.ds<=td;
           const ring=cheio?'#22c55e':'var(--ac)';
           const cls="cal-cell"+(c.inMonth?'':' fora')+(c.dow===0||c.dow===6?' fds':'')+(c.ds===sel?' sel':'')+(c.ds===td?' hoje':'');
           return<div key={c.ds}className={cls}onClick={()=>setSel(c.ds)}onDoubleClick={()=>novoEvento(c.ds)}>
             {atrasado&&<span className="cal-flag"/>}
+            {showHb&&<div className="cal-hb"title={`Hábitos: ${hb.done}/${hb.tot}`}>
+              <i style={{height:(hb.done?Math.max(hb.pct*100,10):0)+'%',background:habitRampColor(hb.pct)}}/>
+            </div>}
             <div className="cal-ring">
               <svg viewBox="0 0 34 34">
                 <circle cx="17"cy="17"r={R}fill="none"stroke={s2.tot>0?'rgba(255,255,255,.16)':'rgba(255,255,255,.055)'}strokeWidth="2.6"/>
@@ -3055,6 +3082,9 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
         }))}
       </div>
     </div>
+
+    {/* ── tracker de hábitos do mesmo mês ── */}
+    <HabitsTracker st={st}setSt={setSt}yr={cur.y}mo={cur.m}/>
 
     {/* ── dia selecionado ── */}
     <div className="cal-day">
@@ -3349,18 +3379,7 @@ function TarefasSection({st,setSt}){
   </div>;
 }
 
-// ── HÁBITOS ──────────────────────────────────────────────────────────────────
-
-function HabitosSection({st,setSt}){
-  const[sub,setSub]=useState('lista');
-  return<div className="sec">
-    <div className="stabs mb14">
-      <button className={`stab${sub==='lista'?' on':''}`}onClick={()=>setSub('lista')}>📋 Lista</button>
-      <button className={`stab${sub==='tracker'?' on':''}`}onClick={()=>setSub('tracker')}>📅 Tracker Mensal</button>
-    </div>
-    {sub==='lista'?<HabitsList st={st}setSt={setSt}/>:<HabitsTracker st={st}setSt={setSt}/>}
-  </div>;
-}
+// ── HÁBITOS (gerenciados dentro da aba Tarefas → Mês) ──────────────────
 
 function HabitsList({st,setSt}){
   const[modal,setModal]=useState(false);
@@ -3432,35 +3451,74 @@ function HabitsList({st,setSt}){
   </div>;
 }
 
-function HabitsTracker({st,setSt}){
+function HabitsTracker({st,setSt,yr:pYr,mo:pMo}){
   const now=new Date();
-  const[yr,setYr]=useState(now.getFullYear());
-  const[mo,setMo]=useState(now.getMonth()+1);
+  const[iYr,setIYr]=useState(now.getFullYear());
+  const[iMo,setIMo]=useState(now.getMonth()+1);
+  const ctrl=pYr!=null&&pMo!=null;           // mês vem do calendário (aba Tarefas → Mês)
+  const yr=ctrl?pYr:iYr,mo=ctrl?pMo:iMo;
+  const[modal,setModal]=useState(false);
+  const[edit,setEdit]=useState(null);
+  const[manage,setManage]=useState(false);
+  const wrapRef=useRef(null);
   const days=daysInMonth(yr,mo);
   const mk=monthKey(yr,mo);
-  const habits=[...st.habits].filter(h=>h.active).sort((a,b)=>a.order-b.order);
+  const habits=[...(st.habits||[])].filter(h=>h.active).sort((a,b)=>(a.order||0)-(b.order||0));
   const td=TODAY();
+  const mNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+  // abre já com a coluna de hoje à vista quando é o mês corrente
+  useEffect(()=>{
+    const el=wrapRef.current;if(!el)return;
+    if(mk!==td.slice(0,7)){el.scrollLeft=0;return;}
+    el.scrollLeft=Math.max(0,(+td.slice(8,10)-1)*26-el.clientWidth/2+110);
+  },[mk,td,habits.length]);
 
   function toggle(hid,day){
     const ds=`${mk}-${String(day).padStart(2,'0')}`;
     setSt(p=>({...p,habitLog:{...p.habitLog,[ds]:{...(p.habitLog[ds]||{}),[hid]:!(p.habitLog[ds]||{})[hid]}}}));
   }
-  function prevMonth(){if(mo===1){setYr(y=>y-1);setMo(12);}else setMo(m=>m-1);}
-  function nextMonth(){if(mo===12){setYr(y=>y+1);setMo(1);}else setMo(m=>m+1);}
-  const mNames=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  function saveHabit(f){
+    if(edit)setSt(p=>({...p,habits:p.habits.map(h=>h.id===edit.id?{...h,...f}:h)}));
+    else setSt(p=>({...p,habits:[...p.habits,{...f,id:uid(),order:p.habits.length}]}));
+    setEdit(null);
+  }
+  function prevMonth(){if(mo===1){setIYr(y=>y-1);setIMo(12);}else setIMo(m=>m-1);}
+  function nextMonth(){if(mo===12){setIYr(y=>y+1);setIMo(1);}else setIMo(m=>m+1);}
 
-  return<div>
-    {/* Month nav */}
-    <div className="fcb mb14">
-      <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={prevMonth}>‹</button>
-      <div style={{fontFamily:'var(--fm)',fontWeight:700,fontSize:'.9rem'}}>{mNames[mo-1]} {yr}</div>
-      <button className="btn btn-gh"style={{padding:'5px 10px'}}onClick={nextMonth}>›</button>
+  // resumo do mês — mesma conta que colore a barrinha de cada dia no calendário
+  let checkins=0,somaPct=0,diasCont=0;
+  for(let d=1;d<=days;d++){
+    const ds=`${mk}-${String(d).padStart(2,'0')}`;
+    const sD=habitDayStats(st,ds);
+    checkins+=sD.done;
+    if(ds<=td){somaPct+=sD.pct;diasCont++;}
+  }
+  const mediaPct=diasCont?Math.round(somaPct/diasCont*100):0;
+
+  return<div className="trk-card">
+    <div className="trk-h">
+      <div style={{minWidth:0}}>
+        <div className="trk-h-t">🔁 Hábitos · {mNames[mo-1]}</div>
+        <div className="trk-h-s">
+          <span style={{color:habitRampColor(mediaPct/100),fontWeight:700}}>{mediaPct}%</span> médio no mês · {checkins} check-ins
+        </div>
+      </div>
+      <div className="fc g6"style={{flexShrink:0,flexWrap:'wrap',justifyContent:'flex-end'}}>
+        <div className="trk-legend"><span>menos</span><i/><span>mais</span></div>
+        {!ctrl&&<button className="btn btn-gh"style={{padding:'4px 9px'}}onClick={prevMonth}>‹</button>}
+        {!ctrl&&<button className="btn btn-gh"style={{padding:'4px 9px'}}onClick={nextMonth}>›</button>}
+        <button className="btn btn-gh"style={{padding:'4px 10px',fontSize:'.72rem'}}onClick={()=>setManage(m=>!m)}>{manage?'✕ Fechar':'⚙ Gerenciar'}</button>
+      </div>
     </div>
-    <div className="trk-wrap">
+
+    {habits.length===0
+      ?<div className="trk-vazio">Nenhum hábito ativo. Use "⚙ Gerenciar" para criar o primeiro.</div>
+      :<div className="trk-wrap"ref={wrapRef}>
       <table style={{borderCollapse:'separate',borderSpacing:'2px',minWidth:'max-content'}}>
         <thead>
           <tr>
-            <th style={{fontSize:'.68rem',color:'var(--tx2)',fontWeight:600,padding:'2px 8px 6px 0',textAlign:'left',whiteSpace:'nowrap',minWidth:'100px'}}>Hábito</th>
+            <th style={{fontSize:'.68rem',color:'var(--tx2)',fontWeight:600,padding:'2px 8px 6px 0',textAlign:'left',whiteSpace:'nowrap',minWidth:'100px',position:'sticky',left:0,background:'var(--card)',zIndex:2}}>Hábito</th>
             {Array.from({length:days},(_,i)=>{
               const d=i+1;
               const ds=`${mk}-${String(d).padStart(2,'0')}`;
@@ -3476,12 +3534,12 @@ function HabitsTracker({st,setSt}){
               return st.habitLog[ds]?.[h.id]?1:0;
             }).reduce((s,v)=>s+v,0);
             return<tr key={h.id}>
-              <td style={{padding:'2px 8px 2px 0',whiteSpace:'nowrap'}}>
-                <div className="fc g6">
+              <td style={{padding:'2px 8px 2px 0',whiteSpace:'nowrap',position:'sticky',left:0,background:'var(--card)',zIndex:1}}>
+                <button className="trk-name"onClick={()=>{setEdit(h);setModal(true);}}title="Editar hábito">
                   <span style={{fontSize:'.9rem'}}>{h.emoji}</span>
                   <span style={{fontSize:'.75rem',fontWeight:500}}>{h.name}</span>
                   <span style={{fontSize:'.65rem',fontFamily:'var(--fm)',color:h.color}}>{mc}/{h.monthlyGoal}</span>
-                </div>
+                </button>
               </td>
               {Array.from({length:days},(_,i)=>{
                 const d=i+1;
@@ -3499,8 +3557,29 @@ function HabitsTracker({st,setSt}){
             </tr>;
           })}
         </tbody>
+        <tfoot>
+          <tr>
+            <td style={{padding:'7px 8px 0 0',fontSize:'.6rem',color:'var(--tx4)',whiteSpace:'nowrap',position:'sticky',left:0,background:'var(--card)',zIndex:1}}>% do dia</td>
+            {Array.from({length:days},(_,i)=>{
+              const d=i+1;
+              const ds=`${mk}-${String(d).padStart(2,'0')}`;
+              const sD=habitDayStats(st,ds);
+              return<td key={d}style={{padding:'7px 1px 0'}}>
+                <div style={{height:4,borderRadius:2,background:'rgba(255,255,255,.07)',overflow:'hidden'}}title={`${sD.done}/${sD.tot} hábitos`}>
+                  {ds<=td&&sD.done>0&&<div style={{height:'100%',width:Math.max(sD.pct*100,12)+'%',borderRadius:2,background:habitRampColor(sD.pct)}}/>}
+                </div>
+              </td>;
+            })}
+          </tr>
+        </tfoot>
       </table>
-    </div>
+    </div>}
+
+    {manage&&<div style={{marginTop:14,paddingTop:12,borderTop:'1px solid var(--bd)'}}>
+      <HabitsList st={st}setSt={setSt}/>
+    </div>}
+
+    <HabitModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={saveHabit}init={edit}/>
   </div>;
 }
 
@@ -7380,7 +7459,6 @@ function App(){
     hoje:<HojeSection st={st}setSt={setSt}/>,
     reels:<ReelsSection st={st}setSt={setSt}/>,
     tarefas:<TarefasSection st={st}setSt={setSt}/>,
-    habitos:<HabitosSection st={st}setSt={setSt}/>,
     dashboard:<DashboardSection st={st}setSt={setSt}/>,
     metas:<MetasSection st={st}setSt={setSt}/>,
     anotacoes:<AnotacoesSection st={st}setSt={setSt}/>,
