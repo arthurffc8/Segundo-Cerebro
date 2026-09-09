@@ -1,0 +1,15 @@
+{
+  "name": "segundo-cerebro-desktop",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Wrapper Tauri do Segundo Cérebro para Windows/macOS/Linux",
+  "scripts": {
+    "sync": "node sync-dist.mjs",
+    "dev": "node sync-dist.mjs && tauri dev",
+    "build": "node sync-dist.mjs && tauri build"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2"
+  }
+}

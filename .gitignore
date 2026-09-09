@@ -11,3 +11,8 @@ mobile/android/app/src/main/assets/capacitor.config.json
 mobile/android/app/src/main/assets/capacitor.plugins.json
 mobile/android/app/capacitor.build.gradle
 mobile/android/capacitor-cordova-android-plugins/
+
+# Tauri — gerados por sync-dist.mjs / cargo
+desktop/dist/
+desktop/src-tauri/target/
+desktop/src-tauri/gen/

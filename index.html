@@ -6417,7 +6417,9 @@ function CfgNotif({st,setSt,fbUser}){
     {/* Instalação */}
     <div className="cfg-s">
       <div className="cfg-t">📲 Instalar como app</div>
-      {installed
+      {isTauri()
+        ?<div style={{fontSize:'.8rem',color:'var(--ok)'}}>✓ Você está no app de PC instalado. Fechar a janela manda pra bandeja — os lembretes continuam.</div>
+        :installed
         ?<div style={{fontSize:'.8rem',color:'var(--ok)'}}>✓ Rodando em modo app (janela própria, sem barra do navegador).</div>
         :installable
           ?<><div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:8}}>Instala na tela de início / barra de tarefas com ícone e janela próprios.</div>
@@ -6446,7 +6448,11 @@ function CfgNotif({st,setSt,fbUser}){
     {/* Push — chega com o app fechado */}
     <div className="cfg-s">
       <div className="cfg-t">📡 Push (app fechado)</div>
-      {!pushSupported()
+      {isTauri()
+        ?<div style={{fontSize:'.78rem',color:'var(--tx3)',lineHeight:1.6}}>
+          Não é preciso no app de PC: ele fica na bandeja e dispara os lembretes sozinho, mesmo com a janela fechada.
+        </div>
+        :!pushSupported()
         ?<div style={{fontSize:'.78rem',color:'var(--tx3)',lineHeight:1.6}}>
           Este navegador não suporta push. No iPhone, funciona a partir do iOS 16.4 <b>com o app instalado na tela de início</b>.
         </div>
@@ -7660,17 +7666,37 @@ function notifCfg(st){
     eventos:{...NOTIF_DEF.eventos,...(n.eventos||{})},
     fired:n.fired||{}};
 }
-const notifSupported=()=>typeof Notification!=='undefined'&&'serviceWorker' in navigator;
-const notifPerm=()=>notifSupported()?Notification.permission:'unsupported';
+// App de PC (Tauri): não existe service worker; as notificações passam pelo plugin nativo.
+const isTauri=()=>!!(window.__TAURI__||window.__TAURI_INTERNALS__);
+const tauriNotif=()=>(window.__TAURI__&&window.__TAURI__.notification)||null;
+const notifSupported=()=>isTauri()?!!tauriNotif():(typeof Notification!=='undefined'&&'serviceWorker' in navigator);
+const notifPerm=()=>{
+  if(isTauri())return window.__scTauriPerm||'default';
+  return notifSupported()?Notification.permission:'unsupported';
+};
 // iOS só libera Notification depois que o PWA foi instalado na tela de início
 const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone===true;
 const isIOS=()=>/iPad|iPhone|iPod/.test(navigator.userAgent)&&!window.MSStream;
 
 async function notifAsk(){
   if(!notifSupported())return'unsupported';
+  if(isTauri()){
+    try{
+      const n=tauriNotif();
+      let ok=await n.isPermissionGranted();
+      if(!ok)ok=(await n.requestPermission())==='granted';
+      window.__scTauriPerm=ok?'granted':'denied';
+      return window.__scTauriPerm;
+    }catch(e){window.__scTauriPerm='denied';return'denied';}
+  }
   try{return await Notification.requestPermission();}catch(e){return'denied';}
 }
 async function notifShow(title,opts){
+  if(isTauri()){
+    if(notifPerm()!=='granted'&&await notifAsk()!=='granted')return false;
+    try{await tauriNotif().sendNotification({title,body:(opts&&opts.body)||''});return true;}
+    catch(e){return false;}
+  }
   if(notifPerm()!=='granted')return false;
   const o={icon:'icons/icon-192.png',badge:'icons/badge-96.png',lang:'pt-BR',...opts};
   try{const reg=await navigator.serviceWorker.ready;await reg.showNotification(title,o);return true;}
@@ -7843,7 +7869,7 @@ function widgetPayload(st){
 }
 function useWidgetSync(st){
   useEffect(()=>{
-    if(isNative()||!('serviceWorker' in navigator))return;
+    if(isNative()||isTauri()||!('serviceWorker' in navigator))return;
     const id=setTimeout(()=>{
       navigator.serviceWorker.ready.then(reg=>{
         if(reg.active)reg.active.postMessage({type:'SC_WIDGET_DATA',payload:widgetPayload(st)});
@@ -7881,7 +7907,7 @@ function App(){
 
   // Clique numa notificação com o app aberto → troca de aba
   useEffect(()=>{
-    if(!('serviceWorker' in navigator))return;
+    if(isTauri()||!('serviceWorker' in navigator))return;
     const h=e=>{if(e.data&&e.data.type==='SC_NAVIGATE'&&e.data.tab)setTab(e.data.tab);};
     navigator.serviceWorker.addEventListener('message',h);
     return()=>navigator.serviceWorker.removeEventListener('message',h);
@@ -8021,7 +8047,7 @@ function App(){
 ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
 
 // Register Service Worker (no APK nativo não faz sentido — o conteúdo já é local)
-if ('serviceWorker' in navigator && !isNative()) {
+if ('serviceWorker' in navigator && !isNative() && !isTauri()) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./sw.js')
       .then(reg => {
