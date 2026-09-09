@@ -1,0 +1,43 @@
+name: Lembretes push
+
+on:
+  schedule:
+    # de 15 em 15 minutos (o GitHub costuma atrasar alguns minutos — normal)
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Só simular, sem enviar'
+        type: boolean
+        default: false
+
+concurrency:
+  group: lembretes
+  cancel-in-progress: false
+
+jobs:
+  enviar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: push/package.json
+
+      - name: Instalar dependências
+        working-directory: push
+        run: npm install --no-audit --no-fund
+
+      - name: Disparar lembretes
+        working-directory: push
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
+          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_SUBJECT: ${{ secrets.VAPID_SUBJECT }}
+          DRY_RUN: ${{ inputs.dry_run && '1' || '0' }}
+        run: node send-reminders.mjs

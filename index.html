@@ -914,6 +914,66 @@ async function fbPull(uid){
   return raw?JSON.parse(raw):null;
 }
 
+// ── PUSH (lembretes com o app fechado) ──────────────────────────────────────
+// A chave pública VAPID é pareada com a privada guardada nos Secrets do GitHub.
+const VAPID_PUBLIC='BLG2OU50mzN97drq_7InldshraTeptav2zd7iiVX-M79bPWaZ5bBswP_9YZFxJyL5vrJD0hDpVeUydBfnwIGW7A';
+const pushSupported=()=>'serviceWorker' in navigator&&'PushManager' in window;
+function urlB64ToUint8(b64){
+  const pad='='.repeat((4-b64.length%4)%4);
+  const raw=atob((b64+pad).replace(/-/g,'+').replace(/_/g,'/'));
+  const arr=new Uint8Array(raw.length);
+  for(let i=0;i<raw.length;i++)arr[i]=raw.charCodeAt(i);
+  return arr;
+}
+// id curto e estável por dispositivo (deriva do endpoint da inscrição)
+function endpointId(ep){
+  let h=0;
+  for(let i=0;i<ep.length;i++)h=(h*31+ep.charCodeAt(i))|0;
+  return'd'+(h>>>0).toString(36);
+}
+async function pushGetSub(){
+  if(!pushSupported())return null;
+  try{const reg=await navigator.serviceWorker.ready;return await reg.pushManager.getSubscription();}
+  catch(e){return null;}
+}
+async function fbSavePush(uid,sub){
+  if(!_fbDb)throw new Error('Firebase não inicializado');
+  const j=sub.toJSON();
+  const tz=(Intl.DateTimeFormat().resolvedOptions().timeZone)||'';
+  const ref=_fbDb.collection('push').doc(uid);
+  await ref.set({tz,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:true});
+  await ref.collection('subs').doc(endpointId(j.endpoint)).set({
+    endpoint:j.endpoint,keys:j.keys,tz,
+    ua:(navigator.userAgent||'').slice(0,140),
+    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
+  });
+}
+async function fbClearPush(uid,endpoint){
+  if(!_fbDb||!uid)return;
+  const ref=_fbDb.collection('push').doc(uid);
+  if(endpoint){await ref.collection('subs').doc(endpointId(endpoint)).delete();return;}
+  const snap=await ref.collection('subs').get();
+  await Promise.all(snap.docs.map(d=>d.ref.delete()));
+}
+async function pushEnable(uid){
+  if(!pushSupported())throw new Error('Este navegador não suporta push.');
+  if(!uid)throw new Error('Entre com o Google em ☁️ Sync primeiro — o push precisa saber pra quem enviar.');
+  let perm=notifPerm();
+  if(perm==='default')perm=await notifAsk();
+  if(perm!=='granted')throw new Error('Permissão de notificação negada.');
+  const reg=await navigator.serviceWorker.ready;
+  let sub=await reg.pushManager.getSubscription();
+  if(!sub)sub=await reg.pushManager.subscribe({userVisibleOnly:true,applicationServerKey:urlB64ToUint8(VAPID_PUBLIC)});
+  await fbSavePush(uid,sub);
+  return sub;
+}
+async function pushDisable(uid){
+  const sub=await pushGetSub();
+  const ep=sub?sub.endpoint:null;
+  if(sub)try{await sub.unsubscribe();}catch(e){}
+  try{await fbClearPush(uid,ep);}catch(e){}
+}
+
 // ── CONSTANTS ────────────────────────────────────────────────────────────────
 
 const ACCENTS=[
@@ -1482,6 +1542,7 @@ function makeInit(){
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
       tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,bgOpacity:DEF_BG_OPACITY,
     },
+    push:{on:false},
     notif:{
       on:false,
       manha:{on:true,hora:'07:30'},
@@ -5980,7 +6041,7 @@ function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
     </div>
     {sub==='aparencia'&&<CfgAparencia st={st}setSt={setSt}setCfg={setCfg}/>}
     {sub==='ia'&&<CfgIA/>}
-    {sub==='notif'&&<CfgNotif st={st}setSt={setSt}/>}
+    {sub==='notif'&&<CfgNotif st={st}setSt={setSt}fbUser={fbUser}/>}
     {sub==='sync'&&<CfgSync st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={onManualSync}/>}
     {sub==='navbar'&&<CfgNavbar st={st}setSt={setSt}/>}
     {sub==='score'&&<CfgScore st={st}setCfg={setCfg}/>}
@@ -6270,12 +6331,34 @@ function CfgDados({st,setSt}){
 }
 
 
-function CfgNotif({st,setSt}){
+function CfgNotif({st,setSt,fbUser}){
   const c=notifCfg(st);
   const[perm,setPerm]=useState(notifPerm());
   const[installable,setInstallable]=useState(!!window.scDeferredInstall);
   const[installed,setInstalled]=useState(isStandalone());
   const[msg,setMsg]=useState('');
+  const[pushOn,setPushOn]=useState(!!(st.push&&st.push.on));
+  const[pushBusy,setPushBusy]=useState(false);
+  const[pushMsg,setPushMsg]=useState('');
+  useEffect(()=>{pushGetSub().then(s2=>{
+    const on=!!s2;setPushOn(on);
+    setSt(p=>((p.push&&p.push.on)===on?p:{...p,push:{...(p.push||{}),on}}));
+  });},[]);
+  async function togglePush(){
+    setPushBusy(true);setPushMsg('');
+    try{
+      if(pushOn){
+        await pushDisable(fbUser&&fbUser.uid);
+        setPushOn(false);setSt(p=>({...p,push:{...(p.push||{}),on:false}}));
+        setPushMsg('Push desligado neste dispositivo.');
+      }else{
+        await pushEnable(fbUser&&fbUser.uid);
+        setPushOn(true);setSt(p=>({...p,push:{...(p.push||{}),on:true}}));
+        setPushMsg('✓ Inscrito. O robô do GitHub passa a mandar os lembretes deste app.');
+      }
+    }catch(e){setPushMsg(e.message||String(e));}
+    setPushBusy(false);
+  }
   useEffect(()=>{
     const a=()=>setInstallable(true),b=()=>{setInstallable(false);setInstalled(true);};
     window.addEventListener('sc-installable',a);window.addEventListener('sc-installed',b);
@@ -6360,6 +6443,31 @@ function CfgNotif({st,setSt}){
       <button className="btn btn-gh mt8"onClick={testar}style={{width:'100%'}}>🧪 Enviar notificação de teste</button>
     </div>
 
+    {/* Push — chega com o app fechado */}
+    <div className="cfg-s">
+      <div className="cfg-t">📡 Push (app fechado)</div>
+      {!pushSupported()
+        ?<div style={{fontSize:'.78rem',color:'var(--tx3)',lineHeight:1.6}}>
+          Este navegador não suporta push. No iPhone, funciona a partir do iOS 16.4 <b>com o app instalado na tela de início</b>.
+        </div>
+        :<>
+          <div style={{fontSize:'.78rem',color:'var(--tx2)',lineHeight:1.6,marginBottom:10}}>
+            Com push ligado os lembretes chegam mesmo com o app fechado — um robô no GitHub confere sua agenda de 15 em 15 minutos e dispara.
+          </div>
+          <div className="fc"style={{justifyContent:'space-between',marginBottom:10}}>
+            <span style={{fontSize:'.75rem',color:'var(--tx2)'}}>Este dispositivo</span>
+            <span style={{fontSize:'.75rem',fontWeight:700,color:pushOn?'var(--ok)':'var(--tx3)'}}>{pushOn?'Inscrito':'Não inscrito'}</span>
+          </div>
+          <button className={pushOn?'btn btn-gh':'btn btn-ac'}onClick={togglePush}disabled={pushBusy}style={{width:'100%'}}>
+            {pushBusy?'…':pushOn?'Cancelar push neste dispositivo':'📡 Ativar push neste dispositivo'}
+          </button>
+          {pushMsg&&<div style={{fontSize:'.75rem',color:pushMsg.startsWith('✓')?'var(--ok)':'var(--warn)',marginTop:8,lineHeight:1.5}}>{pushMsg}</div>}
+          <div style={{fontSize:'.72rem',color:'var(--tx3)',marginTop:10,lineHeight:1.6}}>
+            Precisa estar logado com o Google em ☁️ Sync. Cada aparelho se inscreve separado — ative no celular e no PC se quiser nos dois.
+          </div>
+        </>}
+    </div>
+
     {c.on&&<>
       <div className="cfg-s">
         <div className="cfg-t">O que avisar</div>
@@ -6414,7 +6522,7 @@ function CfgNotif({st,setSt}){
       <div style={{fontSize:'.75rem',color:'var(--tx3)',lineHeight:1.65}}>
         Os lembretes são disparados pelo próprio app. Com o app aberto (mesmo em segundo plano) eles saem na hora certa;
         se você abrir o app depois, um lembrete atrasado em até <b>90 min</b> ainda é entregue.
-        Pra receber com o app totalmente fechado, ative o <b>push</b> — veja a aba ☁️ Sync.
+        Com o <b>push</b> ligado aqui em cima, esse intervalo cai pra 5 min — quem avisa com o app fechado passa a ser o servidor.
       </div>
     </div>
   </div>;
@@ -7630,7 +7738,8 @@ function useNotifEngine(st,setSt){
       const due=notifPlan(s).filter(p=>{
         if(fired[td+'|'+p.key])return false;
         const t=p.at.getTime();
-        return now>=t&&now-t<90*60*1000; // até 90 min de atraso (app estava fechado)
+        const janela=(s.push&&s.push.on?5:90)*60*1000; // com push ligado o servidor já cobre o app fechado
+        return now>=t&&now-t<janela;
       });
       if(!due.length)return;
       for(const p of due)await notifShow(p.title,{body:p.body,tag:'sc-'+p.key,data:{tab:p.tab},renotify:true});

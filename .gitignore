@@ -1,0 +1,5 @@
+node_modules/
+push/VAPID.local.txt
+*.local.txt
+push/serviceAccount.json
+.env

@@ -1,0 +1,14 @@
+{
+  "name": "segundo-cerebro-push",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Robô que lê o Firestore e dispara os lembretes por Web Push",
+  "scripts": {
+    "send": "node send-reminders.mjs"
+  },
+  "dependencies": {
+    "firebase-admin": "^12.7.0",
+    "web-push": "^3.6.7"
+  }
+}
