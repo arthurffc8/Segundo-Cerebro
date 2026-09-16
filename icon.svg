@@ -1,26 +1,36 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF6B00"/>
-      <stop offset="100%" stop-color="#FF4500"/>
+      <stop offset="0%" stop-color="#5B7CFF"/>
+      <stop offset="55%" stop-color="#8F6BFF"/>
+      <stop offset="100%" stop-color="#F46CC0"/>
     </linearGradient>
-    <linearGradient id="crown" x1="0%" y1="0%" x2="0%" y2="100%">
-      <stop offset="0%" stop-color="#FFD700"/>
-      <stop offset="100%" stop-color="#FFA500"/>
+    <linearGradient id="panel" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E1830"/>
+      <stop offset="100%" stop-color="#181A34"/>
     </linearGradient>
+    <radialGradient id="shine" cx="35%" cy="20%" r="70%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-  <!-- Background -->
-  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
-  <!-- Crown base -->
-  <path d="M128 340 L160 220 L220 280 L256 180 L292 280 L352 220 L384 340 Z" fill="url(#crown)" stroke="#8B4513" stroke-width="4"/>
-  <!-- Crown jewels -->
-  <circle cx="160" cy="220" r="12" fill="#FF1493"/>
-  <circle cx="256" cy="180" r="14" fill="#00CED1"/>
-  <circle cx="352" cy="220" r="12" fill="#FF1493"/>
-  <!-- Crown band -->
-  <rect x="128" y="340" width="256" height="32" rx="4" fill="#DAA520" stroke="#8B4513" stroke-width="2"/>
-  <!-- Brain outline (subtle) -->
-  <path d="M220 380 Q200 380 190 400 Q180 420 200 430 Q220 440 240 430 M280 380 Q300 380 310 400 Q320 420 300 430 Q280 440 260 430" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" opacity="0.9"/>
-  <!-- Text -->
-  <text x="256" y="470" font-family="'Bebas Neue', sans-serif" font-size="48" font-weight="700" fill="#fff" text-anchor="middle" opacity="0.95">2° CÉREBRO</text>
+
+  <rect width="512" height="512" rx="110" fill="url(#bg)"/>
+  <rect x="26" y="26" width="460" height="460" rx="94" fill="url(#shine)" opacity="0.9"/>
+
+  <circle cx="256" cy="256" r="170" fill="url(#panel)"/>
+  <circle cx="256" cy="256" r="146" fill="none" stroke="rgba(255,255,255,0.18)" stroke-width="2"/>
+
+  <path d="M128 320C128 294 138 270 158 252C163 248 171 245 177 246C205 249 210 277 221 290C231 301 246 308 261 310C257 290 274 273 294 272C319 271 341 288 349 311C354 325 353 341 346 354C334 378 309 393 282 394H180C152 394 128 371 128 320Z" fill="rgba(255,255,255,0.12)"/>
+
+  <path d="M182 214C192 185 220 168 257 168C302 168 332 192 345 221C355 242 352 266 340 285C329 303 311 316 292 324L285 327C270 333 255 336 240 334C216 330 193 314 181 292C165 264 168 232 182 214Z" fill="rgba(255,255,255,0.08)"/>
+
+  <path d="M170 334C190 306 222 286 258 285C290 284 321 298 344 325" stroke="rgba(255,255,255,0.7)" stroke-width="13" stroke-linecap="round"/>
+  <path d="M155 271C192 241 226 222 280 223" stroke="rgba(255,255,255,0.6)" stroke-width="10" stroke-linecap="round"/>
+
+  <circle cx="168" cy="219" r="10" fill="#FFD6F0"/>
+  <circle cx="257" cy="183" r="12" fill="#B8D7FF"/>
+  <circle cx="341" cy="219" r="10" fill="#FFD6F0"/>
+
+  <text x="256" y="302" text-anchor="middle" font-family="Arial, Helvetica, sans-serif" font-weight="900" font-size="126" fill="#FFFFFF" letter-spacing="-10">2C</text>
 </svg>
