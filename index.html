@@ -930,7 +930,7 @@ async function fbPull(uid){
 
 // ── PUSH (lembretes com o app fechado) ──────────────────────────────────────
 // A chave pública VAPID é pareada com a privada guardada nos Secrets do GitHub.
-const VAPID_PUBLIC='BLG2OU50mzN97drq_7InldshraTeptav2zd7iiVX-M79bPWaZ5bBswP_9YZFxJyL5vrJD0hDpVeUydBfnwIGW7A';
+const VAPID_PUBLIC_KEY = 'BLeil436bCq8Zww8ErlzPhiYGlRkKNDucR9qf4s-PskFRbVdiQpbmVswO6TOfEeYOAWGtOIYGQEHMXC_-CDbswWk';
 const pushSupported=()=>'serviceWorker' in navigator&&'PushManager' in window;
 function urlB64ToUint8(b64){
   const pad='='.repeat((4-b64.length%4)%4);

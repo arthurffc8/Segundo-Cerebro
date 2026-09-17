@@ -12,7 +12,7 @@ import webpush from 'web-push';
 import { pathToFileURL } from 'node:url';
 
 const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY
-  || 'BLG2OU50mzN97drq_7InldshraTeptav2zd7iiVX-M79bPWaZ5bBswP_9YZFxJyL5vrJD0hDpVeUydBfnwIGW7A';
+|| 'BLeil436bCq8Zww8ErlzPhiYGlRkKNDucR9qf4s-PskFRbVdiQpbmVswO6TOfEeYOAWGtOIYGQEHMXC_-CDbswWk';
 const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
 const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:arthursferreira52@gmail.com';
 // Janela de atraso tolerada: o cron do GitHub costuma atrasar alguns minutos.
