@@ -258,6 +258,19 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .cal-tk-t{flex:1;font-size:.82rem;font-weight:600;line-height:1.3;color:var(--tx);word-break:break-word;cursor:pointer;}
 .cal-tk.done .cal-tk-t{text-decoration:line-through;color:var(--tx3);}
 .cal-vazio{font-size:.75rem;color:var(--tx4);padding:8px 2px;font-style:italic;}
+.pend-wrap{background:linear-gradient(135deg,color-mix(in srgb,var(--ac) 12%,var(--card)),var(--card));border:1px solid var(--ac2);border-radius:var(--r);padding:13px 14px;margin-bottom:14px;box-shadow:var(--sh);}
+.pend-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;}
+.pend-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx);}
+.pend-count{font-family:var(--fm);font-size:.64rem;color:var(--ac);white-space:nowrap;}
+.pend-list{display:flex;flex-direction:column;gap:5px;max-height:250px;overflow-y:auto;padding-right:2px;}
+.pend-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;background:var(--card2);border:1px solid var(--bd);border-left:3px solid var(--pend-color,var(--bd3));}
+.pend-row:hover{border-color:var(--bd3);}
+.pend-main{flex:1;min-width:0;cursor:pointer;}
+.pend-task{font-size:.8rem;font-weight:600;line-height:1.25;color:var(--tx);word-break:break-word;}
+.pend-meta{display:flex;align-items:center;gap:6px;margin-top:3px;font-family:var(--fm);font-size:.59rem;color:var(--tx3);}
+.pend-overdue{color:#ef4444;font-weight:700;}
+.pend-prio{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--pend-color,var(--bd3));}
+.pend-empty{font-size:.76rem;color:var(--tx3);padding:5px 0 2px;}
 .cal-prox{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;}
 .cal-prox::-webkit-scrollbar{display:none;}
 .cal-prox-c{min-width:150px;flex:0 0 150px;padding:9px 11px;border-radius:9px;background:var(--card2);border:1px solid var(--bd);border-top:2px solid var(--ac);cursor:pointer;transition:all .15s;}
@@ -3119,8 +3132,42 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
   const selStats=stats(sel);
   const selEv=evByDay[sel]||[];
   const R=15,CIRC=2*Math.PI*R;
+  const pendencias=useMemo(()=>[...(st.tasks||[])].filter(t=>!t.done).sort((a,b)=>{
+    const ad=a.date||'9999-12-31',bd=b.date||'9999-12-31';
+    if(ad!==bd)return ad<bd?-1:1;
+    return(a.time||'99:99')<(b.time||'99:99')?-1:1;
+  }),[st.tasks]);
+  const prioCor={alta:'#ef4444',media:'#eab308',baixa:'#22c55e'};
+  const pendDate=t=>{
+    if(!t.date)return'Sem data';
+    const d=new Date(t.date+'T12:00:00');
+    const overdue=t.date<td;
+    return<span className={overdue?'pend-overdue':''}>{overdue?'Atrasada · ':''}{d.getDate()}/{d.getMonth()+1}{t.time?` · ${t.time}`:''}</span>;
+  };
 
   return<div>
+    {/* ── pendências sempre visíveis ── */}
+    <div className="pend-wrap">
+      <div className="pend-head">
+        <div className="pend-title">⚠ Pendências abertas</div>
+        <div className="pend-count">{pendencias.length} {pendencias.length===1?'tarefa':'tarefas'}</div>
+      </div>
+      {pendencias.length===0
+        ?<div className="pend-empty">Tudo resolvido por enquanto.</div>
+        :<div className="pend-list">
+          {pendencias.map(t=>{
+            const cor=prioCor[t.prio]||'var(--bd3)';
+            return<div key={t.id}className="pend-row"style={{'--pend-color':cor}}>
+              <Chk on={false}onChange={()=>onToggleTask(t.id)}/>
+              <div className="pend-main"onClick={()=>onEditTask(t)}>
+                <div className="pend-task">{t.title}</div>
+                <div className="pend-meta"><span className="pend-prio"/>{pendDate(t)}{t.fixedId&&<span className="tsk-fixed">fixa</span>}</div>
+              </div>
+            </div>;
+          })}
+        </div>}
+      <button className="btn btn-gh"style={{marginTop:9,padding:'5px 10px',fontSize:'.7rem'}}onClick={()=>onNewTask({date:td})}>+ Nova pendência</button>
+    </div>
     {/* ── grade do mês ── */}
     <div className="cal-wrap">
       <div className="cal-head">
