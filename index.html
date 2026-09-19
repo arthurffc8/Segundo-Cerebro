@@ -8179,10 +8179,11 @@ function widgetPayload(st){
   const ord=x=>x.hora==='--:--'?'99:99':x.hora;
   const itens=[...evs,...tks].sort((a,b)=>ord(a)<ord(b)?-1:1).slice(0,6);
   const p=pendingToday(st);
+  const pendencias=(st.pendencias||[]).filter(x=>!x.done).map(x=>({titulo:x.text||x.title||'Pendência'}));
   const resumo=p.total
     ?p.tasks+' tarefa'+(p.tasks===1?'':'s')+' · '+p.habits+' hábito'+(p.habits===1?'':'s')+' pendentes'
     :'Tudo em dia hoje \u{1F451}';
-  return{resumo,itens,vazio:itens.length?'':'Nada agendado pra hoje.'};
+  return{resumo,itens,pendencias,vazio:itens.length?'':'Nada agendado pra hoje.'};
 }
 function useWidgetSync(st){
   useEffect(()=>{
@@ -8193,7 +8194,7 @@ function useWidgetSync(st){
       }).catch(()=>{});
     },1500);
     return()=>clearTimeout(id);
-  },[st.tasks,st.eventos,st.habits,st.habitLog]);
+  },[st.tasks,st.eventos,st.habits,st.habitLog,st.pendencias]);
 }
 
 function initialTab(){
@@ -8228,6 +8229,12 @@ function App(){
     const h=e=>{if(e.data&&e.data.type==='SC_NAVIGATE'&&e.data.tab)setTab(e.data.tab);};
     navigator.serviceWorker.addEventListener('message',h);
     return()=>navigator.serviceWorker.removeEventListener('message',h);
+  },[]);
+
+  useEffect(()=>{
+    const openTab=e=>{if(e.detail)setTab(e.detail);};
+    window.addEventListener('sc-open-tab',openTab);
+    return()=>window.removeEventListener('sc-open-tab',openTab);
   },[]);
 
   // Share target: texto/link compartilhado de outro app vira anotação

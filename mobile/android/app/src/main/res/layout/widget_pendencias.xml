@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/pendencia_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="⚠  PENDÊNCIAS"
+        android:textColor="#F0F0F0"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/pendencia_resumo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:text="Abra o app pra sincronizar"
+        android:textColor="#FF6B00"
+        android:textSize="11sp" />
+
+    <TextView android:id="@+id/pendencia_row_0" style="@style/WidgetPendingRow" />
+    <TextView android:id="@+id/pendencia_row_1" style="@style/WidgetPendingRow" />
+    <TextView android:id="@+id/pendencia_row_2" style="@style/WidgetPendingRow" />
+    <TextView android:id="@+id/pendencia_row_3" style="@style/WidgetPendingRow" />
+
+    <TextView
+        android:id="@+id/pendencia_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxLines="2"
+        android:text="Nenhuma pendência aberta."
+        android:textColor="#9A9A9A"
+        android:textSize="11sp" />
+</LinearLayout>

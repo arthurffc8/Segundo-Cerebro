@@ -5,7 +5,9 @@
     <string name="package_name">com.arthurffc.segundocerebro</string>
     <string name="custom_url_scheme">com.arthurffc.segundocerebro</string>
     <string name="widget_desc">Tarefas e eventos de hoje</string>
+    <string name="widget_pendencias_desc">Pendências abertas do mês</string>
     <string name="widget_carregando">Abra o app pra sincronizar</string>
     <string name="widget_sem_dados">Nada carregado ainda.</string>
     <string name="widget_mais">+%1$d itens</string>
+    <string name="widget_pendencias_vazio">Nenhuma pendência aberta.</string>
 </resources>

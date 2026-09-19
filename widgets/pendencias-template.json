@@ -1,0 +1,61 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.6",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            { "type": "TextBlock", "text": "⚠", "size": "Large", "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Pendências", "weight": "Bolder", "size": "Medium", "spacing": "None", "wrap": true },
+            { "type": "TextBlock", "text": "${pendencias.length} abertas", "isSubtle": true, "size": "Small", "spacing": "None", "wrap": true }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "Container",
+          "$data": "${pendencias}",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "• ${titulo}",
+              "size": "Small",
+              "wrap": true,
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "Nenhuma pendência aberta.",
+          "size": "Small",
+          "isSubtle": true,
+          "wrap": true,
+          "$when": "${pendencias.length == 0}"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "Abrir mês",
+      "verb": "abrir-pendencias"
+    }
+  ]
+}

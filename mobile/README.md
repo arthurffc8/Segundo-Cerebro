@@ -41,7 +41,7 @@ node sync-www.mjs && npx cap sync android
 ## Instalar o widget
 
 Segure um espaço vazio na tela de início → **Widgets** → **Segundo Cérebro** →
-arraste o widget **Hoje**.
+arraste o widget **Hoje** ou **Pendências**.
 
 O widget lê um JSON guardado em `SharedPreferences`. Quem escreve é o app web:
 
@@ -62,6 +62,7 @@ widget abre o app.
 | `capacitor.config.json` | id do app, nome, `webDir`, ícone de notificação |
 | `sync-www.mjs` | copia o app web da raiz para `www/` |
 | `android/app/src/main/java/.../HojeWidget.java` | o widget (desenha o card) |
+| `android/app/src/main/java/.../PendenciasWidget.java` | o atalho das pendências abertas |
 | `android/app/src/main/java/.../WidgetBridgePlugin.java` | ponte JS → widget |
 | `android/app/src/main/res/layout/widget_hoje.xml` | layout do widget |
 | `android/app/src/main/res/xml/widget_hoje_info.xml` | tamanho, preview, refresh |

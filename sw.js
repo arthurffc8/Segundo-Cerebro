@@ -14,6 +14,7 @@ const ASSETS_TO_CACHE = [
   './icons/badge-96.png',
   './icons/favicon-64.png',
   './widgets/hoje-template.json',
+  './widgets/pendencias-template.json',
   './widgets/hoje-data.json',
   './classes/1.jpg',
   './classes/2.jpg',
@@ -200,7 +201,7 @@ self.addEventListener('widgetresume', event => {
   event.waitUntil(renderWidget(event.widget));
 });
 self.addEventListener('widgetclick', event => {
-  if (event.action === 'abrir-agenda') {
+  if (event.action === 'abrir-agenda' || event.action === 'abrir-pendencias') {
     event.waitUntil(self.clients.openWindow('./index.html?tab=tarefas'));
     return;
   }

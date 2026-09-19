@@ -25,7 +25,7 @@ index.html          o app inteiro
 sw.js               service worker: cache, notificações, push, widget do Windows
 manifest.json       PWA: ícones, atalhos, share target, widget
 icons/              conjunto PNG (any, maskable, monochrome, badge)
-widgets/            card do painel de widgets do Windows 11
+widgets/            cards dos widgets do Windows 11 e Android
 classes/            arte das classes de RPG (trocar o arquivo troca a arte)
 push/               robô de lembretes → veja push/README.md
 mobile/             projeto Capacitor (APK + widget) → mobile/README.md
