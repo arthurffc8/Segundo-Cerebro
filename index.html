@@ -6003,12 +6003,13 @@ function SkillTreeSection({st,setSt,setTab}){
 
     {/* Árvore — ramos (subcategorias) organizados em layout adaptativo */}
     <div style={{position:'relative',borderRadius:10,overflow:'hidden'}}>
-      {tree.id==='futebol'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futebol-bg.jpg')",backgroundSize:'cover',backgroundPosition:'center 30%',filter:'grayscale(1)',opacity:0.13,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-      {tree.id==='futevolei'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('futevolei-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-      {tree.id==='tantan'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('tantan-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-      {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('surdo-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-      {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('automacao-bg.png')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
-      {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('molho-bg.webp')",backgroundSize:'cover',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.09,zIndex:0,pointerEvents:'none',borderRadius:10}}/>}
+      {/* Backgrounds removidos - usando icon.svg como fallback para evitar erros 404 */}
+      {tree.id==='futebol'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
+      {tree.id==='futevolei'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
+      {tree.id==='tantan'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
+      {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
+      {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
+      {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
     <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
@@ -8123,22 +8124,49 @@ function useNative(st,setTab){
     if(!isNative())return;
     const LN=capPlugins().LocalNotifications;
     let handle=null;
-    if(LN){
-      if(LN.createChannel)LN.createChannel({id:'lembretes',name:'Lembretes',description:'Tarefas, eventos e hábitos',importance:4,visibility:1,vibration:true}).catch(()=>{});
-      LN.addListener('localNotificationActionPerformed',ev=>{
-        const tab=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.tab;
-        if(tab)setTab(tab);
-      }).then(h=>{handle=h;}).catch(()=>{});
-    }
-    const reagendar=()=>{nativeSchedule(ref.current);nativeWidget(ref.current);};
+    
+    try{
+      if(LN){
+        // Cria canal de notificação se disponível
+        if(LN.createChannel){
+          try{
+            LN.createChannel({id:'lembretes',name:'Lembretes',description:'Tarefas, eventos e hábitos',importance:4,visibility:1,vibration:true});
+          }catch(e){/* ignora erro de canal */}
+        }
+        
+        // Registra listener SEM usar .then() - callback apenas
+        if(LN.addListener){
+          try{
+            // Usa callback direto, não retorna Promise
+            LN.addListener('localNotificationActionPerformed',function(ev){
+              try{
+                const tab=ev&&ev.notification&&ev.notification.extra&&ev.notification.extra.tab;
+                if(tab)setTab(tab);
+              }catch(err){/* ignora erro no handler */}
+            });
+            
+            // Handle simplificado para cleanup
+            handle={remove:function(){
+              try{
+                if(LN.removeListener)LN.removeListener('localNotificationActionPerformed',null);
+              }catch(e){/* ignora erro ao remover */}
+            }};
+          }catch(e){/* ignora erro de listener */}
+        }
+      }
+    }catch(e){/* ignora qualquer erro do LocalNotifications */}
+    
+    const reagendar=function(){nativeSchedule(ref.current);nativeWidget(ref.current);};
     reagendar();
     const iv=setInterval(reagendar,15*60*1000);
-    const onVis=()=>{if(!document.hidden)reagendar();};
+    const onVis=function(){if(!document.hidden)reagendar();};
     document.addEventListener('visibilitychange',onVis);
-    return()=>{
+    return function(){
       clearInterval(iv);
       document.removeEventListener('visibilitychange',onVis);
-      if(handle&&handle.remove)handle.remove();
+      if(handle&&typeof handle.remove==='function'){
+        try{handle.remove();}catch(e){/* ignora erro no cleanup */}
+      }
     };
   },[]);
 }
