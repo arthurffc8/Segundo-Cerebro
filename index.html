@@ -452,15 +452,16 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-studs{position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;}
 .skill-ring{position:relative;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;}
 .skill-core{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.38rem;}
-/* ── Estágios de ignição: animações radiais do centro para fora (sem rotação) ── */
+/* ── Estágios de ignição: radiação do centro para fora + rotação leve ── */
+@keyframes sk-spin{to{transform:rotate(360deg)}}
 .sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d);height:var(--sk-d);border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 58%,var(--sk-rim) 92%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom) var(--sk-glow);transition:width .4s ease,height .4s ease,box-shadow .3s ease;}
 .sk-aura{position:absolute;inset:2.5px;border-radius:50%;z-index:1;pointer-events:none;border:1px solid var(--sk-c);opacity:var(--sk-aura-op);box-shadow:0 0 7px var(--sk-glow),inset 0 0 9px var(--sk-glow);}
 
-/* Onda de choque 1 (anel luminoso expandindo do centro até a borda) */
-.sk-swirl{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;border:1.5px solid var(--sk-spark);box-shadow:0 0 10px var(--sk-glow),inset 0 0 6px var(--sk-glow);animation:sk-radial-wave var(--sk-wave-dur,3s) cubic-bezier(0.15,0.85,0.35,1) infinite var(--sk-phase,0s);}
+/* Onda de choque 1 (anel luminoso expandindo do centro até a borda, com giro leve) */
+.sk-swirl{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;border:1.5px solid var(--sk-spark);box-shadow:0 0 10px var(--sk-glow),inset 0 0 6px var(--sk-glow);animation:sk-radial-wave var(--sk-wave-dur,3s) cubic-bezier(0.15,0.85,0.35,1) infinite var(--sk-phase,0s),sk-spin 20s linear infinite;}
 
-/* Faíscas radiais que disparam do centro para fora */
-.sk-orbit{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;transform:translate(-50%,-50%);animation:none !important;}
+/* Faíscas radiais que disparam do centro para fora (o conjunto gira de leve) */
+.sk-orbit{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;transform:translate(-50%,-50%);animation:sk-spin var(--sk-orbit-spin,26s) linear infinite;}
 .sk-orbit i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--sk-spark);box-shadow:0 0 6px var(--sk-glow),0 0 10px #ffffff;animation:sk-spark-out var(--sk-wave-dur,3s) cubic-bezier(0.15,0.85,0.35,1) infinite calc(var(--sk-phase,0s) + var(--sk-wave-dur,3s)*0.45);}
 
 @keyframes sk-spark-out{
@@ -476,6 +477,13 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
   50%{opacity:var(--sk-wave-op,0.65);}
   100%{transform:translate(-50%,-50%) scale(1.32);opacity:0;border-width:0.5px;filter:brightness(0.85);}
 }
+
+/* Veios internos: o disco deixa de ser liso e gira de leve por dentro do orbe */
+.sk-liquid{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:var(--sk-liq-op,.5);background:
+  radial-gradient(circle farthest-side at 30% 26%,rgba(255,255,255,.42),rgba(255,255,255,0) 46%),
+  radial-gradient(circle farthest-side at 72% 64%,var(--sk-hot),rgba(255,255,255,0) 52%),
+  conic-gradient(from 20deg,transparent 0deg,var(--sk-hot) 34deg,transparent 84deg,transparent 186deg,var(--sk-hot) 232deg,transparent 300deg);
+  background-blend-mode:screen,normal,normal;mix-blend-mode:screen;filter:blur(3px);animation:sk-spin var(--sk-liq-spin,30s) linear infinite;}
 
 /* Brilho especular: o disco chapado vira esfera de vidro */
 .sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d);height:var(--sk-d);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 33% 27%,rgba(255,255,255,.9) 0%,rgba(255,255,255,.32) 16%,rgba(255,255,255,0) 44%),radial-gradient(circle at 68% 78%,var(--sk-hot) 0%,rgba(255,255,255,0) 34%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.7);transition:width .4s ease,height .4s ease,opacity .25s ease;}
@@ -537,8 +545,10 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-node:hover .sk-orbit i{animation-duration:1.4s !important;}
 .skill-node:hover .sk-rays{animation-duration:1.6s !important;opacity:0.95 !important;}
 .skill-node:hover .sk-corona{animation-duration:1.4s !important;}
+.skill-node:hover .sk-orbit{animation-duration:14s;}
+.skill-node:hover .sk-liquid{animation-duration:16s;opacity:calc(var(--sk-liq-op,.5) * 1.5);}
 
-@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-rays,.sk-crown,.sk-corona,.sk-swirl,.sk-maxcrown,.sk-orbit i,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
+@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-liquid,.sk-rays,.sk-crown,.sk-corona,.sk-swirl,.sk-maxcrown,.sk-orbit i,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -5624,6 +5634,10 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
     '--sk-wave-dur':(3.6-tone*1.8).toFixed(2)+'s',
     '--sk-wave-op':(0.32+levelRatio*0.52).toFixed(2),
     '--sk-rays-op':(0.28+levelRatio*0.58).toFixed(2),
+    // rotação leve: veios internos e o anel de faíscas giram (mais rápido conforme o nível)
+    '--sk-liq-spin':(34-tone*12).toFixed(1)+'s',
+    '--sk-liq-op':(0.3+levelRatio*0.34).toFixed(2),
+    '--sk-orbit-spin':(32-tone*10).toFixed(1)+'s',
   };
 
   // Pips: bolinhas abaixo do badge indicando nível (como estrelas)
@@ -5661,6 +5675,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
         {Array.from({length:sats},(_,i)=><i key={i}style={{'--rot':`${i*360/sats}deg`,'--orbit-r':`${orbitR}px`}}/>)}
       </div>}
       {started&&<div className="sk-light"/>}
+      {started&&<div className="sk-liquid"/>}
       {started&&<div className="sk-gloss"/>}
       <div className="skill-ring"style={{background:'transparent',padding:0}}>
         <div className="skill-core">
