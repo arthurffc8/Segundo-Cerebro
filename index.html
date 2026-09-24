@@ -5572,8 +5572,8 @@ function skillReqListLabel(skill,tree){
 // Sigilo central: a forma no meio do hexágono evolui por faixa, sem mudar o perímetro.
 //  1 linha fina · 2 linhas cruzadas · 3 triângulo · 4 quadrado · 5 pentágono (todos com bordas côncavas, girando)
 function skSigilD(stage){
-  if(stage<=1) return 'M0 -30 L0 30';
-  if(stage===2) return 'M0 -30 L0 30 M-30 0 L30 0';
+  if(stage<=1) return 'M0 -22 L0 22';
+  if(stage===2) return 'M0 -26 L0 26 M-26 0 L26 0';
   const n=stage===3?3:stage===4?4:5;
   const r=stage===3?30:stage===4?34:38;
   const pull=0.58;                       // puxa o ponto médio da aresta para dentro → bordas côncavas
@@ -5596,20 +5596,21 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
   const locked=!!lock;                                   // depende de outra habilidade
 
-  // ── PROGRESSÃO EM CAMADAS (5 faixas por PORCENTAGEM lv/max) ──
-  // Cada faixa ADICIONA uma camada visual clara, sem mudar a forma hexagonal:
-  //  1 (0–20%)  Casca Vazia ..... contorno 40% + linha fina girando (brilho leve)
-  //  2 (21–40%) Preenchimento ... contorno 70% + glow radial parcial + cruz de linhas girando
-  //  3 (41–60%) Núcleo Formado .. contorno cheio + centro na cor + anel interno (hexágono gira) + triângulo girando
-  //  4 (61–80%) Energia Ativa ... + anel externo (gira ao contrário) + quadrado girando + partículas
-  //  5 (81–100%) Maestria ...... dourado + pentágono + mais partículas + linhas de luz pros conectados
+  // ── PROGRESSÃO EM CAMADAS (NÍVEL 0–5 por PORCENTAGEM lv/max) ──
+  // O hexágono externo NUNCA muda; a geometria central é o símbolo de cada estágio:
+  //  0 (0%)     Não Despertado . hexágono adormecido, cinza, sem linha/geometria/brilho
+  //  1 (1–20%)  Semente ........ contorno discreto + 1 LINHA curta girando (primeiro sinal de energia)
+  //  2 (21–40%) Conexão ........... contorno definido + preenchimento radial sutil + 2 LINHAS (cruz/X)
+  //  3 (41–60%) Núcleo ........... contorno cheio + centro na cor + anel interno (hexágono) + TRIÂNGULO
+  //  4 (61–80%) Estrutura ........ + halo externo (gira ao contrário) + QUADRADO + partículas
+  //  5 (81–100%) Maestria ........ dourado + PENTÁGONO + mais partículas + pulso forte + linhas de luz
   const pct=max>0?Math.min(1,lv/max):0;
   const levelRatio=pct;                                  // usado por nome/badge/pips
-  const stage=locked||pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
+  const stage=locked||pct<=0?0:pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
 
-  // cores: cinza só quando travado; tema do nível 1 pra frente; ouro branco na maestria (5)
+  // cores: cinza quando travado OU adormecido (nível 0); tema do nível 1 pra frente; ouro branco na maestria (5)
   const elite=_mix(SKILL_GOLD,'#FFFFFF',0.42);
-  const accent=locked?'#39445A':stage>=5?elite:d;
+  const accent=(locked||stage===0)?'#39445A':stage>=5?elite:d;
   const glowTone=accent;
   const maxHi=stage>=5?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
   const hot=_mix(accent,'#FFFFFF',0.5);
@@ -5617,21 +5618,21 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const spark=_mix(accent,'#FFFFFF',0.35);
   const sigilCol=_mix(accent,'#FFFFFF',0.18+stage*0.07);   // sigilo: cor levemente destacada do gradiente, sem sair do tom
 
-  // preenchimento interno (sk-light): vazio → parcial (não encosta na borda) → cheio
+  // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
   const FRAME=78;
   const fillFrac=stage<=1?0:stage===2?0.4+((pct-0.2)/0.2)*0.16:stage===3?1.05:1.25;
   const lightD=Math.round(fillFrac*FRAME);
-  const glowK=stage<=1?0.16:stage===2?0.3:stage===3?0.6:stage===4?0.85:1;   // intensidade do brilho
+  const glowK=[0,0.18,0.32,0.6,0.85,1][stage];   // intensidade do brilho por estágio
 
   // vida: SEM animação no nível 1; batida GLOBAL sincronizada, mais forte a cada faixa
   const breath=stage>=2&&(!stl||stl.vida!==false);
 
-  // emoji: some na casca vazia (1), volta tímido no 2, vívido do 3 em diante
-  const emojiOp=stage<=1?0.28:stage===2?0.5:0.72+pct*0.28;
-  const emojiFilt=stage<=1?'grayscale(1) brightness(0.55)':stage===2?'grayscale(.4) brightness(.85)':`brightness(${(0.9+pct*0.2).toFixed(2)}) saturate(${Math.round(70+pct*60)}%)`;
+  // emoji: apaga no adormecido (0), quase some na semente (1), volta tímido no 2, vívido do 3 em diante
+  const emojiOp=stage===0?0.14:stage===1?0.3:stage===2?0.52:0.72+pct*0.28;
+  const emojiFilt=stage<=1?'grayscale(1) brightness(0.5)':stage===2?'grayscale(.4) brightness(.85)':`brightness(${(0.9+pct*0.2).toFixed(2)}) saturate(${Math.round(70+pct*60)}%)`;
 
-  // rim (borda) do hexágono: opacidade cresce por faixa (40% → 70% → 100%)
-  const outlineOp=stage<=1?0.4:stage===2?0.7:stage===3?0.95:1;
+  // rim (borda) do hexágono: opacidade cresce por estágio (adormecido → 40% → 70% → cheio)
+  const outlineOp=[0.26,0.42,0.7,0.95,1,1][stage];
   const frameBg=_rgba(accent,Math.min(1,outlineOp*(0.72+nk*0.28)).toFixed(2));
   const wellBg=stage>=3
     ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.7)} 0%, #04060C 100%)`
@@ -5703,7 +5704,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
         {stage>=5&&<div className="sk-facets"/>}
         <div className="sk-light"/>
         <div className="sk-gloss"/>
-        {!locked&&<svg className="sk-sigil" viewBox="-50 -50 100 100" aria-hidden="true"><path d={skSigilD(stage)}/></svg>}
+        {stage>=1&&!locked&&<svg className="sk-sigil" viewBox="-50 -50 100 100" aria-hidden="true"><path d={skSigilD(stage)}/></svg>}
         {stage>=3&&<svg className="sk-innerring" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="50,1 99,26 99,74 50,99 1,74 1,26"/></svg>}
         <div className="skill-core">
           {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:maxed?'translateY(12px) scale(.86)':'none'}}>{skill.emoji}</span>}
