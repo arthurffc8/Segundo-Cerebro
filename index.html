@@ -506,6 +506,11 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-s3 .sk-innerring,.sk-s4 .sk-innerring,.sk-s5 .sk-innerring{opacity:var(--sk-inring-op,.85);}
 @keyframes sk-innerspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
 
+/* Sigilo central (todas as faixas): forma que evolui e gira devagar, no sentido OPOSTO ao anel interno */
+.sk-sigil{position:absolute;left:50%;top:50%;width:52%;height:52%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;overflow:visible;animation:sk-sigilspin var(--sk-sigil-spin,24s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-sigil path{fill:none;stroke:var(--sk-sigil,var(--sk-c));stroke-width:var(--sk-sigil-sw,2);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:var(--sk-sigil-op,.8);filter:drop-shadow(0 0 var(--sk-sigil-glow,3px) var(--sk-glow));transition:opacity .5s var(--ease-sk);}
+@keyframes sk-sigilspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(-360deg);}}
+
 /* Nível 4+ : PARTÍCULAS orbitando · Nível 5 : duas camadas em velocidades diferentes */
 .sk-orbit{position:absolute;left:50%;top:41px;width:0;height:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);}
 .sk-s4 .sk-orbit,.sk-s5 .sk-orbit{opacity:1;}
@@ -563,7 +568,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-@media(prefers-reduced-motion:reduce){.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -5564,6 +5569,21 @@ function skillReqListLabel(skill,tree){
   }).filter(Boolean).join(' · ');
 }
 
+// Sigilo central: a forma no meio do hexágono evolui por faixa, sem mudar o perímetro.
+//  1 linha fina · 2 linhas cruzadas · 3 triângulo · 4 quadrado · 5 pentágono (todos com bordas côncavas, girando)
+function skSigilD(stage){
+  if(stage<=1) return 'M0 -30 L0 30';
+  if(stage===2) return 'M0 -30 L0 30 M-30 0 L30 0';
+  const n=stage===3?3:stage===4?4:5;
+  const r=stage===3?30:stage===4?34:38;
+  const pull=0.58;                       // puxa o ponto médio da aresta para dentro → bordas côncavas
+  const pts=[];
+  for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;pts.push([Math.cos(a)*r,Math.sin(a)*r]);}
+  let d='M '+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
+  for(let i=0;i<n;i++){const p=pts[i],q=pts[(i+1)%n];d+=' Q '+(((p[0]+q[0])/2*pull).toFixed(1))+' '+(((p[1]+q[1])/2*pull).toFixed(1))+' '+q[0].toFixed(1)+' '+q[1].toFixed(1);}
+  return d+' Z';
+}
+
 function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
@@ -5578,11 +5598,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
 
   // ── PROGRESSÃO EM CAMADAS (5 faixas por PORCENTAGEM lv/max) ──
   // Cada faixa ADICIONA uma camada visual clara, sem mudar a forma hexagonal:
-  //  1 (0–20%)  Casca Vazia ..... só o contorno, centro escuro, sem brilho/animação
-  //  2 (21–40%) Preenchimento ... contorno + glow radial parcial no centro, brilho sutil
-  //  3 (41–60%) Núcleo Formado .. contorno cheio + centro na cor + anel interno (gira)
-  //  4 (61–80%) Energia Ativa ... + anel externo (gira ao contrário) + partículas orbitando
-  //  5 (81–100%) Maestria ...... dourado + mais partículas + linhas de luz pros conectados
+  //  1 (0–20%)  Casca Vazia ..... contorno 40% + linha fina girando (brilho leve)
+  //  2 (21–40%) Preenchimento ... contorno 70% + glow radial parcial + cruz de linhas girando
+  //  3 (41–60%) Núcleo Formado .. contorno cheio + centro na cor + anel interno (hexágono gira) + triângulo girando
+  //  4 (61–80%) Energia Ativa ... + anel externo (gira ao contrário) + quadrado girando + partículas
+  //  5 (81–100%) Maestria ...... dourado + pentágono + mais partículas + linhas de luz pros conectados
   const pct=max>0?Math.min(1,lv/max):0;
   const levelRatio=pct;                                  // usado por nome/badge/pips
   const stage=locked||pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
@@ -5595,12 +5615,13 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
+  const sigilCol=_mix(accent,'#FFFFFF',0.18+stage*0.07);   // sigilo: cor levemente destacada do gradiente, sem sair do tom
 
   // preenchimento interno (sk-light): vazio → parcial (não encosta na borda) → cheio
   const FRAME=78;
   const fillFrac=stage<=1?0:stage===2?0.4+((pct-0.2)/0.2)*0.16:stage===3?1.05:1.25;
   const lightD=Math.round(fillFrac*FRAME);
-  const glowK=stage<=1?0:stage===2?0.28:stage===3?0.6:stage===4?0.85:1;   // intensidade do brilho
+  const glowK=stage<=1?0.16:stage===2?0.3:stage===3?0.6:stage===4?0.85:1;   // intensidade do brilho
 
   // vida: SEM animação no nível 1; batida GLOBAL sincronizada, mais forte a cada faixa
   const breath=stage>=2&&(!stl||stl.vida!==false);
@@ -5631,6 +5652,12 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     // anel interno (hexágono menor · nível 3+)
     '--sk-spin-in':stage>=5?'12s':'18s',
     '--sk-inring-op':(0.6+(stage-3)*0.14).toFixed(2),
+    // sigilo central (todas as faixas): linha → cruz → triângulo → quadrado → pentágono, girando
+    '--sk-sigil':sigilCol,
+    '--sk-sigil-op':Math.min(1,0.5+stage*0.1).toFixed(2),
+    '--sk-sigil-glow':Math.round(2+stage*1.8)+'px',
+    '--sk-sigil-sw':(1.6+stage*0.28).toFixed(2),
+    '--sk-sigil-spin':stage>=5?'15s':stage>=4?'18s':stage>=3?'21s':'26s',
     // partículas orbitando (nível 4+)
     '--sk-pt-r':stage>=5?'56px':'50px','--sk-pt-s':stage>=5?'3.6px':'3px',
     '--sk-orb1':'11s','--sk-orb2':'7s',
@@ -5676,6 +5703,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
         {stage>=5&&<div className="sk-facets"/>}
         <div className="sk-light"/>
         <div className="sk-gloss"/>
+        {!locked&&<svg className="sk-sigil" viewBox="-50 -50 100 100" aria-hidden="true"><path d={skSigilD(stage)}/></svg>}
         {stage>=3&&<svg className="sk-innerring" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="50,1 99,26 99,74 50,99 1,74 1,26"/></svg>}
         <div className="skill-core">
           {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:maxed?'translateY(12px) scale(.86)':'none'}}>{skill.emoji}</span>}
