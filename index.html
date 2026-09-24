@@ -362,6 +362,8 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-hint-eyebrow{font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;color:#F5D98C;margin-bottom:4px;}
 .st-hint-text{font-size:.78rem;color:#EDE4D3;line-height:1.45;font-style:italic;}
 .st-hint-empty{font-size:.72rem;color:#5C6B7C;font-style:italic;text-align:center;}
+.st-hint-btn{display:block;width:100%;margin-top:8px;padding:5px 0;border-radius:5px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#0B1522;background:linear-gradient(135deg,var(--sk-hot,#F5D98C),var(--sk-c,#D18B1F));border:none;cursor:pointer;pointer-events:auto;transition:filter .3s cubic-bezier(.4,0,.2,1),transform .3s cubic-bezier(.4,0,.2,1);}
+.st-hint-btn:hover{filter:brightness(1.12);transform:translateY(-1px);}
 
 /* Practice history (no modal) */
 .st-history{margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,.06);}
@@ -440,86 +442,78 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-title{font-family:var(--serif);font-weight:900;letter-spacing:.13em;text-transform:uppercase;line-height:1.05;color:#f5dca6;text-shadow:0 0 18px rgba(240,200,110,.2);}
 .st-sub{font-family:var(--serif);font-size:.6rem;letter-spacing:.1em;text-transform:uppercase;color:#bda97d;margin-top:6px;}
 .st-label{font-family:var(--serif);font-size:.62rem;letter-spacing:.1em;text-transform:uppercase;color:#d3b76f;}
-.skill-tree-body{position:relative;padding:16px 0 6px;}
-.skill-spine{position:absolute;top:8px;bottom:8px;left:50%;width:2px;transform:translateX(-50%);z-index:0;}
+/* ══ SISTEMA DE HABILIDADES — cristal tech + orgânico · Segundo Cérebro ══
+   Estética: glassmorphism + neon. Geometria: hexágono/cristal (clip-path).
+   Regras de movimento: SEMPRE cubic-bezier(.4,0,.2,1) ou ease-in-out (nada linear);
+   pulsação global SINCRONIZADA (mesma duração, fase 0); rotação orgânica do anel.
+   Estágios por PORCENTAGEM (lv/max): 1 apagado · 2 acende+anel · 3 forte · 4 elite. */
+.skill-tree-body{position:relative;padding:16px 0 6px;--ease-sk:cubic-bezier(.4,0,.2,1);}
 .skill-tier{position:relative;display:flex;justify-content:center;align-items:flex-start;gap:16px;flex-wrap:wrap;margin:0 0 34px;z-index:1;}
 .skill-tier:last-child{margin-bottom:8px;}
-.skill-node{position:relative;width:76px;display:flex;flex-direction:column;align-items:center;cursor:pointer;flex-shrink:0;transition:transform .15s;z-index:1;}
-.skill-node:hover{transform:translateY(-2px) scale(1.05);}
-.skill-halo{position:absolute;width:90px;height:90px;border-radius:50%;left:50%;top:35px;transform:translate(-50%,-50%);z-index:0;filter:blur(10px);pointer-events:none;background:radial-gradient(circle, rgba(240,200,110,.16), transparent 70%);}
-.skill-laurel{position:absolute;width:88px;height:88px;left:50%;top:35px;transform:translate(-50%,-50%);z-index:0;pointer-events:none;}
-.skill-frame{position:relative;width:70px;height:70px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:1;overflow:hidden;border:1px solid rgba(240,200,110,.18);box-shadow:0 0 0 1px rgba(240,200,110,.08), inset 0 0 22px rgba(255,255,255,.03);}
-.skill-studs{position:absolute;inset:0;border-radius:50%;z-index:2;pointer-events:none;}
-.skill-ring{position:relative;width:54px;height:54px;border-radius:50%;display:flex;align-items:center;justify-content:center;z-index:3;}
-.skill-core{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.38rem;}
-/* ── Estágios de ignição: radiação do centro para fora + rotação leve ── */
-@keyframes sk-spin{to{transform:rotate(360deg)}}
-.sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d);height:var(--sk-d);border-radius:50%;z-index:2;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 58%,var(--sk-rim) 92%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom) var(--sk-glow);transition:width .4s ease,height .4s ease,box-shadow .3s ease;}
-.sk-aura{position:absolute;inset:2.5px;border-radius:50%;z-index:1;pointer-events:none;border:1px solid var(--sk-c);opacity:var(--sk-aura-op);box-shadow:0 0 7px var(--sk-glow),inset 0 0 9px var(--sk-glow);}
+.skill-node{position:relative;width:84px;display:flex;flex-direction:column;align-items:center;cursor:pointer;flex-shrink:0;z-index:1;--sk-beat:3.6s;--ease-sk:cubic-bezier(.4,0,.2,1);--hex:polygon(50% 1%,99% 26%,99% 74%,50% 99%,1% 74%,1% 26%);transition:transform .34s var(--ease-sk),opacity .45s var(--ease-sk),filter .45s var(--ease-sk);}
+.skill-node:hover{transform:translateY(-4px) scale(1.06);}
+.skill-node:active{transform:translateY(-1px) scale(1.02);}
 
-/* Onda de choque 1 (anel luminoso expandindo do centro até a borda, com giro leve) */
-.sk-swirl{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;border:1.5px solid var(--sk-spark);box-shadow:0 0 10px var(--sk-glow),inset 0 0 6px var(--sk-glow);animation:sk-radial-wave var(--sk-wave-dur,3s) cubic-bezier(0.15,0.85,0.35,1) infinite var(--sk-phase,0s),sk-spin 20s linear infinite;}
+/* Corpo em cristal: frame é a rim (borda), o poço escuro por dentro segura a luz */
+.skill-frame{position:relative;width:72px;height:82px;display:flex;align-items:center;justify-content:center;z-index:1;clip-path:var(--hex);background:var(--sk-frame-bg,rgba(120,140,170,.2));filter:drop-shadow(0 0 var(--sk-frame-glow,6px) var(--sk-glow,rgba(0,0,0,0)));transition:filter .34s var(--ease-sk);}
+.skill-well{position:absolute;inset:1.6px;clip-path:var(--hex);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--sk-well,radial-gradient(circle at 50% 36%,#0e1420,#05070d));}
+.skill-core{position:relative;z-index:3;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
 
-/* Faíscas radiais que disparam do centro para fora (o conjunto gira de leve) */
-.sk-orbit{position:absolute;left:50%;top:50%;width:100%;height:100%;border-radius:50%;z-index:2;pointer-events:none;transform:translate(-50%,-50%);animation:sk-spin var(--sk-orbit-spin,26s) linear infinite;}
-.sk-orbit i{position:absolute;left:50%;top:50%;width:4px;height:4px;margin:-2px 0 0 -2px;border-radius:50%;background:var(--sk-spark);box-shadow:0 0 6px var(--sk-glow),0 0 10px #ffffff;animation:sk-spark-out var(--sk-wave-dur,3s) cubic-bezier(0.15,0.85,0.35,1) infinite calc(var(--sk-phase,0s) + var(--sk-wave-dur,3s)*0.45);}
+/* Luz interna: cresce em direção à borda conforme a porcentagem */
+.sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;z-index:1;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 56%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom,8px) var(--sk-glow);transition:width .5s var(--ease-sk),height .5s var(--ease-sk),box-shadow .34s var(--ease-sk);}
+/* reflexo de vidro (mantém o cristal com profundidade, sem ruído) */
+.sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.85) 0%,rgba(255,255,255,.2) 18%,rgba(255,255,255,0) 46%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.5);transition:opacity .34s var(--ease-sk);}
 
-@keyframes sk-spark-out{
-  0%{transform:rotate(var(--rot,0deg)) translateY(0) scale(0.2);opacity:0;}
-  20%{opacity:1;transform:rotate(var(--rot,0deg)) translateY(calc(var(--orbit-r,20px)*0.45)) scale(1.2);}
-  80%{opacity:0.85;}
-  100%{transform:rotate(var(--rot,0deg)) translateY(calc(var(--orbit-r,20px)*1.35)) scale(0.3);opacity:0;}
-}
+/* Anel externo (halo): um arco de luz varrendo em volta do cristal — o marcador de progresso */
+.sk-halo{position:absolute;left:50%;top:41px;width:94px;height:94px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk),transform .4s var(--ease-sk);box-shadow:inset 0 0 0 1px var(--sk-ring-line,transparent);}
+.sk-halo::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 46deg,var(--sk-c) 96deg,var(--sk-hot) 128deg,transparent 210deg 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));animation:sk-halo-spin var(--sk-spin,20s) cubic-bezier(.45,0,.55,1) infinite;filter:drop-shadow(0 0 5px var(--sk-glow));}
+.sk-s2 .sk-halo,.sk-s3 .sk-halo,.sk-s4 .sk-halo{opacity:1;}
+@keyframes sk-halo-spin{to{transform:rotate(360deg);}}
 
-/* Onda de expansão concêntrica do centro para fora */
-@keyframes sk-radial-wave{
-  0%{transform:translate(-50%,-50%) scale(0.15);opacity:0.95;border-width:2.5px;filter:brightness(1.5);}
-  50%{opacity:var(--sk-wave-op,0.65);}
-  100%{transform:translate(-50%,-50%) scale(1.32);opacity:0;border-width:0.5px;filter:brightness(0.85);}
-}
+/* Raios (estágio 3+): estrela pontuda respirando em volta, sincronizada */
+.sk-rays{position:absolute;left:50%;top:41px;width:120px;height:120px;transform:translate(-50%,-50%);z-index:0;pointer-events:none;border-radius:50%;opacity:0;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 1.6deg,transparent 1.6deg 30deg);-webkit-mask:radial-gradient(farthest-side,transparent 52%,#000 64%,#000 80%,transparent 94%);mask:radial-gradient(farthest-side,transparent 52%,#000 64%,#000 80%,transparent 94%);}
+.sk-s3 .sk-rays,.sk-s4 .sk-rays{animation:sk-rays-pulse var(--sk-beat) var(--ease-sk) infinite;}
+@keyframes sk-rays-pulse{0%,100%{opacity:calc(var(--sk-rays-op,.5)*.4);transform:translate(-50%,-50%) scale(.9);}50%{opacity:var(--sk-rays-op,.5);transform:translate(-50%,-50%) scale(1.06);}}
 
-/* Veios internos: o disco deixa de ser liso e gira de leve por dentro do orbe */
-.sk-liquid{position:absolute;inset:0;border-radius:50%;pointer-events:none;opacity:var(--sk-liq-op,.5);background:
-  radial-gradient(circle farthest-side at 30% 26%,rgba(255,255,255,.42),rgba(255,255,255,0) 46%),
-  radial-gradient(circle farthest-side at 72% 64%,var(--sk-hot),rgba(255,255,255,0) 52%),
-  conic-gradient(from 20deg,transparent 0deg,var(--sk-hot) 34deg,transparent 84deg,transparent 186deg,var(--sk-hot) 232deg,transparent 300deg);
-  background-blend-mode:screen,normal,normal;mix-blend-mode:screen;filter:blur(3px);animation:sk-spin var(--sk-liq-spin,30s) linear infinite;}
+/* Facetas de cristal (maestria): brilhos duros que varrem a gema */
+.sk-facets{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;mix-blend-mode:screen;background:linear-gradient(118deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 58%),linear-gradient(62deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.34) 50%,rgba(255,255,255,0) 56%),linear-gradient(0deg,rgba(0,0,0,.28),transparent 55%);}
+.sk-s4 .sk-facets{animation:sk-shimmer calc(var(--sk-beat)*1.5) var(--ease-sk) infinite;}
+@keyframes sk-shimmer{0%,100%{opacity:.5;filter:brightness(1);}50%{opacity:1;filter:brightness(1.25);}}
 
-/* Brilho especular: o disco chapado vira esfera de vidro */
-.sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d);height:var(--sk-d);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 33% 27%,rgba(255,255,255,.9) 0%,rgba(255,255,255,.32) 16%,rgba(255,255,255,0) 44%),radial-gradient(circle at 68% 78%,var(--sk-hot) 0%,rgba(255,255,255,0) 34%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.7);transition:width .4s ease,height .4s ease,opacity .25s ease;}
+/* Emissão de partículas da maestria: luzes que disparam do nó para os conectados */
+.sk-emit{position:absolute;left:50%;top:41px;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;}
+.sk-emit i{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:var(--sk-hot);box-shadow:0 0 6px var(--sk-glow);animation:sk-rise calc(var(--sk-beat)*1.3) var(--ease-sk) infinite;}
+@keyframes sk-rise{0%{transform:rotate(var(--rot,0deg)) translateY(20px) scale(.2);opacity:0;}22%{opacity:.95;}100%{transform:rotate(var(--rot,0deg)) translateY(58px) scale(.2);opacity:0;}}
 
-/* Raios estáticos apontados do centro para fora, pulsando em comprimento e luz */
-.sk-rays{position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:50%;opacity:var(--sk-rays-op,.6);background:repeating-conic-gradient(from 0deg,var(--sk-spark) 0deg 2.5deg,transparent 2.5deg 30deg);animation:sk-rays-pulse var(--sk-beat,3.2s) ease-in-out infinite var(--sk-phase,0s) !important;}
+/* Batimento GLOBAL: todos os nós ativos respiram no mesmo tempo (fase 0, sem ruído) */
+@keyframes sk-breathe{0%,100%{transform:translate(-50%,-50%) scale(.97);filter:brightness(.96);}50%{transform:translate(-50%,-50%) scale(var(--sk-sc-hi,1.04));filter:brightness(var(--sk-beat-hi,1.2));}}
+@keyframes sk-glossbeat{0%,100%{opacity:calc(var(--sk-gloss-op,.5)*.72);}50%{opacity:var(--sk-gloss-op,.5);}}
+@keyframes sk-framebeat{0%,100%{filter:drop-shadow(0 0 calc(var(--sk-frame-glow,6px)*.65) var(--sk-glow));}50%{filter:drop-shadow(0 0 var(--sk-frame-glow,6px) var(--sk-glow));}}
+.sk-live .sk-light{animation:sk-breathe var(--sk-beat) var(--ease-sk) infinite;}
+.sk-live .sk-gloss{animation:sk-glossbeat var(--sk-beat) var(--ease-sk) infinite;}
+.sk-live .skill-frame{animation:sk-framebeat var(--sk-beat) var(--ease-sk) infinite;}
 
-@keyframes sk-rays-pulse{
-  0%,100%{transform:scale(0.86);opacity:0.25;filter:brightness(0.9);}
-  50%{transform:scale(1.18);opacity:var(--sk-rays-op,0.85);filter:brightness(1.5) drop-shadow(0 0 8px var(--sk-glow));}
-}
+/* Coroa de dominada (ouro) e cadeado de dependência */
+.sk-maxcrown{position:absolute;left:50%;top:30px;width:34px;height:24px;margin:0 0 0 -17px;z-index:6;pointer-events:none;animation:sk-crownfloat var(--sk-beat) var(--ease-sk) infinite;}
+@keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-3px) scale(1.06);}}
+.st-locked .skill-frame{filter:grayscale(.85) brightness(.55);}
+.st-locked:hover .skill-frame{filter:grayscale(.55) brightness(.78);}
+.sk-lock{position:absolute;left:50%;top:41px;transform:translate(-50%,-50%);z-index:6;font-size:.95rem;opacity:.9;pointer-events:none;text-shadow:0 1px 4px #000;}
 
-/* Forma final: coroa pulsante e corona de raios expandindo do centro para fora */
-.sk-crown{position:absolute;left:50%;top:35px;width:80px;height:80px;margin:-40px 0 0 -40px;border-radius:50%;z-index:0;pointer-events:none;border:1.5px solid var(--sk-hot);animation:sk-crown-pulse 2.2s ease-out infinite calc(var(--sk-phase,0s) + 0.3s) !important;}
+/* Flare de hover: acende sem quebrar a sincronia da respiração */
+.skill-node:hover .sk-light{box-shadow:0 0 calc(var(--sk-bloom,8px)*1.9) var(--sk-glow);}
+.skill-node:hover .sk-gloss{opacity:1;}
+.skill-node:hover .sk-halo::before{filter:drop-shadow(0 0 9px var(--sk-glow));}
 
-@keyframes sk-crown-pulse{
-  0%{transform:scale(0.72);opacity:0.9;box-shadow:0 0 6px var(--sk-hot);}
-  100%{transform:scale(1.28);opacity:0;box-shadow:0 0 18px var(--sk-glow);}
-}
-
-.sk-corona{position:absolute;left:50%;top:35px;width:88px;height:88px;margin:-44px 0 0 -44px;border-radius:50%;z-index:0;pointer-events:none;opacity:0.55;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 2.5deg,transparent 2.5deg 22.5deg);animation:sk-corona-radiate 2.4s ease-out infinite var(--sk-phase,0s) !important;}
-
-@keyframes sk-corona-radiate{
-  0%{transform:scale(0.78);opacity:0.95;filter:brightness(1.6);}
-  60%{opacity:0.45;}
-  100%{transform:scale(1.26);opacity:0;filter:brightness(0.9);}
-}
-
-/* Forma final: coroa centralizada no topo do orbe */
-.sk-maxcrown{position:absolute;left:50%;top:25px;width:32px;height:23px;margin:-11.5px 0 0 -16px;z-index:6;pointer-events:none;animation:sk-crownfloat 3.4s ease-in-out infinite var(--sk-phase,0s);}
-@keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.07)}}
-
-/* Trava: habilidade que ainda depende de outra */
-.st-locked .skill-frame{filter:grayscale(.8) brightness(.6);}
-.st-locked:hover .skill-frame{filter:grayscale(.5) brightness(.8);}
-.sk-lock{position:absolute;left:50%;top:35px;transform:translate(-50%,-50%);z-index:6;font-size:.95rem;opacity:.85;pointer-events:none;text-shadow:0 1px 4px #000;}
+/* Focus Mode: ao selecionar, tudo escurece; selecionado + pré-requisitos reluzem */
+.st-focus .skill-node{opacity:.3;filter:grayscale(.4) brightness(.72);}
+.st-focus .skill-node.st-related,.st-focus .skill-node.st-sel{opacity:1;filter:none;}
+.st-focus .skill-node.st-related .sk-halo,.st-focus .skill-node.st-sel .sk-halo{opacity:1;}
+.st-sel{z-index:14;}
+.st-sel .sk-halo{transform:translate(-50%,-50%) scale(1.14);}
+.st-sel .sk-halo::before{filter:drop-shadow(0 0 11px var(--sk-glow));}
+.st-sel .sk-light{box-shadow:0 0 26px var(--sk-glow);}
+.st-sel .skill-well{box-shadow:inset 0 0 18px var(--sk-glow);}
 
 /* Prateleiras (tiers) */
 .st-shelf{position:relative;border-radius:9px;padding:11px 4px 7px;}
@@ -528,27 +522,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-/* Vida: o orbe respira expandindo de dentro para fora */
-@keyframes sk-breathe{0%,100%{transform:translate(-50%,-50%) scale(0.94);filter:brightness(0.95) saturate(1);}50%{transform:translate(-50%,-50%) scale(1.08);filter:brightness(var(--sk-beat-hi,1.25)) saturate(1.18);}}
-@keyframes sk-glossbeat{0%,100%{opacity:calc(var(--sk-gloss-op,.7) * .8)}50%{opacity:var(--sk-gloss-op,.7)}}
-@keyframes sk-aurabeat{0%,100%{opacity:var(--sk-aura-op);transform:scale(0.96)}50%{opacity:1;transform:scale(1.05);filter:brightness(1.25);box-shadow:0 0 14px var(--sk-glow),inset 0 0 10px var(--sk-glow);}}
-.sk-live .sk-light{animation:sk-breathe var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
-.sk-live .sk-gloss{animation:sk-glossbeat var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
-.sk-live .sk-aura{animation:sk-aurabeat var(--sk-beat,3.6s) ease-in-out infinite var(--sk-phase,0s);}
-
-/* Flare: passar o mouse acende e acelera a radiação para fora */
-.skill-frame{transition:box-shadow .25s,border-color .25s,filter .25s ease;}
-.skill-node:hover .skill-frame{filter:brightness(1.24) saturate(1.14);}
-.skill-node:hover .sk-light{box-shadow:0 0 calc(var(--sk-bloom) * 2.8) var(--sk-glow);}
-.skill-node:hover .sk-gloss{opacity:1;}
-.skill-node:hover .sk-swirl{animation-duration:1.4s !important;border-width:2px !important;box-shadow:0 0 16px var(--sk-glow),inset 0 0 10px var(--sk-glow) !important;}
-.skill-node:hover .sk-orbit i{animation-duration:1.4s !important;}
-.skill-node:hover .sk-rays{animation-duration:1.6s !important;opacity:0.95 !important;}
-.skill-node:hover .sk-corona{animation-duration:1.4s !important;}
-.skill-node:hover .sk-orbit{animation-duration:14s;}
-.skill-node:hover .sk-liquid{animation-duration:16s;opacity:calc(var(--sk-liq-op,.5) * 1.5);}
-
-@media(prefers-reduced-motion:reduce){.sk-orbit,.sk-liquid,.sk-rays,.sk-crown,.sk-corona,.sk-swirl,.sk-maxcrown,.sk-orbit i,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .sk-aura{animation:none}}
+@media(prefers-reduced-motion:reduce){.sk-halo::before,.sk-rays,.sk-emit i,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -600,66 +574,51 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
   animation: flutuar 2s ease-in-out infinite;
 }
 
-/* ── SKILL TREE: Foco RPG Épico, Elevação Fluida e Conduit de Energia ── */
-.skill-node {
-  transition: transform 0.28s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.28s ease !important;
-  will-change: transform, filter;
-}
-.skill-node:hover {
-  animation: none !important;
-  transform: translateY(-6px) scale(1.08) !important;
-  filter: drop-shadow(0 10px 22px rgba(0, 0, 0, 0.75)) drop-shadow(0 0 18px var(--sk-glow, rgba(212, 175, 55, 0.65))) !important;
-  z-index: 10;
-}
-.skill-node:active {
-  transform: translateY(-2px) scale(1.02) !important;
-}
+/* ── SKILL TREE: transições unificadas pelo easing canônico (sem !important briga) ── */
+.skill-node{will-change:transform,opacity,filter;}
+.skill-node:hover{z-index:12;}
+.st-locked:hover{transform:translateY(-2px) scale(1.02);}
+.sk-live:hover .sk-maxcrown{filter:drop-shadow(0 0 12px var(--sk-hot,#FFD700)) drop-shadow(0 0 20px rgba(255,215,0,.55));}
 
-/* Nós bloqueados com resistência metálica elegante */
-.st-locked:hover {
-  transform: translateY(-2px) scale(1.02) !important;
-  filter: grayscale(0.7) drop-shadow(0 0 10px rgba(239, 68, 68, 0.4)) !important;
-}
-
-/* Coroa das habilidades dominadas com brilho triunfal */
-.sk-live:hover .sk-maxcrown {
-  filter: drop-shadow(0 0 12px #FFD700) drop-shadow(0 0 20px rgba(255, 215, 0, 0.7));
-  animation: sk-crownfloat 1.8s ease-in-out infinite;
-}
-
-/* Condutor de energia com pulso luminoso fluindo entre as prateleiras */
+/* Condutor de energia: um cometa desce da raiz até o nó em progresso (fluxo, não ruído) */
 .st-conduit {
   position: absolute;
-  top: 24px;
-  bottom: 28px;
+  top: 30px;
+  bottom: 30px;
   left: 50%;
-  width: 3px;
+  width: 2px;
   transform: translateX(-50%);
-  background: linear-gradient(to bottom, transparent, var(--conduit-c, #6ea8ff) 12%, var(--conduit-c, #6ea8ff) 88%, transparent);
-  opacity: 0.4;
+  background: linear-gradient(to bottom, transparent, var(--conduit-c, #6ea8ff) 14%, var(--conduit-c, #6ea8ff) 86%, transparent);
+  opacity: 0.32;
   border-radius: 3px;
   z-index: 0;
   pointer-events: none;
-  box-shadow: 0 0 8px var(--conduit-c, #6ea8ff);
+  box-shadow: 0 0 6px var(--conduit-c, #6ea8ff);
+  transition: opacity .45s cubic-bezier(.4,0,.2,1), box-shadow .45s cubic-bezier(.4,0,.2,1);
 }
 .st-conduit::after {
   content: "";
   position: absolute;
   top: 0;
-  left: 0;
-  width: 100%;
-  height: 42px;
+  left: -1px;
+  width: 4px;
+  height: 46px;
+  border-radius: 3px;
   background: linear-gradient(to bottom, transparent, #ffffff 50%, transparent);
-  opacity: 0.85;
+  opacity: 0.9;
   filter: blur(1px);
-  animation: conduitPulse 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: conduitPulse 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }
 @keyframes conduitPulse {
-  0% { top: 0%; opacity: 0; }
-  15% { opacity: 1; }
-  85% { opacity: 1; }
-  100% { top: 92%; opacity: 0; }
+  0% { top: -8%; opacity: 0; }
+  18% { opacity: 1; }
+  82% { opacity: 1; }
+  100% { top: 96%; opacity: 0; }
 }
+@media(prefers-reduced-motion:reduce){.st-conduit::after{animation:none;}}
+/* Focus Mode: a conexão do ramo em foco reluz, as demais recuam */
+.st-focus .st-conduit{opacity:.08;}
+.st-focus .st-col-related .st-conduit{opacity:.72;box-shadow:0 0 14px var(--conduit-c,#6ea8ff);}
 
 /* Prateleiras com visual glassmorphic aprimorado */
 .st-shelf {
@@ -1531,7 +1490,7 @@ const SKILL_GOLD_HI='#f7d268';
 const _S=(id,emoji,nome,maxNivel,tier,nivel,sub,levels)=>({id,emoji,nome,maxNivel,tier,nivel:nivel||0,subcat:sub||'',desc:'',levels:levels||null});
 // Paletas por área (destaque + secundária) — estilo templo RPG
 const SKILL_PALETTES={
-  futebol:  {d:'#F5D98C',s:'#D18B1F'},
+  futebol:  {d:'#4ADE80',s:'#12A150'},
   futevolei:{d:'#FF6EB3',s:'#A02E6E'},
   danca:    {d:'#63B6FF',s:'#1F5BA8'},
   tantan:   {d:'#58D68D',s:'#1E8449'},
@@ -1601,7 +1560,7 @@ function skillLightRamp(pal){
 }
 // subcats = colunas (branches) personalizáveis; cada skill tem subcat = id da coluna
 const DEF_SKILLTREES=[
-  {id:'futebol',nome:'Futebol',emoji:'⚽',destaque:'#F5D98C',secundaria:'#D18B1F',cor:'#F5D98C',
+  {id:'futebol',nome:'Futebol',emoji:'⚽',destaque:'#4ADE80',secundaria:'#12A150',cor:'#4ADE80',
     subcats:[{id:'fundamentos',nome:'FUNDAMENTOS'},{id:'mental',nome:'MENTAL'},{id:'freestyle',nome:'FREESTYLE'}],skills:[
     _S('fb-dominio','⚽','Domínio de Bola',5,1,2,'fundamentos',[
       'Nunca tentou dominar uma bola.',
@@ -5557,7 +5516,7 @@ function skillReqListLabel(skill,tree){
   }).filter(Boolean).join(' · ');
 }
 
-function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
+function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const started=lv>0;
@@ -5569,76 +5528,60 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
   const locked=!!lock;                                   // depende de outra habilidade
 
-  // ── ESTÁGIOS DE IGNIÇÃO ──
-  // A luz nasce no centro e cresce nível a nível (raio = nível ÷ máximo), mas cada
-  // estágio também ACENDE UM ELEMENTO NOVO, então dá pra ler o nível de longe:
-  //   1 faísca · 2 satélite em órbita · 3 anel de aura · 4 raios · 5 forma final
-  // Num skill de 3 níveis os estágios pulam de 2 em 2 — a forma final é sempre o último.
-  const levelRatio=max>0?Math.min(1,lv/max):0;   // fração do raio tomada pela luz
-  const tone=max>1?(lv-1)/(max-1):1;             // 0 no nível 1 → 1 no último nível
-  const stage=started?1+Math.round(tone*4):0;
+  // ── ESTÁGIOS POR PORCENTAGEM (progresso = nível ÷ máximo) ──
+  // A evolução NÃO lê o nível absoluto, e sim a fração concluída. Quatro faixas:
+  //  1 (até 25%) apagado · 2 (26–74%) acende + anel fino girando · 3 (75–99%) brilho
+  //  forte, anel grosso e rápido, respira mais · 4 (100%) elite dourado + cristal.
+  const pct=max>0?Math.min(1,lv/max):0;
+  const levelRatio=pct;                                  // usado por nome/badge/pips
+  const stage=!started||locked||pct<=0.25?1:pct>=1?4:pct>=0.75?3:2;
 
-  const FRAME=67;                                // diâmetro interno de .skill-frame (70px − borda)
-  const lightD=+(levelRatio*FRAME).toFixed(1);
-  const orbitR=Math.min(30.5,(lightD+FRAME)/4); // satélites no meio do vão entre luz e borda
-  const sats=stage>=2&&stage<5?stage-1:0;        // 1, 2 e 3 satélites nos estágios 2, 3 e 4
+  // Cores: corpo segue o tema; na maestria vira ouro branco (elite), independente da árvore.
+  const elite=_mix(SKILL_GOLD,'#FFFFFF',0.42);
+  const accent=stage>=4?elite:stage<=1?'#3C4A5E':d;   // 1 = cinza escuro (sem cor/sabor) · 4 = ouro
+  const glowTone=accent;
+  const maxHi=stage>=4?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
+  const hot=_mix(accent,'#FFFFFF',0.5);
+  const rim=_mix(accent,'#05070D',0.6);
+  const spark=_mix(accent,'#FFFFFF',0.35);
 
-  // Cores: tudo derivado da paleta da árvore, nada fixo.
-  // O brilho é um gradiente em dois eixos: ENTRE NÍVEIS vai do tom mais claro da
-  // paleta (nível 1) até o mais profundo (último), e DENTRO do orbe vai do núcleo
-  // claro pra borda escura — a luz clareia no meio e afunda na beirada.
-  const lightMain=_ramp(skillLightRamp(pal),tone);
-  const lightHot=_mix(lightMain,'#FFFFFF',0.4);            // núcleo sempre mais claro que o corpo
-  const lightRim=_mix(_mix(lightMain,s,0.32),'#05070D',0.16+tone*0.2); // borda funda E puxando a cor secundária (duotone)
-  const glowTone=_mix(lightMain,d,0.35+tone*0.4);          // halo não some quando o orbe escurece
-  const spark=_mix(d,'#FFFFFF',0.3);                       // satélites e raios seguem acesos
-  const maxHi=_mix(d,'#FFFFFF',0.4);                       // acabamento da forma final
+  // geometria do cristal: o preenchimento de luz cresce com a porcentagem
+  const FRAME=78;
+  const lightD=Math.round((stage<=1?0.5:0.55+pct*0.45)*FRAME);
 
-  // O poço em volta é sempre fundo — é o escuro dele que faz a luz aparecer —
-  // só ganha um fio da cor do tema que adensa com o nível.
-  const wellCore=_mix(_mix(d,s,0.5),'#04070E',0.88-tone*0.05);
-  const well=started
-    ? `radial-gradient(circle closest-side, ${wellCore} 0%, #03050B 100%)`
-    : 'radial-gradient(circle closest-side, #101725 0%, #05070D 100%)';
+  // vida: batida GLOBAL sincronizada — mesma duração e fase 0 em todos os nós
+  const breath=stage>=2&&(!stl||stl.vida!==false);
 
-  const halo=started?`0 0 ${Math.round((7+levelRatio*20)*gk)}px ${_rgba(glowTone,Math.min(0.85,(0.14+levelRatio*0.4)*gk).toFixed(2))}`:null;
-  const maxHalo=maxed?`0 0 ${Math.round(34*gk)}px ${_rgba(maxHi,Math.min(0.6,0.3*gk).toFixed(2))}`:null;
-  const stateHalo=selected?`0 0 14px ${_rgba(d,0.55)}`:null;
-  const frameShadow=[stateHalo,maxHalo,halo].filter(Boolean).join(', ')||'none';
+  // emoji: cinza apagado → vívido conforme a luz
+  const emojiOp=stage<=1?0.3:0.55+pct*0.45;
+  const emojiFilt=stage<=1?'grayscale(1) brightness(0.6)':`brightness(${(0.9+pct*0.25).toFixed(2)}) saturate(${Math.round(60+pct*60)}%)`;
 
-  // Emoji: grayscale → colorido conforme a luz cresce
-  const emojiOp=!started?0.25:0.45+levelRatio*0.55;
-  const emojiFilt=!started?'grayscale(1) brightness(0.65)':`brightness(${(0.8+levelRatio*0.35).toFixed(2)}) saturate(${Math.round(45+levelRatio*75)}%)`;
-
-  // Frame: a borda do círculo acende junto com a luz
-  const frameBorder=maxed?maxHi
-    :selected?_rgba(d,0.95)
-    :started?_rgba(d,Math.min(1,(0.22+levelRatio*0.6)*(0.4+nk*0.6)).toFixed(2))
-    :'rgba(51,69,91,0.4)';
+  // rim (borda) e poço (fundo) do hexágono
+  const frameBg=stage<=1?'rgba(74,88,108,0.32)':_rgba(accent,Math.min(0.92,(0.22+pct*0.5)*(0.45+nk*0.55)).toFixed(2));
+  const wellBg=started
+    ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.86)} 0%, #04060C 100%)`
+    :'radial-gradient(circle at 50% 36%, #0e1420 0%, #05070d 100%)';
 
   const skVars={
+    '--sk-c':accent,'--sk-hot':hot,'--sk-rim':rim,'--sk-spark':spark,
     '--sk-d':lightD+'px',
-    '--sk-c':lightMain,
-    '--sk-hot':lightHot,
-    '--sk-rim':lightRim,
-    '--sk-glow':_rgba(glowTone,Math.min(0.9,0.55*gk).toFixed(2)),
-    '--sk-spark':spark,
-    '--sk-bloom':Math.round((5+levelRatio*18)*gk)+'px',
-    '--sk-aura-op':(maxed?0.95:0.45+levelRatio*0.45).toFixed(2),
-    // vida: batida mais rápida e mais forte conforme o nível sobe
-    '--sk-beat':(4.2-tone*1.6).toFixed(2)+'s',
-    '--sk-beat-hi':(1.12+tone*0.22).toFixed(2),
-    '--sk-phase':(-(_hash(skill.id)%100)/100*4).toFixed(2)+'s',  // dessincroniza os nós
-    '--sk-gloss-op':(0.42+levelRatio*0.4).toFixed(2),
-    // propagação radial do centro para fora: acelera e intensifica o brilho por nível
-    '--sk-wave-dur':(3.6-tone*1.8).toFixed(2)+'s',
-    '--sk-wave-op':(0.32+levelRatio*0.52).toFixed(2),
-    '--sk-rays-op':(0.28+levelRatio*0.58).toFixed(2),
-    // rotação leve: veios internos e o anel de faíscas giram (mais rápido conforme o nível)
-    '--sk-liq-spin':(34-tone*12).toFixed(1)+'s',
-    '--sk-liq-op':(0.3+levelRatio*0.34).toFixed(2),
-    '--sk-orbit-spin':(32-tone*10).toFixed(1)+'s',
+    '--sk-glow':_rgba(glowTone,Math.min(0.9,(0.2+pct*0.5)*gk).toFixed(2)),
+    '--sk-bloom':Math.round((6+pct*16)*gk)+'px',
+    '--sk-gloss-op':(stage>=4?0.72:0.28+pct*0.4).toFixed(2),
+    '--sk-frame-bg':frameBg,'--sk-well':wellBg,
+    '--sk-frame-glow':Math.round((stage<=1?2:(6+pct*16))*gk)+'px',
+    '--sk-ring-line':stage>=2?_rgba(accent,0.26):'transparent',
+    // rotação do anel externo: lento → rápido conforme o estágio (nunca linear)
+    '--sk-spin':stage>=4?'6.5s':stage>=3?'11s':'20s',
+    '--sk-halo-w':stage>=4?'3.4px':stage>=3?'2.6px':'1.5px',
+    '--sk-rays-op':(0.28+pct*0.5).toFixed(2),
+    // pulso global: batida idêntica para todos (sensação de organismo vivo)
+    '--sk-beat':'3.6s',
+    '--sk-beat-hi':(1.1+(stage-1)*0.06).toFixed(2),
+    '--sk-sc-hi':(1.02+(stage-1)*0.02).toFixed(3),
   };
+
+  const cn="skill-node sk-s"+stage+(breath?" sk-live":"")+(locked?" st-locked":"")+(selected?" st-sel":"")+(related?" st-related":"");
 
   // Pips: bolinhas abaixo do badge indicando nível (como estrelas)
   const pips=[];
@@ -5662,30 +5605,26 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
 
   const lockText=locked?skillReqLabel(lock.missing):'';
 
-  return<div className={"skill-node"+(alive?" sk-live":"")+(locked?" st-locked":"")}onClick={onClick}style={{position:'relative'}}>
-    {/* Forma final: corona de raios e coroa pulsante em volta do disco cheio */}
-    {maxed&&<div className="sk-corona"style={{'--sk-hot':maxHi}}/>}
-    {maxed&&<div className="sk-crown"style={{'--sk-hot':_rgba(maxHi,0.85)}}/>}
-    {/* Frame: poço escuro + camadas que acendem por estágio */}
-    <div className="skill-frame"style={{...skVars,background:well,border:`1.5px solid ${frameBorder}`,boxShadow:frameShadow,transition:'box-shadow .25s,border-color .25s,filter .25s'}}>
-      {stage>=4&&!maxed&&<div className="sk-rays"/>}
-      {stage>=3&&<div className="sk-aura"/>}
-      {stage>=2&&<div className="sk-swirl"/>}
-      {sats>0&&<div className="sk-orbit">
-        {Array.from({length:sats},(_,i)=><i key={i}style={{'--rot':`${i*360/sats}deg`,'--orbit-r':`${orbitR}px`}}/>)}
-      </div>}
-      {started&&<div className="sk-light"/>}
-      {started&&<div className="sk-liquid"/>}
-      {started&&<div className="sk-gloss"/>}
-      <div className="skill-ring"style={{background:'transparent',padding:0}}>
+  return<div className={cn}onClick={onClick}style={{position:'relative',...skVars}}>
+    {/* anel externo que gira ao redor do cristal — o marcador de progresso */}
+    <div className="sk-halo"/>
+    {/* raios e partículas: só acendem do estágio 3 em diante (nada de ruído no básico) */}
+    {stage>=3&&!locked&&<div className="sk-rays"/>}
+    {stage>=4&&<div className="sk-emit">{Array.from({length:6},(_,i)=><i key={i}style={{'--rot':`${i*60}deg`,animationDelay:`${-i*0.6}s`}}/>)}</div>}
+    {/* corpo em cristal: rim (frame) + poço escuro (well) + camadas de luz */}
+    <div className="skill-frame">
+      <div className="skill-well">
+        {stage>=4&&<div className="sk-facets"/>}
+        <div className="sk-light"/>
+        <div className="sk-gloss"/>
         <div className="skill-core">
-          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .3s',transform:maxed?'translateY(12px) scale(.88)':'none'}}>{skill.emoji}</span>}
+          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:maxed?'translateY(12px) scale(.86)':'none'}}>{skill.emoji}</span>}
         </div>
       </div>
     </div>
-    {/* Selo de dominada: coroa centralizada no topo do orbe */}
-    {maxed&&<div className="sk-maxcrown"style={{'--sk-phase':skVars['--sk-phase']}}><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
-    {/* Cadeado: ainda depende de outra habilidade */}
+    {/* coroa de dominada (elite) */}
+    {maxed&&<div className="sk-maxcrown"><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
+    {/* cadeado: ainda depende de outra habilidade */}
     {locked&&<div className="sk-lock">🔒</div>}
     {/* Badge */}
     <div className="skill-badge"style={{background:'rgba(11,21,34,0.8)',color:badgeColor,border:`1px solid ${badgeBorder}`}}>{lv}/{max}</div>
@@ -5697,7 +5636,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
     </div>}
     {/* Nome */}
     <div className="skill-name"style={{color:nameColor,textShadow:nameGlow,marginTop:max>1?3:5,...(hideEmoji?{fontSize:'.76rem',maxWidth:80}:null)}}>{skill.nome}</div>
-    {/* Hint ao selecionar */}
+    {/* Hint ao selecionar (mostra o próximo passo + acesso aos detalhes) */}
     {selected&&<div className="st-hint">
       {locked
         ?<><div className="st-hint-eyebrow">🔒 Travada</div><div className="st-hint-text">Requer {lockText}</div></>
@@ -5705,6 +5644,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock}){
         ?<><div className="st-hint-eyebrow">Próximo passo (nv {lv+1})</div><div className="st-hint-text">{nextHint}</div></>
         :<div className="st-hint-empty">{maxed?'✓ Dominada. Hora de ensinar.':'Adicione critérios pra saber o que falta.'}</div>
       }
+      <button className="st-hint-btn"onClick={e=>{e.stopPropagation();onOpen&&onOpen();}}>Detalhes ▸</button>
     </div>}
   </div>;
 }
@@ -5970,7 +5910,8 @@ function SkillTreeSection({st,setSt,setTab}){
   const trees=(st.skilltree&&st.skilltree.trees)||[];
   const stl=readStyle(st);
   const[sel,setSel]=useState(trees[0]?trees[0].id:null);
-  const[nodeSel,setNodeSel]=useState(null);
+  const[nodeSel,setNodeSel]=useState(null);        // nó em foco (Focus Mode na árvore)
+  const[detailSel,setDetailSel]=useState(null);    // nó aberto no modal de detalhes
   const[showStyle,setShowStyle]=useState(false);
   const[skillModal,setSkillModal]=useState(false);
   const[editSkill,setEditSkill]=useState(null);
@@ -6071,10 +6012,20 @@ function SkillTreeSection({st,setSt,setTab}){
   columns.forEach(col=>{col.byTier={};col.skills.forEach(s=>{const t=s.tier||1;(col.byTier[t]=col.byTier[t]||[]).push(s);});});
   const COLW=82,nCols=columns.length;
 
-  const liveSkill=nodeSel?tree.skills.find(s=>s.id===nodeSel):null;
+  const liveSkill=detailSel?tree.skills.find(s=>s.id===detailSel):null;
   // travas por requisito (recalculadas a cada render — dependem do nível das outras)
   const locks={};
   tree.skills.forEach(s=>{const l=skillLock(s,tree);if(l)locks[s.id]=l;});
+
+  // ── FOCUS MODE: vizinhança do nó selecionado (pré-requisitos + dependentes) ──
+  // Só o nó escolhido, o que ele exige e o que dele depende ficam acesos; o resto recua.
+  const focusOn=!!nodeSel;
+  const relatedIds=new Set();
+  if(liveSkill){
+    relatedIds.add(liveSkill.id);
+    skillReqs(liveSkill).forEach(r=>relatedIds.add(r.id));                    // pra cima (requer)
+    tree.skills.forEach(s=>{if(skillReqs(s).some(r=>r.id===liveSkill.id))relatedIds.add(s.id);}); // pra baixo (depende)
+  }
 
   // Fundo temático da árvore (emoji da área como marca d'água + lavagem na cor predominante)
   const fi=stl.fundoIntensidade;
@@ -6144,14 +6095,15 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
-    <div style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
+    <div className={focusOn?'st-focus':undefined}style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
         const adaptiveMinHeight=colMaxTier > 0 ? 'auto' : '70px';
         const colDom=col.skills.filter(s=>(s.nivel||0)>=(s.maxNivel||1)).length;
         const colTot=col.skills.length;
-        return<div key={col.sc.id}className="st-branch-col"style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'10px 8px 8px',transition:'all 0.3s ease',overflow:'visible',flex:'0 0 auto',width:'fit-content',minWidth:'220px',maxWidth:'460px'}}>
+        const colRelated=focusOn&&col.skills.some(s=>relatedIds.has(s.id));
+        return<div key={col.sc.id}className={"st-branch-col"+(colRelated?" st-col-related":"")}style={{display:'flex',flexDirection:'column',alignItems:'stretch',minHeight:adaptiveMinHeight,background:branchBg,border:branchBorder,borderRadius:12,boxShadow:branchGlow,padding:'10px 8px 8px',transition:'all 0.3s ease',overflow:'visible',flex:'0 0 auto',width:'fit-content',minWidth:'220px',maxWidth:'460px'}}>
           {/* cabeçalho da coluna */}
           <div className="fc"style={{justifyContent:'space-between',alignItems:'center',gap:6,minHeight:30,marginBottom:10,padding:'0 4px 6px',borderBottom:`1px solid ${pal.d}25`}}>
             <div className="fc g6"style={{flex:1,minWidth:0}}>
@@ -6172,7 +6124,7 @@ function SkillTreeSection({st,setSt,setTab}){
               return<div key={t}className="st-shelf"style={{zIndex:1,minHeight:84,'--shelf-line':`${pal.d}33`,background:i%2?`linear-gradient(180deg,${pal.d}0d,transparent 78%)`:'transparent'}}>
                 <span className="st-shelf-tag"style={{color:pal.d}}>{roman(t)} · {skillLevelXP(t,1)} XP</span>
                 <div className="st-shelf-row">
-                  {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onClick={()=>setNodeSel(s.id)}/>)}
+                  {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onClick={()=>{if(nodeSel===s.id){setNodeSel(null);setDetailSel(null);}else{setNodeSel(s.id);setDetailSel(null);}}}/>)}
                 </div>
               </div>;
             })}
@@ -6189,10 +6141,10 @@ function SkillTreeSection({st,setSt,setTab}){
 
     {/* Modais */}
     {liveSkill&&<SkillNodeModal skill={liveSkill}cor={pal.d}st={st}tree={tree}onGoReel={goReelsFor}lock={locks[liveSkill.id]}
-      onClose={()=>setNodeSel(null)}
+      onClose={()=>setDetailSel(null)}
       onLevel={d=>setLevel(tree.id,liveSkill.id,d)}
-      onEdit={()=>{setEditSkill(liveSkill);setSkillPreset(null);setNodeSel(null);setSkillModal(true);}}
-      onDelete={()=>{delSkill(tree.id,liveSkill.id);setNodeSel(null);}}/>}
+      onEdit={()=>{setEditSkill(liveSkill);setSkillPreset(null);setDetailSel(null);setSkillModal(true);}}
+      onDelete={()=>{delSkill(tree.id,liveSkill.id);setDetailSel(null);}}/>}
     <SkillFormModal open={skillModal}onClose={()=>{setSkillModal(false);setEditSkill(null);setSkillPreset(null);}}onSave={saveSkill}init={editSkill||skillPreset}subcats={subcats}maxTier={maxTier}allSkills={tree.skills}/>
     <TreeFormModal open={treeModal}onClose={()=>{setTreeModal(false);setEditTree(null);}}onSave={saveTree}onDelete={editTree?()=>delTree(editTree.id):null}init={editTree}/>
   </div>;
