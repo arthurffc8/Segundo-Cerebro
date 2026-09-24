@@ -507,6 +507,12 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-s3 .sk-rays,.sk-s4 .sk-rays{animation:sk-rays-pulse var(--sk-beat) var(--ease-sk) infinite;}
 @keyframes sk-rays-pulse{0%,100%{opacity:calc(var(--sk-rays-op,.5)*.4);transform:translate(-50%,-50%) scale(.9);}50%{opacity:var(--sk-rays-op,.5);transform:translate(-50%,-50%) scale(1.06);}}
 
+/* Satélites orbitando: UM nó a mais a cada nível conquistado (o "elemento extra" por nível).
+   lv1 → 1 satélite · lv2 → 2 · lv3 → 3 ... girando em volta do cristal. */
+.sk-sats{position:absolute;left:50%;top:41px;width:112px;height:112px;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;animation:sk-halo-spin var(--sk-spin,18s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-sat{position:absolute;left:50%;top:50%;width:var(--sk-sat-s,7px);height:var(--sk-sat-s,7px);margin:calc(var(--sk-sat-s,7px) / -2);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--sk-hot) 55%,var(--sk-c));box-shadow:0 0 7px var(--sk-c),0 0 12px var(--sk-glow);transform:rotate(var(--a,0deg)) translateX(var(--sk-sat-r,56px));animation:sk-satbeat var(--sk-beat) var(--ease-sk) infinite;}
+@keyframes sk-satbeat{0%,100%{opacity:.7;}50%{opacity:1;}}
+
 /* Facetas de cristal (maestria): brilhos duros que varrem a gema */
 .sk-facets{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;mix-blend-mode:screen;background:linear-gradient(118deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 58%),linear-gradient(62deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.34) 50%,rgba(255,255,255,0) 56%),linear-gradient(0deg,rgba(0,0,0,.28),transparent 55%);}
 .sk-s4 .sk-facets{animation:sk-shimmer calc(var(--sk-beat)*1.5) var(--ease-sk) infinite;}
@@ -554,7 +560,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-@media(prefers-reduced-motion:reduce){.sk-halo::before,.sk-rays,.sk-emit i,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.sk-halo::after,.sk-sats,.sk-sat,.sk-rays,.sk-emit i,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -3491,6 +3497,8 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
   const R=15,CIRC=2*Math.PI*R;
   const pendencias=(st.pendencias||[]).filter(p=>!p.done);
   function addPending(){const text=pendInput.trim();if(!text)return;onAddPending(text);setPendInput('');}
+  // reordenar: troca de lugar com o vizinho ABERTO seguinte (ignora concluídas escondidas)
+  function movePending(id,dir){setSt(p=>{const arr=[...(p.pendencias||[])];const open=arr.map((x,i)=>x.done?-1:i).filter(i=>i>=0);const pos=open.indexOf(arr.findIndex(x=>x.id===id));const j=pos+dir;if(pos<0||j<0||j>=open.length)return p;const a=open[pos],b=open[j];const na=[...arr];[na[a],na[b]]=[na[b],na[a]];return{...p,pendencias:na};});}
 
   return<div>
     {/* ── pendências sempre visíveis ── */}
@@ -3502,12 +3510,12 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
       {pendencias.length===0
         ?<div className="pend-empty">Tudo resolvido por enquanto.</div>
         :<div className="pend-list">
-          {pendencias.map(p=><div key={p.id}className="pend-row">
+          {pendencias.map((p,i)=><div key={p.id}className="tl-item">
+              <button className="tl-mv"disabled={i===0}title="Mover para cima"onClick={()=>movePending(p.id,-1)}>▲</button>
+              <button className="tl-mv"disabled={i===pendencias.length-1}title="Mover para baixo"onClick={()=>movePending(p.id,1)}>▼</button>
               <Chk on={false}onChange={()=>onTogglePending(p.id)}/>
-              <div className="pend-main">
-                <div className="pend-task">{p.text}</div>
-              </div>
-              <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}title="Excluir pendência"onClick={()=>setSt(s=>({...s,pendencias:(s.pendencias||[]).filter(x=>x.id!==p.id)}))}>×</button>
+              <span className="tl-text">{p.text}</span>
+              <button className="tl-del"style={{width:20,height:20,fontSize:'.85rem'}}title="Excluir pendência"onClick={()=>setSt(s=>({...s,pendencias:(s.pendencias||[]).filter(x=>x.id!==p.id)}))}>×</button>
             </div>)}
         </div>}
       <div className="pend-add">
@@ -5588,6 +5596,9 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const FRAME=78;
   const lightD=Math.round((!lit?0.14:0.4+pct*0.55)*FRAME);
 
+  // satélites orbitando: quantidade = nível atual (o "elemento extra" a cada nível)
+  const satCount=lit?Math.min(lv,10):0;
+
   // vida: batida GLOBAL sincronizada; amplitude cresce suavemente com o nível
   const breath=lit&&(!stl||stl.vida!==false);
 
@@ -5616,6 +5627,9 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     // espessura do anel também cresce por estágio (1 fino → 4 grosso)
     '--sk-halo-w':stage>=4?'3.6px':stage>=3?'2.8px':stage>=2?'2px':'1.3px',
     '--sk-rays-op':(0.28+pct*0.5).toFixed(2),
+    // órbita dos satélites: raio/ tamanho crescem levemente nos estágios altos
+    '--sk-sat-r':(stage>=4?'52px':stage>=3?'50px':'48px'),
+    '--sk-sat-s':(stage>=4?'8px':stage>=3?'7.5px':'6.5px'),
     // pulso global: batida idêntica para todos (sensação de organismo vivo)
     '--sk-beat':'3.6s',
     '--sk-beat-hi':(1.1+pct*0.16).toFixed(2),
@@ -5649,6 +5663,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   return<div className={cn}onClick={onClick}style={{position:'relative',...skVars}}>
     {/* anel externo: trilha de progresso que enche com a % (aparece a partir do nível 1) */}
     <div className="sk-halo" data-on={lit?1:0}/>
+    {/* satélites orbitando: um nó por nível conquistado — deixa 1→2→3 claramente diferentes */}
+    {satCount>0&&<div className="sk-sats">{Array.from({length:satCount},(_,i)=><span key={i} className="sk-sat" style={{'--a':`${i*(360/satCount)}deg`,animationDelay:`${-i*0.35}s`}}/>)}</div>}
     {/* raios e partículas: só acendem do estágio 3 em diante (nada de ruído no básico) */}
     {stage>=3&&!locked&&<div className="sk-rays"/>}
     {stage>=4&&<div className="sk-emit">{Array.from({length:6},(_,i)=><i key={i}style={{'--rot':`${i*60}deg`,animationDelay:`${-i*0.6}s`}}/>)}</div>}
