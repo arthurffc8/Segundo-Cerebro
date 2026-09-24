@@ -485,43 +485,40 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* Corpo em cristal: frame é a rim (borda), o poço escuro por dentro segura a luz */
 .skill-frame{position:relative;width:72px;height:82px;display:flex;align-items:center;justify-content:center;z-index:1;clip-path:var(--hex);background:var(--sk-frame-bg,rgba(120,140,170,.2));filter:drop-shadow(0 0 var(--sk-frame-glow,6px) var(--sk-glow,rgba(0,0,0,0)));transition:filter .34s var(--ease-sk);}
 .skill-well{position:absolute;inset:1.6px;clip-path:var(--hex);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--sk-well,radial-gradient(circle at 50% 36%,#0e1420,#05070d));}
-.skill-core{position:relative;z-index:3;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
+.skill-core{position:relative;z-index:5;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
 
 /* Luz interna: cresce em direção à borda conforme a porcentagem */
 .sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;z-index:1;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 56%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom,8px) var(--sk-glow);transition:width .5s var(--ease-sk),height .5s var(--ease-sk),box-shadow .34s var(--ease-sk);}
 /* reflexo de vidro (mantém o cristal com profundidade, sem ruído) */
 .sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.85) 0%,rgba(255,255,255,.2) 18%,rgba(255,255,255,0) 46%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.5);transition:opacity .34s var(--ease-sk);}
 
-/* Anel externo (halo): arco PROGRESSIVO que enche conforme a % (lv/max) — cada nível fica distinto.
-   ::before = trilha de progresso (estática, parte do topo no sentido horário);
-   ::after  = varredura girando (brilho vivo), só do estágio 2 em diante. */
-.sk-halo{position:absolute;left:50%;top:41px;width:94px;height:94px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk),transform .4s var(--ease-sk);box-shadow:inset 0 0 0 1px var(--sk-ring-line,transparent);}
-.sk-halo::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from -90deg,var(--sk-c) 0deg,var(--sk-hot) calc(var(--sk-pct,0) * 360deg),transparent calc(var(--sk-pct,0) * 360deg));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));filter:drop-shadow(0 0 5px var(--sk-glow));}
-.sk-halo::after{content:"";position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 300deg,var(--sk-hot) 352deg,transparent 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));opacity:0;mix-blend-mode:screen;animation:sk-halo-spin var(--sk-spin,20s) cubic-bezier(.45,0,.55,1) infinite;}
-.sk-halo[data-on="1"]{opacity:1;}
-.sk-s2 .sk-halo::after,.sk-s3 .sk-halo::after,.sk-s4 .sk-halo::after{opacity:.8;}
-@keyframes sk-halo-spin{to{transform:rotate(360deg);}}
+/* Nível 4+ : ANEL EXTERNO (halo) girando em sentido OPOSTO ao anel interno */
+.sk-halo{position:absolute;left:50%;top:41px;width:98px;height:112px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk),transform .4s var(--ease-sk);}
+.sk-halo::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 292deg,var(--sk-c) 328deg,var(--sk-hot) 350deg,transparent 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,2px)),#000 calc(100% - var(--sk-halo-w,2px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,2px)),#000 calc(100% - var(--sk-halo-w,2px)));filter:drop-shadow(0 0 6px var(--sk-glow));animation:sk-rot-ccw var(--sk-spin,16s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-halo::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 0 0 1px var(--sk-ring-line,transparent);}
+.sk-s4 .sk-halo,.sk-s5 .sk-halo{opacity:1;}
+@keyframes sk-rot-ccw{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+@keyframes sk-rot-cw{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
-/* Raios (estágio 3+): estrela pontuda respirando em volta, sincronizada */
-.sk-rays{position:absolute;left:50%;top:41px;width:120px;height:120px;transform:translate(-50%,-50%);z-index:0;pointer-events:none;border-radius:50%;opacity:0;background:repeating-conic-gradient(from 0deg,var(--sk-hot) 0deg 1.6deg,transparent 1.6deg 30deg);-webkit-mask:radial-gradient(farthest-side,transparent 52%,#000 64%,#000 80%,transparent 94%);mask:radial-gradient(farthest-side,transparent 52%,#000 64%,#000 80%,transparent 94%);}
-.sk-s3 .sk-rays,.sk-s4 .sk-rays{animation:sk-rays-pulse var(--sk-beat) var(--ease-sk) infinite;}
-@keyframes sk-rays-pulse{0%,100%{opacity:calc(var(--sk-rays-op,.5)*.4);transform:translate(-50%,-50%) scale(.9);}50%{opacity:var(--sk-rays-op,.5);transform:translate(-50%,-50%) scale(1.06);}}
+/* Nível 3+ : ANEL INTERNO — segundo hexágono menor dentro do principal, girando devagar (cw) */
+.sk-innerring{position:absolute;left:50%;top:50%;width:64%;height:64%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);animation:sk-innerspin var(--sk-spin-in,17s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-innerring polygon{fill:none;stroke:var(--sk-c);stroke-width:2.6;vector-effect:non-scaling-stroke;stroke-linejoin:round;}
+.sk-s3 .sk-innerring,.sk-s4 .sk-innerring,.sk-s5 .sk-innerring{opacity:var(--sk-inring-op,.85);}
+@keyframes sk-innerspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
 
-/* Satélites orbitando: UM nó a mais a cada nível conquistado (o "elemento extra" por nível).
-   lv1 → 1 satélite · lv2 → 2 · lv3 → 3 ... girando em volta do cristal. */
-.sk-sats{position:absolute;left:50%;top:41px;width:112px;height:112px;transform:translate(-50%,-50%);border-radius:50%;z-index:1;pointer-events:none;animation:sk-halo-spin var(--sk-spin,18s) cubic-bezier(.45,0,.55,1) infinite;}
-.sk-sat{position:absolute;left:50%;top:50%;width:var(--sk-sat-s,7px);height:var(--sk-sat-s,7px);margin:calc(var(--sk-sat-s,7px) / -2);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--sk-hot) 55%,var(--sk-c));box-shadow:0 0 7px var(--sk-c),0 0 12px var(--sk-glow);transform:rotate(var(--a,0deg)) translateX(var(--sk-sat-r,56px));animation:sk-satbeat var(--sk-beat) var(--ease-sk) infinite;}
-@keyframes sk-satbeat{0%,100%{opacity:.7;}50%{opacity:1;}}
+/* Nível 4+ : PARTÍCULAS orbitando · Nível 5 : duas camadas em velocidades diferentes */
+.sk-orbit{position:absolute;left:50%;top:41px;width:0;height:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);}
+.sk-s4 .sk-orbit,.sk-s5 .sk-orbit{opacity:1;}
+.sk-orbit i{position:absolute;left:0;top:0;width:var(--sk-pt-s,3px);height:var(--sk-pt-s,3px);margin:calc(var(--sk-pt-s,3px) / -2);border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,var(--sk-hot) 60%,var(--sk-c));box-shadow:0 0 6px var(--sk-glow);transform:rotate(var(--a,0deg)) translateX(var(--sk-pt-r,52px));}
+.sk-o1{animation:sk-orbit-cw var(--sk-orb1,10s) linear infinite;}
+.sk-o2{animation:sk-orbit-ccw var(--sk-orb2,6.5s) linear infinite;}
+@keyframes sk-orbit-cw{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+@keyframes sk-orbit-ccw{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
 
 /* Facetas de cristal (maestria): brilhos duros que varrem a gema */
 .sk-facets{position:absolute;inset:0;z-index:2;pointer-events:none;opacity:0;mix-blend-mode:screen;background:linear-gradient(118deg,rgba(255,255,255,0) 42%,rgba(255,255,255,.55) 50%,rgba(255,255,255,0) 58%),linear-gradient(62deg,rgba(255,255,255,0) 44%,rgba(255,255,255,.34) 50%,rgba(255,255,255,0) 56%),linear-gradient(0deg,rgba(0,0,0,.28),transparent 55%);}
-.sk-s4 .sk-facets{animation:sk-shimmer calc(var(--sk-beat)*1.5) var(--ease-sk) infinite;}
+.sk-s5 .sk-facets{animation:sk-shimmer calc(var(--sk-beat)*1.5) var(--ease-sk) infinite;}
 @keyframes sk-shimmer{0%,100%{opacity:.5;filter:brightness(1);}50%{opacity:1;filter:brightness(1.25);}}
-
-/* Emissão de partículas da maestria: luzes que disparam do nó para os conectados */
-.sk-emit{position:absolute;left:50%;top:41px;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;}
-.sk-emit i{position:absolute;left:50%;top:50%;width:3px;height:3px;margin:-1.5px 0 0 -1.5px;border-radius:50%;background:var(--sk-hot);box-shadow:0 0 6px var(--sk-glow);animation:sk-rise calc(var(--sk-beat)*1.3) var(--ease-sk) infinite;}
-@keyframes sk-rise{0%{transform:rotate(var(--rot,0deg)) translateY(20px) scale(.2);opacity:0;}22%{opacity:.95;}100%{transform:rotate(var(--rot,0deg)) translateY(58px) scale(.2);opacity:0;}}
 
 /* Batimento GLOBAL: todos os nós ativos respiram no mesmo tempo (fase 0, sem ruído) */
 @keyframes sk-breathe{0%,100%{transform:translate(-50%,-50%) scale(.97);filter:brightness(.96);}50%{transform:translate(-50%,-50%) scale(var(--sk-sc-hi,1.04));filter:brightness(var(--sk-beat-hi,1.2));}}
@@ -546,12 +543,18 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* Focus Mode: ao selecionar, tudo escurece; selecionado + pré-requisitos reluzem */
 .st-focus .skill-node{opacity:.3;filter:grayscale(.4) brightness(.72);}
 .st-focus .skill-node.st-related,.st-focus .skill-node.st-sel{opacity:1;filter:none;}
-.st-focus .skill-node.st-related .sk-halo,.st-focus .skill-node.st-sel .sk-halo{opacity:1;}
+.st-focus .skill-node.st-sel .sk-innerring{opacity:1;}
 .st-sel{z-index:14;}
 .st-sel .sk-halo{transform:translate(-50%,-50%) scale(1.14);}
 .st-sel .sk-halo::before{filter:drop-shadow(0 0 11px var(--sk-glow));}
 .st-sel .sk-light{box-shadow:0 0 26px var(--sk-glow);}
 .st-sel .skill-well{box-shadow:inset 0 0 18px var(--sk-glow);}
+
+/* Linhas de luz que um nó em MAESTRIA (nível 5) emite para seus conectados */
+.sk-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible;}
+.sk-link{stroke:#F5D98C;stroke-width:2;stroke-linecap:round;opacity:.7;stroke-dasharray:2 11;animation:sk-linkflow 1.7s linear infinite;filter:drop-shadow(0 0 4px rgba(245,217,140,.85));}
+@keyframes sk-linkflow{to{stroke-dashoffset:-26;}}
+@media(prefers-reduced-motion:reduce){.sk-link{animation:none;}}
 
 /* Prateleiras (tiers) */
 .st-shelf{position:relative;border-radius:9px;padding:11px 4px 7px;}
@@ -560,7 +563,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-@media(prefers-reduced-motion:reduce){.sk-halo::after,.sk-sats,.sk-sat,.sk-rays,.sk-emit i,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -5573,67 +5576,68 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
   const locked=!!lock;                                   // depende de outra habilidade
 
-  // ── PROGRESSO CONTÍNUO + ESTÁGIOS ──
-  // A leitura de nível vem de um valor CONTÍNUO (pct = nível ÷ máximo): o anel externo
-  // enche na proporção exata da %, a luz interna cresce e o brilho sobe a cada nível —
-  // então 0≠1≠2≠3 mesmo dentro da mesma faixa. Os estágios (1–4) só liberam os efeitos
-  // discretos: 2 acende cor+anel · 3 (75%+) raios e energia · 4 (100%) elite dourado.
+  // ── PROGRESSÃO EM CAMADAS (5 faixas por PORCENTAGEM lv/max) ──
+  // Cada faixa ADICIONA uma camada visual clara, sem mudar a forma hexagonal:
+  //  1 (0–20%)  Casca Vazia ..... só o contorno, centro escuro, sem brilho/animação
+  //  2 (21–40%) Preenchimento ... contorno + glow radial parcial no centro, brilho sutil
+  //  3 (41–60%) Núcleo Formado .. contorno cheio + centro na cor + anel interno (gira)
+  //  4 (61–80%) Energia Ativa ... + anel externo (gira ao contrário) + partículas orbitando
+  //  5 (81–100%) Maestria ...... dourado + mais partículas + linhas de luz pros conectados
   const pct=max>0?Math.min(1,lv/max):0;
   const levelRatio=pct;                                  // usado por nome/badge/pips
-  const stage=pct>=1?4:pct>=0.75?3:started?2:1;
-  const lit=started&&!locked;                            // nó de fato aceso (anel + cor)
+  const stage=locked||pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
 
-  // Cores: apagado/cinza no nível 0; tema do nível 1 pra frente; ouro branco na maestria.
+  // cores: cinza só quando travado; tema do nível 1 pra frente; ouro branco na maestria (5)
   const elite=_mix(SKILL_GOLD,'#FFFFFF',0.42);
-  const accent=!lit?'#39445A':stage>=4?elite:d;
+  const accent=locked?'#39445A':stage>=5?elite:d;
   const glowTone=accent;
-  const maxHi=stage>=4?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
+  const maxHi=stage>=5?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
 
-  // geometria do cristal: o preenchimento de luz cresce continuamente com a porcentagem
+  // preenchimento interno (sk-light): vazio → parcial (não encosta na borda) → cheio
   const FRAME=78;
-  const lightD=Math.round((!lit?0.14:0.4+pct*0.55)*FRAME);
+  const fillFrac=stage<=1?0:stage===2?0.4+((pct-0.2)/0.2)*0.16:stage===3?1.05:1.25;
+  const lightD=Math.round(fillFrac*FRAME);
+  const glowK=stage<=1?0:stage===2?0.28:stage===3?0.6:stage===4?0.85:1;   // intensidade do brilho
 
-  // satélites orbitando: quantidade = nível atual (o "elemento extra" a cada nível)
-  const satCount=lit?Math.min(lv,10):0;
+  // vida: SEM animação no nível 1; batida GLOBAL sincronizada, mais forte a cada faixa
+  const breath=stage>=2&&(!stl||stl.vida!==false);
 
-  // vida: batida GLOBAL sincronizada; amplitude cresce suavemente com o nível
-  const breath=lit&&(!stl||stl.vida!==false);
+  // emoji: some na casca vazia (1), volta tímido no 2, vívido do 3 em diante
+  const emojiOp=stage<=1?0.28:stage===2?0.5:0.72+pct*0.28;
+  const emojiFilt=stage<=1?'grayscale(1) brightness(0.55)':stage===2?'grayscale(.4) brightness(.85)':`brightness(${(0.9+pct*0.2).toFixed(2)}) saturate(${Math.round(70+pct*60)}%)`;
 
-  // emoji: cinza apagado → vívido conforme a luz
-  const emojiOp=!lit?0.3:0.5+pct*0.5;
-  const emojiFilt=!lit?'grayscale(1) brightness(0.6)':`brightness(${(0.85+pct*0.3).toFixed(2)}) saturate(${Math.round(50+pct*80)}%)`;
-
-  // rim (borda) e poço (fundo) do hexágono
-  const frameBg=!lit?'rgba(74,88,108,0.32)':_rgba(accent,Math.min(0.95,(0.16+pct*0.62)*(0.45+nk*0.55)).toFixed(2));
-  const wellBg=lit
-    ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.86)} 0%, #04060C 100%)`
+  // rim (borda) do hexágono: opacidade cresce por faixa (40% → 70% → 100%)
+  const outlineOp=stage<=1?0.4:stage===2?0.7:stage===3?0.95:1;
+  const frameBg=_rgba(accent,Math.min(1,outlineOp*(0.72+nk*0.28)).toFixed(2));
+  const wellBg=stage>=3
+    ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.7)} 0%, #04060C 100%)`
     :'radial-gradient(circle at 50% 36%, #0e1420 0%, #05070d 100%)';
 
   const skVars={
     '--sk-c':accent,'--sk-hot':hot,'--sk-rim':rim,'--sk-spark':spark,
     '--sk-d':lightD+'px',
-    '--sk-pct':pct.toFixed(3),                            // preenche o anel de progresso
-    '--sk-glow':_rgba(glowTone,Math.min(0.92,(!lit?0.1:(0.22+pct*0.62))*gk).toFixed(2)),
-    '--sk-bloom':Math.round((!lit?3:(6+pct*18))*gk)+'px',
-    '--sk-gloss-op':(stage>=4?0.75:!lit?0.12:0.24+pct*0.5).toFixed(2),
+    '--sk-glow':_rgba(glowTone,Math.min(0.95,(glowK*0.95)*gk).toFixed(2)),
+    '--sk-bloom':Math.round((glowK*30)*gk)+'px',
+    '--sk-gloss-op':(glowK*0.8).toFixed(2),
     '--sk-frame-bg':frameBg,'--sk-well':wellBg,
-    '--sk-frame-glow':Math.round((!lit?2:(6+pct*18))*gk)+'px',
-    '--sk-ring-line':lit?_rgba(accent,0.3):'transparent',
-    // rotação da varredura: lento → rápido conforme o estágio (nunca linear)
-    '--sk-spin':stage>=4?'6.5s':stage>=3?'11s':'18s',
-    // espessura do anel também cresce por estágio (1 fino → 4 grosso)
-    '--sk-halo-w':stage>=4?'3.6px':stage>=3?'2.8px':stage>=2?'2px':'1.3px',
-    '--sk-rays-op':(0.28+pct*0.5).toFixed(2),
-    // órbita dos satélites: raio/ tamanho crescem levemente nos estágios altos
-    '--sk-sat-r':(stage>=4?'52px':stage>=3?'50px':'48px'),
-    '--sk-sat-s':(stage>=4?'8px':stage>=3?'7.5px':'6.5px'),
-    // pulso global: batida idêntica para todos (sensação de organismo vivo)
+    '--sk-frame-glow':Math.round((glowK*24)*gk)+'px',
+    // anel externo (halo · nível 4+): espessura + velocidade (gira ao contrário do interno)
+    '--sk-ring-line':stage>=4?_rgba(accent,0.35):'transparent',
+    '--sk-halo-w':stage>=5?'3px':'2.4px',
+    '--sk-spin':stage>=5?'11s':'17s',
+    // anel interno (hexágono menor · nível 3+)
+    '--sk-spin-in':stage>=5?'12s':'18s',
+    '--sk-inring-op':(0.6+(stage-3)*0.14).toFixed(2),
+    // partículas orbitando (nível 4+)
+    '--sk-pt-r':stage>=5?'56px':'50px','--sk-pt-s':stage>=5?'3.6px':'3px',
+    '--sk-orb1':'11s','--sk-orb2':'7s',
+    // pulso global: batida idêntica para todos; amplitude cresce com o estágio
     '--sk-beat':'3.6s',
-    '--sk-beat-hi':(1.1+pct*0.16).toFixed(2),
-    '--sk-sc-hi':(1.02+pct*0.05).toFixed(3),
+    '--sk-beat-hi':[1,1,1.06,1.11,1.16,1.24][stage].toFixed(2),
+    '--sk-sc-hi':[1,1,1.02,1.03,1.05,1.07][stage].toFixed(3),
   };
 
   const cn="skill-node sk-s"+stage+(breath?" sk-live":"")+(locked?" st-locked":"")+(selected?" st-sel":"")+(related?" st-related":"");
@@ -5660,20 +5664,19 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
 
   const lockText=locked?skillReqLabel(lock.missing):'';
 
-  return<div className={cn}onClick={onClick}style={{position:'relative',...skVars}}>
-    {/* anel externo: trilha de progresso que enche com a % (aparece a partir do nível 1) */}
-    <div className="sk-halo" data-on={lit?1:0}/>
-    {/* satélites orbitando: um nó por nível conquistado — deixa 1→2→3 claramente diferentes */}
-    {satCount>0&&<div className="sk-sats">{Array.from({length:satCount},(_,i)=><span key={i} className="sk-sat" style={{'--a':`${i*(360/satCount)}deg`,animationDelay:`${-i*0.35}s`}}/>)}</div>}
-    {/* raios e partículas: só acendem do estágio 3 em diante (nada de ruído no básico) */}
-    {stage>=3&&!locked&&<div className="sk-rays"/>}
-    {stage>=4&&<div className="sk-emit">{Array.from({length:6},(_,i)=><i key={i}style={{'--rot':`${i*60}deg`,animationDelay:`${-i*0.6}s`}}/>)}</div>}
-    {/* corpo em cristal: rim (frame) + poço escuro (well) + camadas de luz */}
+  return<div className={cn}onClick={onClick}data-sk={skill.id}style={{position:'relative',...skVars}}>
+    {/* anel externo (nível 4+): gira em sentido OPOSTO ao anel interno */}
+    <div className="sk-halo"/>
+    {/* partículas orbitando (nível 4+); no nível 5 duas camadas em velocidades diferentes */}
+    {stage>=4&&<div className="sk-orbit sk-o1">{Array.from({length:stage>=5?4:3},(_,i)=><i key={i}style={{'--a':`${i*(360/(stage>=5?4:3))}deg`}}/>)}</div>}
+    {stage>=5&&<div className="sk-orbit sk-o2">{Array.from({length:3},(_,i)=><i key={i}style={{'--a':`${i*120+60}deg`}}/>)}</div>}
+    {/* corpo em cristal: rim (frame) + poço escuro (well) + camadas de luz + anel interno */}
     <div className="skill-frame">
       <div className="skill-well">
-        {stage>=4&&<div className="sk-facets"/>}
+        {stage>=5&&<div className="sk-facets"/>}
         <div className="sk-light"/>
         <div className="sk-gloss"/>
+        {stage>=3&&<svg className="sk-innerring" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="50,1 99,26 99,74 50,99 1,74 1,26"/></svg>}
         <div className="skill-core">
           {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:maxed?'translateY(12px) scale(.86)':'none'}}>{skill.emoji}</span>}
         </div>
@@ -6006,6 +6009,36 @@ function SkillTreeSection({st,setSt,setTab}){
 
   const tree=trees.find(t=>t.id===sel)||trees[0]||null;
 
+  // ── LINHAS DE LUZ: nós em MAESTRIA (estágio 5) emitem para os conectados ──
+  // As posições saem do DOM real (centro de cada .skill-frame) relativo ao wrapper da árvore.
+  const treeRef=useRef(null);
+  const[links,setLinks]=useState([]);
+  useEffect(()=>{
+    if(!tree){setLinks([]);return;}
+    let raf;
+    const measure=()=>{
+      const c=treeRef.current;if(!c)return;
+      const cr=c.getBoundingClientRect();const pos={};
+      c.querySelectorAll('[data-sk]').forEach(el=>{const f=el.querySelector('.skill-frame')||el;const r=f.getBoundingClientRect();pos[el.getAttribute('data-sk')]={x:r.left-cr.left+r.width/2,y:r.top-cr.top+r.height/2};});
+      const isGold=s=>{const mx=s.maxNivel||1,lv=s.nivel||0;return lv>0&&lv/mx>0.8;};   // pct>80% → estágio 5
+      const arr=[],seen=new Set();
+      tree.skills.forEach(s=>{
+        if(!isGold(s))return;
+        const nb=new Set();
+        skillReqs(s).forEach(r=>nb.add(r.id));
+        tree.skills.forEach(o=>{if(skillReqs(o).some(r=>r.id===s.id))nb.add(o.id);});
+        nb.forEach(nid=>{const a=pos[s.id],b=pos[nid];if(a&&b){const k=s.id+'>'+nid;if(!seen.has(k)){seen.add(k);arr.push({k,x1:a.x,y1:a.y,x2:b.x,y2:b.y});}}});
+      });
+      setLinks(arr);
+    };
+    const run=()=>{cancelAnimationFrame(raf);raf=requestAnimationFrame(measure);};
+    run();
+    let ro;
+    if(typeof ResizeObserver!=='undefined'&&treeRef.current){ro=new ResizeObserver(run);ro.observe(treeRef.current);}
+    window.addEventListener('resize',run);
+    return()=>{cancelAnimationFrame(raf);if(ro)ro.disconnect();window.removeEventListener('resize',run);};
+  },[tree&&tree.id,(tree&&tree.skills||[]).map(s=>s.id+(s.nivel||0)+'/'+(s.maxNivel||1)+(s.tier||1)+(s.subcat||'')).join('|'),nodeSel]);
+
   // ── ações ──
   function setLevel(treeId,skillId,delta){
     setTrees(ts=>ts.map(t=>{
@@ -6152,7 +6185,7 @@ function SkillTreeSection({st,setSt,setTab}){
       {tree.id==='surdo'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
       {tree.id==='automacao'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
       {tree.id==='danca'&&<div style={{position:'absolute',inset:0,backgroundImage:"url('icon.svg')",backgroundSize:'20%',backgroundPosition:'center',filter:'grayscale(1)',opacity:0.05,zIndex:0,pointerEvents:'none',borderRadius:10,backgroundRepeat:'repeat'}}/>}
-    <div className={focusOn?'st-focus':undefined}style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
+    <div ref={treeRef} className={focusOn?'st-focus':undefined}style={{display:'flex',flexWrap:'wrap',justifyContent:'center',alignItems:'flex-start',margin:'0 auto',gap:'16px',padding:'14px 12px 16px',borderRadius:10,backgroundImage:treeBg,position:'relative',zIndex:1}}>
       {columns.map(col=>{
         const isOrphan=!!col.orphan;
         const colMaxTier=col.skills.length ? Math.max(1, ...col.skills.map(s=>s.tier||1)) : 0;
@@ -6191,6 +6224,8 @@ function SkillTreeSection({st,setSt,setTab}){
           </div>
         </div>;
       })}
+      {/* linhas de luz da maestria (por cima dos cards, conectando centros) */}
+      {links.length>0&&<svg className="sk-links" aria-hidden="true">{links.map(l=><line key={l.k} className="sk-link" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}/>)}</svg>}
     </div>
     </div>
 
