@@ -188,6 +188,34 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* fixed/recurring task badge */
 .tsk-fixed{display:inline-flex;align-items:center;gap:3px;font-size:.6rem;font-family:var(--fm);letter-spacing:.06em;text-transform:uppercase;color:var(--ac);background:var(--ac1);border:1px solid var(--ac2);border-radius:4px;padding:1px 6px;white-space:nowrap;}
 .tsk-fixed::before{content:"🔁";font-size:.6rem;}
+/* ── Listas próprias (aba Tarefas) ── */
+.tl-wrap{display:flex;gap:14px;overflow-x:auto;padding:2px 2px 12px;align-items:stretch;}
+.tl-card{position:relative;flex:0 0 262px;width:262px;max-height:70vh;display:flex;flex-direction:column;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--bd);border-radius:14px;padding:12px 12px 10px;overflow:hidden;transition:transform .18s var(--ease-sk,ease),border-color .18s,box-shadow .18s;}
+.tl-card::before{content:"";position:absolute;left:0;right:0;top:0;height:3px;background:linear-gradient(90deg,var(--ac),transparent 78%);opacity:.85;}
+.tl-card:hover{transform:translateY(-2px);border-color:var(--ac2);box-shadow:0 12px 28px rgba(0,0,0,.4);}
+.tl-head{display:flex;align-items:center;gap:6px;margin-bottom:2px;}
+.tl-title{flex:1;min-width:0;font-weight:700;font-size:.92rem;color:var(--tx);background:none;border:none;padding:2px 0;font-family:inherit;letter-spacing:.01em;}
+.tl-title:focus{outline:none;border-bottom:1px solid var(--ac2);}
+.tl-del{width:24px;height:24px;flex-shrink:0;border:none;background:none;color:var(--tx4);font-size:1rem;line-height:1;border-radius:7px;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;}
+.tl-del:hover{color:var(--er);background:rgba(239,68,68,.13);}
+.tl-count{font-size:.64rem;font-family:var(--fm);color:var(--tx3);letter-spacing:.03em;}
+.tl-count.full{color:#22c55e;}
+.tl-bar{height:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden;margin:2px 0 9px;}
+.tl-bar>i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--ac),#5eead4);transition:width .4s var(--ease-sk,ease);}
+.tl-body{display:flex;flex-direction:column;gap:2px;flex:1;min-height:0;overflow-y:auto;margin:0 -4px;padding:0 4px;}
+.tl-item{display:flex;align-items:center;gap:5px;padding:4px 6px;border-radius:9px;transition:background .15s;}
+.tl-item:hover{background:rgba(255,255,255,.04);}
+.tl-item.done .tl-text{text-decoration:line-through;color:var(--tx4);}
+.tl-text{flex:1;min-width:0;font-size:.82rem;color:var(--tx2);word-break:break-word;line-height:1.35;}
+.tl-mv{width:18px;height:18px;flex-shrink:0;border:none;background:none;color:var(--tx4);font-size:.55rem;padding:0;cursor:pointer;border-radius:5px;opacity:.45;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;}
+.tl-mv:hover{opacity:1;color:var(--ac);background:var(--ac1);}
+.tl-mv:disabled{opacity:.08;cursor:default;}
+.tl-add{display:flex;gap:6px;margin-top:10px;}
+.tl-add input{flex:1;min-width:0;font-size:.8rem;padding:7px 10px;margin-top:0;border-radius:9px;}
+.tl-add button{flex-shrink:0;padding:7px 12px;font-size:.75rem;white-space:nowrap;border-radius:9px;}
+.tl-empty{padding:16px 6px;text-align:center;font-size:.76rem;color:var(--tx4);font-style:italic;}
+.tl-new{flex:0 0 150px;min-width:150px;align-self:stretch;background:none;border:1px dashed var(--bd2);border-radius:14px;color:var(--tx3);font-size:.82rem;cursor:pointer;padding:16px 8px;transition:all .18s;}
+.tl-new:hover{color:var(--ac);border-color:var(--ac);background:var(--ac1);}
 /* weekday picker */
 .tsk-wd{display:flex;gap:4px;flex-wrap:wrap;}
 .tsk-wd-btn{width:32px;height:32px;border-radius:50%;border:1px solid var(--bd2);background:var(--card2);color:var(--tx3);font-family:var(--fm);font-size:.62rem;font-weight:700;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;padding:0;}
@@ -464,10 +492,14 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* reflexo de vidro (mantém o cristal com profundidade, sem ruído) */
 .sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.85) 0%,rgba(255,255,255,.2) 18%,rgba(255,255,255,0) 46%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.5);transition:opacity .34s var(--ease-sk);}
 
-/* Anel externo (halo): um arco de luz varrendo em volta do cristal — o marcador de progresso */
+/* Anel externo (halo): arco PROGRESSIVO que enche conforme a % (lv/max) — cada nível fica distinto.
+   ::before = trilha de progresso (estática, parte do topo no sentido horário);
+   ::after  = varredura girando (brilho vivo), só do estágio 2 em diante. */
 .sk-halo{position:absolute;left:50%;top:41px;width:94px;height:94px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk),transform .4s var(--ease-sk);box-shadow:inset 0 0 0 1px var(--sk-ring-line,transparent);}
-.sk-halo::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 46deg,var(--sk-c) 96deg,var(--sk-hot) 128deg,transparent 210deg 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));animation:sk-halo-spin var(--sk-spin,20s) cubic-bezier(.45,0,.55,1) infinite;filter:drop-shadow(0 0 5px var(--sk-glow));}
-.sk-s2 .sk-halo,.sk-s3 .sk-halo,.sk-s4 .sk-halo{opacity:1;}
+.sk-halo::before{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from -90deg,var(--sk-c) 0deg,var(--sk-hot) calc(var(--sk-pct,0) * 360deg),transparent calc(var(--sk-pct,0) * 360deg));-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));filter:drop-shadow(0 0 5px var(--sk-glow));}
+.sk-halo::after{content:"";position:absolute;inset:-1px;border-radius:50%;background:conic-gradient(from 0deg,transparent 0 300deg,var(--sk-hot) 352deg,transparent 360deg);-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));mask:radial-gradient(farthest-side,transparent calc(100% - var(--sk-halo-w,1.5px)),#000 calc(100% - var(--sk-halo-w,1.5px)));opacity:0;mix-blend-mode:screen;animation:sk-halo-spin var(--sk-spin,20s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-halo[data-on="1"]{opacity:1;}
+.sk-s2 .sk-halo::after,.sk-s3 .sk-halo::after,.sk-s4 .sk-halo::after{opacity:.8;}
 @keyframes sk-halo-spin{to{transform:rotate(360deg);}}
 
 /* Raios (estágio 3+): estrela pontuda respirando em volta, sincronizada */
@@ -3748,29 +3780,34 @@ function TarefasSection({st,setSt}){
       {lists.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'30px 0',textAlign:'center'}}>
         Nenhuma lista ainda.<br/><span style={{fontSize:'.78rem'}}>Crie listas próprias (ideias, pendências, compras...) com "+ Nova Lista".</span>
       </div>}
-      <div style={{display:'flex',gap:10,overflowX:'auto',paddingBottom:8,alignItems:'flex-start'}}>
+      <div className="tl-wrap">
         {lists.map(l=>{
           const doneN=l.items.filter(i=>i.done).length;
-          return<div key={l.id}style={{...colWrap,border:'1px solid var(--bd)'}}>
-            <div className="fcb"style={{marginBottom:8}}>
-              <input value={l.nome}onChange={e=>renameList(l.id,e.target.value)}style={{fontWeight:700,fontSize:'.82rem',background:'none',border:'none',padding:0,color:'var(--tx)',width:'100%'}}/>
-              <button className="btn-ic"style={{color:'var(--er)',flexShrink:0}}onClick={()=>delList(l.id)}>×</button>
+          const total=l.items.length,full=total>0&&doneN===total;
+          return<div key={l.id}className="tl-card">
+            <div className="tl-head">
+              <input className="tl-title"value={l.nome}onChange={e=>renameList(l.id,e.target.value)}/>
+              <span className={`tl-count${full?' full':''}`}>{doneN}/{total}</span>
+              <button className="tl-del"title="Excluir lista"onClick={()=>delList(l.id)}>×</button>
             </div>
-            {l.items.length>0&&<div style={{fontSize:'.62rem',fontFamily:'var(--fm)',color:doneN===l.items.length?'#22c55e':'var(--tx3)',marginBottom:6}}>☑ {doneN}/{l.items.length}</div>}
-            {l.items.map((it,i)=><div key={it.id}className="fc g4"style={{padding:'3px 0'}}>
-              <button className="btn-ic"style={{color:'var(--tx4)',fontSize:'.7rem',padding:1,opacity:i===0?0.15:1,cursor:i===0?'default':'pointer'}}disabled={i===0}onClick={()=>moveItem(l.id,it.id,-1)}>▲</button>
-              <button className="btn-ic"style={{color:'var(--tx4)',fontSize:'.7rem',padding:1,opacity:i===l.items.length-1?0.15:1,cursor:i===l.items.length-1?'default':'pointer'}}disabled={i===l.items.length-1}onClick={()=>moveItem(l.id,it.id,1)}>▼</button>
-              <Chk on={it.done}onChange={()=>togItem(l.id,it.id)}/>
-              <span style={{flex:1,fontSize:'.8rem',color:it.done?'var(--tx3)':'var(--tx2)',textDecoration:it.done?'line-through':'none',wordBreak:'break-word'}}>{it.text}</span>
-              <button className="btn-ic"style={{color:'var(--tx4)',flexShrink:0}}onClick={()=>delItem(l.id,it.id)}>×</button>
-            </div>)}
-            <div className="fc g4" style={{marginTop:6}}>
-              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="Novo item..."style={{fontSize:'.78rem',padding:'5px 8px',flex:1,marginTop:0}}/>
-              <button className="btn btn-ac"onClick={()=>addItem(l.id)}style={{padding:'5px 10px',fontSize:'.75rem',flexShrink:0,whiteSpace:'nowrap'}}>Adicionar</button>
+            <div className="tl-bar"><i style={{width:total?Math.round(doneN/total*100)+'%':'0%'}}/></div>
+            <div className="tl-body">
+              {total===0&&<div className="tl-empty">Lista vazia — adicione o primeiro item.</div>}
+              {l.items.map((it,i)=><div key={it.id}className={`tl-item${it.done?' done':''}`}>
+                <button className="tl-mv"disabled={i===0}title="Mover para cima"onClick={()=>moveItem(l.id,it.id,-1)}>▲</button>
+                <button className="tl-mv"disabled={i===total-1}title="Mover para baixo"onClick={()=>moveItem(l.id,it.id,1)}>▼</button>
+                <Chk on={it.done}onChange={()=>togItem(l.id,it.id)}/>
+                <span className="tl-text">{it.text}</span>
+                <button className="tl-del"style={{width:20,height:20,fontSize:'.85rem'}}title="Remover item"onClick={()=>delItem(l.id,it.id)}>×</button>
+              </div>)}
+            </div>
+            <div className="tl-add">
+              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="Novo item..."/>
+              <button className="btn btn-ac"onClick={()=>addItem(l.id)}>Adicionar</button>
             </div>
           </div>;
         })}
-        <button onClick={addList}style={{minWidth:120,flex:'0 0 120px',alignSelf:'flex-start',background:'none',border:'1px dashed var(--bd2)',borderRadius:8,color:'var(--tx3)',fontSize:'.8rem',cursor:'pointer',padding:'14px 8px'}}>+ Nova lista</button>
+        <button className="tl-new"onClick={addList}>+ Nova lista</button>
       </div>
     </div>}
 
@@ -5528,57 +5565,61 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
   const locked=!!lock;                                   // depende de outra habilidade
 
-  // ── ESTÁGIOS POR PORCENTAGEM (progresso = nível ÷ máximo) ──
-  // A evolução NÃO lê o nível absoluto, e sim a fração concluída. Quatro faixas:
-  //  1 (até 25%) apagado · 2 (26–74%) acende + anel fino girando · 3 (75–99%) brilho
-  //  forte, anel grosso e rápido, respira mais · 4 (100%) elite dourado + cristal.
+  // ── PROGRESSO CONTÍNUO + ESTÁGIOS ──
+  // A leitura de nível vem de um valor CONTÍNUO (pct = nível ÷ máximo): o anel externo
+  // enche na proporção exata da %, a luz interna cresce e o brilho sobe a cada nível —
+  // então 0≠1≠2≠3 mesmo dentro da mesma faixa. Os estágios (1–4) só liberam os efeitos
+  // discretos: 2 acende cor+anel · 3 (75%+) raios e energia · 4 (100%) elite dourado.
   const pct=max>0?Math.min(1,lv/max):0;
   const levelRatio=pct;                                  // usado por nome/badge/pips
-  const stage=!started||locked||pct<=0.25?1:pct>=1?4:pct>=0.75?3:2;
+  const stage=pct>=1?4:pct>=0.75?3:started?2:1;
+  const lit=started&&!locked;                            // nó de fato aceso (anel + cor)
 
-  // Cores: corpo segue o tema; na maestria vira ouro branco (elite), independente da árvore.
+  // Cores: apagado/cinza no nível 0; tema do nível 1 pra frente; ouro branco na maestria.
   const elite=_mix(SKILL_GOLD,'#FFFFFF',0.42);
-  const accent=stage>=4?elite:stage<=1?'#3C4A5E':d;   // 1 = cinza escuro (sem cor/sabor) · 4 = ouro
+  const accent=!lit?'#39445A':stage>=4?elite:d;
   const glowTone=accent;
   const maxHi=stage>=4?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
 
-  // geometria do cristal: o preenchimento de luz cresce com a porcentagem
+  // geometria do cristal: o preenchimento de luz cresce continuamente com a porcentagem
   const FRAME=78;
-  const lightD=Math.round((stage<=1?0.5:0.55+pct*0.45)*FRAME);
+  const lightD=Math.round((!lit?0.14:0.4+pct*0.55)*FRAME);
 
-  // vida: batida GLOBAL sincronizada — mesma duração e fase 0 em todos os nós
-  const breath=stage>=2&&(!stl||stl.vida!==false);
+  // vida: batida GLOBAL sincronizada; amplitude cresce suavemente com o nível
+  const breath=lit&&(!stl||stl.vida!==false);
 
   // emoji: cinza apagado → vívido conforme a luz
-  const emojiOp=stage<=1?0.3:0.55+pct*0.45;
-  const emojiFilt=stage<=1?'grayscale(1) brightness(0.6)':`brightness(${(0.9+pct*0.25).toFixed(2)}) saturate(${Math.round(60+pct*60)}%)`;
+  const emojiOp=!lit?0.3:0.5+pct*0.5;
+  const emojiFilt=!lit?'grayscale(1) brightness(0.6)':`brightness(${(0.85+pct*0.3).toFixed(2)}) saturate(${Math.round(50+pct*80)}%)`;
 
   // rim (borda) e poço (fundo) do hexágono
-  const frameBg=stage<=1?'rgba(74,88,108,0.32)':_rgba(accent,Math.min(0.92,(0.22+pct*0.5)*(0.45+nk*0.55)).toFixed(2));
-  const wellBg=started
+  const frameBg=!lit?'rgba(74,88,108,0.32)':_rgba(accent,Math.min(0.95,(0.16+pct*0.62)*(0.45+nk*0.55)).toFixed(2));
+  const wellBg=lit
     ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.86)} 0%, #04060C 100%)`
     :'radial-gradient(circle at 50% 36%, #0e1420 0%, #05070d 100%)';
 
   const skVars={
     '--sk-c':accent,'--sk-hot':hot,'--sk-rim':rim,'--sk-spark':spark,
     '--sk-d':lightD+'px',
-    '--sk-glow':_rgba(glowTone,Math.min(0.9,(0.2+pct*0.5)*gk).toFixed(2)),
-    '--sk-bloom':Math.round((6+pct*16)*gk)+'px',
-    '--sk-gloss-op':(stage>=4?0.72:0.28+pct*0.4).toFixed(2),
+    '--sk-pct':pct.toFixed(3),                            // preenche o anel de progresso
+    '--sk-glow':_rgba(glowTone,Math.min(0.92,(!lit?0.1:(0.22+pct*0.62))*gk).toFixed(2)),
+    '--sk-bloom':Math.round((!lit?3:(6+pct*18))*gk)+'px',
+    '--sk-gloss-op':(stage>=4?0.75:!lit?0.12:0.24+pct*0.5).toFixed(2),
     '--sk-frame-bg':frameBg,'--sk-well':wellBg,
-    '--sk-frame-glow':Math.round((stage<=1?2:(6+pct*16))*gk)+'px',
-    '--sk-ring-line':stage>=2?_rgba(accent,0.26):'transparent',
-    // rotação do anel externo: lento → rápido conforme o estágio (nunca linear)
-    '--sk-spin':stage>=4?'6.5s':stage>=3?'11s':'20s',
-    '--sk-halo-w':stage>=4?'3.4px':stage>=3?'2.6px':'1.5px',
+    '--sk-frame-glow':Math.round((!lit?2:(6+pct*18))*gk)+'px',
+    '--sk-ring-line':lit?_rgba(accent,0.3):'transparent',
+    // rotação da varredura: lento → rápido conforme o estágio (nunca linear)
+    '--sk-spin':stage>=4?'6.5s':stage>=3?'11s':'18s',
+    // espessura do anel também cresce por estágio (1 fino → 4 grosso)
+    '--sk-halo-w':stage>=4?'3.6px':stage>=3?'2.8px':stage>=2?'2px':'1.3px',
     '--sk-rays-op':(0.28+pct*0.5).toFixed(2),
     // pulso global: batida idêntica para todos (sensação de organismo vivo)
     '--sk-beat':'3.6s',
-    '--sk-beat-hi':(1.1+(stage-1)*0.06).toFixed(2),
-    '--sk-sc-hi':(1.02+(stage-1)*0.02).toFixed(3),
+    '--sk-beat-hi':(1.1+pct*0.16).toFixed(2),
+    '--sk-sc-hi':(1.02+pct*0.05).toFixed(3),
   };
 
   const cn="skill-node sk-s"+stage+(breath?" sk-live":"")+(locked?" st-locked":"")+(selected?" st-sel":"")+(related?" st-related":"");
@@ -5606,8 +5647,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const lockText=locked?skillReqLabel(lock.missing):'';
 
   return<div className={cn}onClick={onClick}style={{position:'relative',...skVars}}>
-    {/* anel externo que gira ao redor do cristal — o marcador de progresso */}
-    <div className="sk-halo"/>
+    {/* anel externo: trilha de progresso que enche com a % (aparece a partir do nível 1) */}
+    <div className="sk-halo" data-on={lit?1:0}/>
     {/* raios e partículas: só acendem do estágio 3 em diante (nada de ruído no básico) */}
     {stage>=3&&!locked&&<div className="sk-rays"/>}
     {stage>=4&&<div className="sk-emit">{Array.from({length:6},(_,i)=><i key={i}style={{'--rot':`${i*60}deg`,animationDelay:`${-i*0.6}s`}}/>)}</div>}
