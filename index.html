@@ -501,15 +501,19 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 @keyframes sk-rot-cw{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 
 /* Nível 3+ : ANEL INTERNO — segundo hexágono menor dentro do principal, girando devagar (cw) */
-.sk-innerring{position:absolute;left:50%;top:50%;width:64%;height:64%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);animation:sk-innerspin var(--sk-spin-in,17s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-innerring{position:absolute;left:50%;top:50%;width:58%;height:58%;transform:translate(-50%,-50%);z-index:4;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);animation:sk-innerspin var(--sk-spin-in,17s) cubic-bezier(.45,0,.55,1) infinite;}
 .sk-innerring polygon{fill:none;stroke:var(--sk-c);stroke-width:2.6;vector-effect:non-scaling-stroke;stroke-linejoin:round;}
 .sk-s3 .sk-innerring,.sk-s4 .sk-innerring,.sk-s5 .sk-innerring{opacity:var(--sk-inring-op,.85);}
 @keyframes sk-innerspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(360deg);}}
 
 /* Sigilo central (todas as faixas): forma que evolui e gira devagar, no sentido OPOSTO ao anel interno */
-.sk-sigil{position:absolute;left:50%;top:50%;width:52%;height:52%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;overflow:visible;animation:sk-sigilspin var(--sk-sigil-spin,24s) cubic-bezier(.45,0,.55,1) infinite;}
-.sk-sigil path{fill:none;stroke:var(--sk-sigil,var(--sk-c));stroke-width:var(--sk-sigil-sw,2);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:var(--sk-sigil-op,.8);filter:drop-shadow(0 0 var(--sk-sigil-glow,3px) var(--sk-glow));transition:opacity .5s var(--ease-sk);}
+.sk-sigil{position:absolute;left:50%;top:50%;width:46%;height:46%;transform:translate(-50%,-50%);z-index:3;pointer-events:none;overflow:visible;animation:sk-sigilspin var(--sk-sigil-spin,24s) cubic-bezier(.45,0,.55,1) infinite;}
+.sk-sigil path{fill:none;stroke:var(--sk-sigil,var(--sk-c));stroke-width:var(--sk-sigil-sw,2);stroke-linecap:round;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:var(--sk-sigil-op,.8);filter:drop-shadow(0 0 var(--sk-sigil-glow,3px) var(--sk-sigil-glowc,var(--sk-glow)));transition:opacity .5s var(--ease-sk);}
 @keyframes sk-sigilspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(-360deg);}}
+
+/* Nível 1 (Semente): pequena esfera colorida pulsando no centro — primeiro sinal de vida */
+.sk-seed{position:absolute;left:50%;top:50%;width:13px;height:13px;transform:translate(-50%,-50%);border-radius:50%;z-index:3;pointer-events:none;background:radial-gradient(circle at 36% 30%,var(--sk-hot),var(--sk-c) 58%,var(--sk-rim));box-shadow:0 0 9px var(--sk-glow),0 0 3px var(--sk-glow);animation:sk-seedpulse 2.8s cubic-bezier(.4,0,.2,1) infinite;}
+@keyframes sk-seedpulse{0%,100%{transform:translate(-50%,-50%) scale(.82);opacity:.72;}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1;}}
 
 /* Nível 4+ : PARTÍCULAS orbitando · Nível 5 : duas camadas em velocidades diferentes */
 .sk-orbit{position:absolute;left:50%;top:41px;width:0;height:0;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk);}
@@ -557,7 +561,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 
 /* Linhas de luz que um nó em MAESTRIA (nível 5) emite para seus conectados */
 .sk-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible;}
-.sk-link{stroke:#F5D98C;stroke-width:2;stroke-linecap:round;opacity:.7;stroke-dasharray:2 11;animation:sk-linkflow 1.7s linear infinite;filter:drop-shadow(0 0 4px rgba(245,217,140,.85));}
+.sk-link{stroke:var(--sk-link,#F5D98C);stroke-width:2;stroke-linecap:round;opacity:.7;stroke-dasharray:2 11;animation:sk-linkflow 1.7s linear infinite;filter:drop-shadow(0 0 4px var(--sk-link-glow,rgba(245,217,140,.85)));}
 @keyframes sk-linkflow{to{stroke-dashoffset:-26;}}
 @media(prefers-reduced-motion:reduce){.sk-link{animation:none;}}
 
@@ -568,7 +572,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-@media(prefers-reduced-motion:reduce){.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.sk-seed,.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -5608,15 +5612,14 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const levelRatio=pct;                                  // usado por nome/badge/pips
   const stage=locked||pct<=0?0:pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
 
-  // cores: cinza quando travado OU adormecido (nível 0); tema do nível 1 pra frente; ouro branco na maestria (5)
-  const elite=_mix(SKILL_GOLD,'#FFFFFF',0.42);
-  const accent=(locked||stage===0)?'#39445A':stage>=5?elite:d;
+  // cores: cinza quando travado OU adormecido (nível 0); cor do tema do nível 1 ao 5 (maestria NÃO destoa: usa o próprio tema)
+  const accent=(locked||stage===0)?'#39445A':d;
   const glowTone=accent;
-  const maxHi=stage>=5?_mix(accent,'#FFFFFF',0.55):_mix(d,'#FFFFFF',0.4);
+  const maxHi=_mix(d,'#FFFFFF',0.4);   // realce claro (pastel) na MESMA cor do tema — sem ouro/branco puro
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
-  const sigilCol=_mix(accent,'#FFFFFF',0.18+stage*0.07);   // sigilo: cor levemente destacada do gradiente, sem sair do tom
+  const sigilCol=SKILL_NAME_COLOR;   // geometria central em off-white neutro (destaca da cor do tema; o halo colorido vem do glow)
 
   // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
   const FRAME=78;
@@ -5656,7 +5659,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     // sigilo central (todas as faixas): linha → cruz → triângulo → quadrado → pentágono, girando
     '--sk-sigil':sigilCol,
     '--sk-sigil-op':Math.min(1,0.5+stage*0.1).toFixed(2),
-    '--sk-sigil-glow':Math.round(2+stage*1.8)+'px',
+    '--sk-sigil-glow':Math.round(2+stage*0.9)+'px',
+    '--sk-sigil-glowc':_rgba(glowTone,Math.min(0.4,glowK*0.4).toFixed(2)),   // leve brilho na linha, nunca intenso
     '--sk-sigil-sw':(1.6+stage*0.28).toFixed(2),
     '--sk-sigil-spin':stage>=5?'15s':stage>=4?'18s':stage>=3?'21s':'26s',
     // partículas orbitando (nível 4+)
@@ -5704,10 +5708,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
         {stage>=5&&<div className="sk-facets"/>}
         <div className="sk-light"/>
         <div className="sk-gloss"/>
+        {stage===1&&<div className="sk-seed"/>}
         {stage>=1&&!locked&&<svg className="sk-sigil" viewBox="-50 -50 100 100" aria-hidden="true"><path d={skSigilD(stage)}/></svg>}
         {stage>=3&&<svg className="sk-innerring" viewBox="0 0 100 100" preserveAspectRatio="none"><polygon points="50,1 99,26 99,74 50,99 1,74 1,26"/></svg>}
         <div className="skill-core">
-          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:maxed?'translateY(12px) scale(.86)':'none'}}>{skill.emoji}</span>}
+          {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:'translateY(19px) scale(.72)'}}>{skill.emoji}</span>}
         </div>
       </div>
     </div>
@@ -6254,7 +6259,7 @@ function SkillTreeSection({st,setSt,setTab}){
         </div>;
       })}
       {/* linhas de luz da maestria (por cima dos cards, conectando centros) */}
-      {links.length>0&&<svg className="sk-links" aria-hidden="true">{links.map(l=><line key={l.k} className="sk-link" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}/>)}</svg>}
+      {links.length>0&&<svg className="sk-links" style={{'--sk-link':pal.d,'--sk-link-glow':_rgba(pal.d,0.85)}} aria-hidden="true">{links.map(l=><line key={l.k} className="sk-link" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}/>)}</svg>}
     </div>
     </div>
 
