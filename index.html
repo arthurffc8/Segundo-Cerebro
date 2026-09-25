@@ -5619,7 +5619,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
-  const sigilCol=SKILL_NAME_COLOR;   // geometria central em off-white neutro (destaca da cor do tema; o halo colorido vem do glow)
+  // geometria central: tom FORTE da MESMA cor do tema (contraste em vez de branco).
+  // fundo escuro (níveis 1-2) → usamos uma versão clara+viva; miolo claro (3-5) → versão saturada+fundo p/ destacar
+  const sigilHot=_mix(accent,'#FFFFFF',0.3);        // claro e vibrante (contrasta no poço escuro)
+  const sigilDeep=_mix(accent,'#000000',0.4);       // mesmo matiz, saturado e encorpado (contrasta no miolo claro)
+  const sigilCol=stage>=3?sigilDeep:sigilHot;
 
   // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
   const FRAME=78;
@@ -5660,7 +5664,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     '--sk-sigil':sigilCol,
     '--sk-sigil-op':Math.min(1,0.5+stage*0.1).toFixed(2),
     '--sk-sigil-glow':Math.round(2+stage*0.9)+'px',
-    '--sk-sigil-glowc':_rgba(glowTone,Math.min(0.4,glowK*0.4).toFixed(2)),   // leve brilho na linha, nunca intenso
+    '--sk-sigil-glowc':_rgba(hot,Math.min(0.5,0.22+glowK*0.28).toFixed(2)),   // leve halo claro da cor do tema p/ destacar o traço
     '--sk-sigil-sw':(1.6+stage*0.28).toFixed(2),
     '--sk-sigil-spin':stage>=5?'15s':stage>=4?'18s':stage>=3?'21s':'26s',
     // partículas orbitando (nível 4+)
