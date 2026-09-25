@@ -522,7 +522,7 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 @keyframes sk-sigilspin{from{transform:translate(-50%,-50%) rotate(0deg);}to{transform:translate(-50%,-50%) rotate(-360deg);}}
 
 /* Nível 1 (Semente): pequena esfera colorida pulsando no centro — primeiro sinal de vida */
-.sk-seed{position:absolute;left:50%;top:50%;width:13px;height:13px;transform:translate(-50%,-50%);border-radius:50%;z-index:3;pointer-events:none;background:radial-gradient(circle at 36% 30%,var(--sk-hot),var(--sk-c) 58%,var(--sk-rim));box-shadow:0 0 9px var(--sk-glow),0 0 3px var(--sk-glow);animation:sk-seedpulse 2.8s cubic-bezier(.4,0,.2,1) infinite;}
+.sk-seed{position:absolute;left:50%;top:50%;width:13px;height:13px;transform:translate(-50%,-50%);border-radius:50%;z-index:3;pointer-events:none;background:radial-gradient(circle at 36% 30%,var(--sk-hot),var(--sk-sigil) 62%,var(--sk-rim));box-shadow:0 0 9px var(--sk-glow),0 0 3px var(--sk-glow);animation:sk-seedpulse 2.8s cubic-bezier(.4,0,.2,1) infinite;}
 @keyframes sk-seedpulse{0%,100%{transform:translate(-50%,-50%) scale(.82);opacity:.72;}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1;}}
 
 /* Nível 4+ : PARTÍCULAS orbitando · Nível 5 : duas camadas em velocidades diferentes */
@@ -5632,18 +5632,18 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const levelRatio=pct;                                  // usado por nome/badge/pips
   const stage=locked||pct<=0?0:pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
 
-  // cores: cinza quando travado OU adormecido (nível 0); cor do tema do nível 1 ao 5 (maestria NÃO destoa: usa o próprio tema)
-  const accent=(locked||stage===0)?'#39445A':d;
+  // cores: cinza quando travado/adormecido (0); cor do tema do nível 1 ao 4; OURO na maestria (5)
+  const elite=_mix(SKILL_GOLD,'#FFFFFF',0.32);
+  const accent=(locked||stage===0)?'#39445A':stage>=5?elite:d;
   const glowTone=accent;
-  const maxHi=_mix(d,'#FFFFFF',0.4);   // realce claro (pastel) na MESMA cor do tema — sem ouro/branco puro
+  const maxHi=stage>=5?_mix(elite,'#FFFFFF',0.45):_mix(d,'#FFFFFF',0.4);   // coroa/realce dourado na maestria
   const hot=_mix(accent,'#FFFFFF',0.5);
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
-  // geometria central: tom FORTE da MESMA cor do tema (contraste em vez de branco).
-  // níveis 1-2 (poço escuro) → cor do tema VIVA/quase pura; níveis 3-5 (miolo claro) → mesmo matiz escurecido
-  const sigilVivid=_mix(accent,'#FFFFFF',0.08);      // quase a cor pura do tema (forte, evidente no escuro)
-  const sigilDeep=_mix(accent,'#000000',0.4);        // mesmo matiz escurecido (contrasta no miolo claro)
-  const sigilCol=stage>=3?sigilDeep:sigilVivid;
+  // geometria central: usa o TOM FORTE da MESMA cor do tema (secundário `s` da paleta), não o `d` claro
+  const sigilVivid=_mix(s,'#FFFFFF',0.12);              // níveis 1-2: forte e vivo (legível sobre o poço escuro)
+  const sigilDeep=s;                                    // níveis 3-4: mesmo tom forte (contrasta no miolo claro)
+  const sigilCol=stage>=5?_mix(elite,'#FFFFFF',0.2):stage>=3?sigilDeep:sigilVivid;
 
   // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
   const FRAME=78;
@@ -5683,8 +5683,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     // sigilo central (todas as faixas): linha → cruz → triângulo → quadrado → pentágono, girando
     '--sk-sigil':sigilCol,
     '--sk-sigil-op':Math.min(1,0.5+stage*0.1).toFixed(2),
-    '--sk-sigil-glow':Math.round(2+stage*0.9)+'px',
-    '--sk-sigil-glowc':_rgba(hot,Math.min(0.5,0.22+glowK*0.28).toFixed(2)),   // leve halo claro da cor do tema p/ destacar o traço
+    '--sk-sigil-glow':Math.round(2+stage*0.7)+'px',
+    '--sk-sigil-glowc':_rgba(sigilCol,Math.min(0.55,0.3+glowK*0.3).toFixed(2)),   // halo NA COR FORTE do traço → fica legível e colorido
     '--sk-sigil-sw':(1.9+stage*0.3).toFixed(2),
     '--sk-sigil-spin':stage>=5?'15s':stage>=4?'18s':stage>=3?'21s':'26s',
     // partículas orbitando (nível 4+)
