@@ -290,7 +290,17 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .pend-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:9px;}
 .pend-title{font-size:.78rem;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx);}
 .pend-count{font-family:var(--fm);font-size:.64rem;color:var(--ac);white-space:nowrap;}
-.pend-list{display:flex;flex-direction:column;gap:5px;max-height:250px;overflow-y:auto;padding-right:2px;}
+.pend-list{display:flex;flex-direction:column;gap:7px;max-height:250px;overflow-y:auto;padding-right:2px;}
+/* linhas de pendência com destaque (card + barra de acento + número) e arrasto */
+.pend-item{position:relative;display:flex;align-items:center;gap:6px;padding:7px 9px;border-radius:10px;background:linear-gradient(180deg,var(--card2),var(--card));border:1px solid var(--bd);box-shadow:0 1px 0 rgba(0,0,0,.22);transition:background .15s,border-color .15s,box-shadow .15s,transform .12s;}
+.pend-item::before{content:"";position:absolute;left:0;top:7px;bottom:7px;width:3px;border-radius:0 3px 3px 0;background:linear-gradient(180deg,var(--ac),var(--ac2));opacity:.92;}
+.pend-item:hover{border-color:var(--ac2);background:linear-gradient(180deg,color-mix(in srgb,var(--ac) 7%,var(--card2)),var(--card));}
+.pend-item.pend-drag{border-color:var(--ac);box-shadow:0 10px 24px rgba(0,0,0,.5);transform:scale(1.015);z-index:5;}
+.pend-item.pend-over{border-style:dashed;border-color:var(--ac);}
+.pend-num{flex-shrink:0;width:20px;height:20px;border-radius:6px;display:inline-flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:.66rem;font-weight:700;color:var(--ac);background:var(--ac1);border:1px solid var(--ac2);}
+.pend-grip{flex-shrink:0;width:15px;height:22px;border:none;background:none;color:var(--tx4);font-size:.85rem;line-height:1;cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;display:inline-flex;align-items:center;justify-content:center;border-radius:5px;opacity:.5;transition:opacity .15s,color .15s,background .15s;}
+.pend-grip:hover{opacity:1;color:var(--ac);background:var(--ac1);}
+.pend-grip:active{cursor:grabbing;}
 .pend-row{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:7px;background:var(--card2);border:1px solid var(--bd);border-left:3px solid var(--pend-color,var(--bd3));}
 .pend-row:hover{border-color:var(--bd3);}
 .pend-main{flex:1;min-width:0;cursor:pointer;}
@@ -3508,9 +3518,15 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
   const selEv=evByDay[sel]||[];
   const R=15,CIRC=2*Math.PI*R;
   const pendencias=(st.pendencias||[]).filter(p=>!p.done);
+  const listRef=useRef(null);                        // container da lista (para medir as linhas durante o arrasto)
+  const[dragId,setDragId]=useState(null);            // pendência sendo arrastada
+  const[overId,setOverId]=useState(null);            // linha sob o ponteiro
   function addPending(){const text=pendInput.trim();if(!text)return;onAddPending(text);setPendInput('');}
   // reordenar: troca de lugar com o vizinho ABERTO seguinte (ignora concluídas escondidas)
   function movePending(id,dir){setSt(p=>{const arr=[...(p.pendencias||[])];const open=arr.map((x,i)=>x.done?-1:i).filter(i=>i>=0);const pos=open.indexOf(arr.findIndex(x=>x.id===id));const j=pos+dir;if(pos<0||j<0||j>=open.length)return p;const a=open[pos],b=open[j];const na=[...arr];[na[a],na[b]]=[na[b],na[a]];return{...p,pendencias:na};});}
+  // arrastar: move a pendência `fromId` para a posição de `toId` (preserva as concluídas escondidas no lugar)
+  function reorderPend(fromId,toId){if(fromId===toId)return;setSt(s=>{const arr=[...(s.pendencias||[])];const open=arr.filter(x=>!x.done);const fi=open.findIndex(x=>x.id===fromId),ti=open.findIndex(x=>x.id===toId);if(fi<0||ti<0)return s;const na=[...open];const one=na.splice(fi,1)[0];na.splice(ti,0,one);const res=[...arr];let k=0;for(let i=0;i<res.length;i++){if(!res[i].done)res[i]=na[k++];}return{...s,pendencias:res};});}
+  function onGripDown(e,id){if(e.button!=null&&e.button!==0)return;e.preventDefault();const onMove=(ev)=>{ev.preventDefault();const y=ev.clientY;const list=listRef.current;if(!list)return;const rows=[].slice.call(list.querySelectorAll('.pend-item'));let targetId=null;for(const r of rows){const rc=r.getBoundingClientRect();if(y>=rc.top&&y<=rc.bottom){targetId=r.dataset.pid;break;}}if(!targetId&&rows.length){if(y<rows[0].getBoundingClientRect().top)targetId=rows[0].dataset.pid;else targetId=rows[rows.length-1].dataset.pid;}if(targetId){setOverId(targetId);if(targetId!==id)reorderPend(id,targetId);}};const onUp=()=>{window.removeEventListener('pointermove',onMove);window.removeEventListener('pointerup',onUp);window.removeEventListener('pointercancel',onUp);setDragId(null);setOverId(null);};window.addEventListener('pointermove',onMove);window.addEventListener('pointerup',onUp);window.addEventListener('pointercancel',onUp);setDragId(id);}
 
   return<div>
     {/* ── pendências sempre visíveis ── */}
@@ -3521,14 +3537,16 @@ function CalendarioView({st,setSt,dayItems,onNewTask,onEditTask,onToggleTask,spa
       </div>
       {pendencias.length===0
         ?<div className="pend-empty">Tudo resolvido por enquanto.</div>
-        :<div className="pend-list">
-          {pendencias.map((p,i)=><div key={p.id}className="tl-item">
-              <button className="tl-mv"disabled={i===0}title="Mover para cima"onClick={()=>movePending(p.id,-1)}>▲</button>
-              <button className="tl-mv"disabled={i===pendencias.length-1}title="Mover para baixo"onClick={()=>movePending(p.id,1)}>▼</button>
+        :<div className="pend-list" ref={listRef}>
+          {pendencias.map((p,i)=>{const isDrag=dragId===p.id;const isOver=overId&&overId===p.id&&dragId&&dragId!==p.id;return<div key={p.id} data-pid={p.id} className={'pend-item'+(isDrag?' pend-drag':'')+(isOver?' pend-over':'')}>
+              <button className="pend-grip" title="Arraste para reordenar" onPointerDown={e=>onGripDown(e,p.id)}>⠿</button>
+              <span className="pend-num">{i+1}</span>
               <Chk on={false}onChange={()=>onTogglePending(p.id)}/>
               <span className="tl-text">{p.text}</span>
+              <button className="tl-mv"disabled={i===0}title="Mover para cima"onClick={()=>movePending(p.id,-1)}>▲</button>
+              <button className="tl-mv"disabled={i===pendencias.length-1}title="Mover para baixo"onClick={()=>movePending(p.id,1)}>▼</button>
               <button className="tl-del"style={{width:20,height:20,fontSize:'.85rem'}}title="Excluir pendência"onClick={()=>setSt(s=>({...s,pendencias:(s.pendencias||[]).filter(x=>x.id!==p.id)}))}>×</button>
-            </div>)}
+            </div>;})}
         </div>}
       <div className="pend-add">
         <input value={pendInput}onChange={e=>setPendInput(e.target.value)}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addPending();}}}placeholder="O que ainda precisa ser resolvido?"/>
@@ -5576,11 +5594,13 @@ function skillReqListLabel(skill,tree){
 // Sigilo central: a forma no meio do hexágono evolui por faixa, sem mudar o perímetro.
 //  1 linha fina · 2 linhas cruzadas · 3 triângulo · 4 quadrado · 5 pentágono (todos com bordas côncavas, girando)
 function skSigilD(stage){
-  if(stage<=1) return 'M0 -22 L0 22';
-  if(stage===2) return 'M0 -26 L0 26 M-26 0 L26 0';
+  // raio-base por estágio (cresce na ordem 1 risco → 2 riscos → triângulo → quadrado → pentágono)
+  const R={1:20,2:26,3:30,4:34,5:38}[stage]||20;
+  const E={1:1.15,2:1.35,3:1.45,4:1.5,5:1.5}[stage]||1;   // fator de ampliação → crescimento gradativo e evidente
+  if(stage<=1) return `M0 ${-R*E} L0 ${R*E}`;
+  if(stage===2){const r=R*E;return `M0 ${-r} L0 ${r} M${-r} 0 L${r} 0`;}
   const n=stage===3?3:stage===4?4:5;
-  const r=stage===3?30:stage===4?34:38;
-  const pull=0.58;                       // puxa o ponto médio da aresta para dentro → bordas côncavas
+  const r=R*E, pull=0.58;                 // puxa o ponto médio da aresta para dentro → bordas côncavas
   const pts=[];
   for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;pts.push([Math.cos(a)*r,Math.sin(a)*r]);}
   let d='M '+pts[0][0].toFixed(1)+' '+pts[0][1].toFixed(1);
@@ -5620,10 +5640,10 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const rim=_mix(accent,'#05070D',0.6);
   const spark=_mix(accent,'#FFFFFF',0.35);
   // geometria central: tom FORTE da MESMA cor do tema (contraste em vez de branco).
-  // fundo escuro (níveis 1-2) → usamos uma versão clara+viva; miolo claro (3-5) → versão saturada+fundo p/ destacar
-  const sigilHot=_mix(accent,'#FFFFFF',0.3);        // claro e vibrante (contrasta no poço escuro)
-  const sigilDeep=_mix(accent,'#000000',0.4);       // mesmo matiz, saturado e encorpado (contrasta no miolo claro)
-  const sigilCol=stage>=3?sigilDeep:sigilHot;
+  // níveis 1-2 (poço escuro) → cor do tema VIVA/quase pura; níveis 3-5 (miolo claro) → mesmo matiz escurecido
+  const sigilVivid=_mix(accent,'#FFFFFF',0.08);      // quase a cor pura do tema (forte, evidente no escuro)
+  const sigilDeep=_mix(accent,'#000000',0.4);        // mesmo matiz escurecido (contrasta no miolo claro)
+  const sigilCol=stage>=3?sigilDeep:sigilVivid;
 
   // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
   const FRAME=78;
@@ -5665,7 +5685,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     '--sk-sigil-op':Math.min(1,0.5+stage*0.1).toFixed(2),
     '--sk-sigil-glow':Math.round(2+stage*0.9)+'px',
     '--sk-sigil-glowc':_rgba(hot,Math.min(0.5,0.22+glowK*0.28).toFixed(2)),   // leve halo claro da cor do tema p/ destacar o traço
-    '--sk-sigil-sw':(1.6+stage*0.28).toFixed(2),
+    '--sk-sigil-sw':(1.9+stage*0.3).toFixed(2),
     '--sk-sigil-spin':stage>=5?'15s':stage>=4?'18s':stage>=3?'21s':'26s',
     // partículas orbitando (nível 4+)
     '--sk-pt-r':stage>=5?'56px':'50px','--sk-pt-s':stage>=5?'3.6px':'3px',
