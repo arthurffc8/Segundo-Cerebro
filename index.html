@@ -498,9 +498,24 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-core{position:relative;z-index:5;width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;}
 
 /* Luz interna: cresce em direção à borda conforme a porcentagem */
-.sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;z-index:1;pointer-events:none;background:radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 56%,var(--sk-rim) 100%);box-shadow:0 0 var(--sk-bloom,8px) var(--sk-glow);transition:width .5s var(--ease-sk),height .5s var(--ease-sk),box-shadow .34s var(--ease-sk);}
+.sk-light{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;z-index:1;pointer-events:none;background:var(--sk-light-bg,radial-gradient(circle closest-side,var(--sk-hot) 0%,var(--sk-c) 56%,var(--sk-rim) 100%));box-shadow:0 0 var(--sk-bloom,8px) var(--sk-glow),var(--sk-inner,0 0 0 transparent);transition:width .5s var(--ease-sk),height .5s var(--ease-sk),box-shadow .34s var(--ease-sk);}
 /* reflexo de vidro (mantém o cristal com profundidade, sem ruído) */
 .sk-gloss{position:absolute;left:50%;top:50%;width:var(--sk-d,0px);height:var(--sk-d,0px);border-radius:50%;transform:translate(-50%,-50%);z-index:2;pointer-events:none;background:radial-gradient(circle at 34% 26%,rgba(255,255,255,.85) 0%,rgba(255,255,255,.2) 18%,rgba(255,255,255,0) 46%);mix-blend-mode:screen;opacity:var(--sk-gloss-op,.5);transition:opacity .34s var(--ease-sk);}
+
+/* CONCLUÍDO (núcleo formado, estágios 3-4): glassmorphism real — a cor escolhida
+   pelo usuário entra translúcida, o fundo da árvore borra por trás (blur) e um
+   brilho interno (inner glow) dá a sensação de nó "preenchido". */
+.sk-s3 .skill-well,.sk-s4 .skill-well{backdrop-filter:blur(6px) saturate(1.35);-webkit-backdrop-filter:blur(6px) saturate(1.35);box-shadow:inset 0 0 14px var(--sk-glow),inset 0 1px 0 rgba(255,255,255,.12);}
+
+/* MAESTRIA (estágio 5): ouro metalizado escovado + peso visual maior + anel em órbita.
+   Tudo em transform/box-shadow (camada GPU) — sem repaint por frame. */
+.sk-s5 .skill-frame{width:78px;height:89px;}
+.sk-s5 .sk-halo,.sk-s5 .sk-orbit{top:44.5px;}
+.sk-s5 .sk-light{background:linear-gradient(140deg,#4a3008 0%,#8a6a1f 14%,#d9a83e 32%,#f9e9b8 48%,#e8b84b 60%,#9a7422 80%,#caa03a 100%);box-shadow:0 0 var(--sk-bloom,8px) var(--sk-glow),inset 0 0 16px rgba(255,244,200,.5);}
+.sk-s5 .skill-well{box-shadow:inset 0 0 0 1px rgba(255,240,180,.35),inset 0 0 20px rgba(247,210,104,.4);}
+.sk-orbitring{position:absolute;left:50%;top:44.5px;width:96px;height:96px;transform:translate(-50%,-50%);border-radius:50%;z-index:6;pointer-events:none;border:1px solid rgba(247,210,104,.24);box-shadow:0 0 10px rgba(247,210,104,.14),inset 0 0 8px rgba(247,210,104,.1);}
+.sk-orbitring i{position:absolute;inset:-1px;animation:sk-rot-cw 7.5s linear infinite;}
+.sk-orbitring i::before{content:"";position:absolute;top:-2.5px;left:50%;width:5px;height:5px;margin-left:-2.5px;border-radius:50%;background:#fff3c4;box-shadow:0 0 8px 2px rgba(247,210,104,.9);}
 
 /* Nível 4+ : ANEL EXTERNO (halo) girando em sentido OPOSTO ao anel interno */
 .sk-halo{position:absolute;left:50%;top:41px;width:98px;height:112px;transform:translate(-50%,-50%);border-radius:50%;z-index:0;pointer-events:none;opacity:0;transition:opacity .5s var(--ease-sk),transform .4s var(--ease-sk);}
@@ -550,8 +565,15 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 /* Coroa de dominada (ouro) e cadeado de dependência */
 .sk-maxcrown{position:absolute;left:50%;top:30px;width:34px;height:24px;margin:0 0 0 -17px;z-index:6;pointer-events:none;animation:sk-crownfloat var(--sk-beat) var(--ease-sk) infinite;}
 @keyframes sk-crownfloat{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-3px) scale(1.06);}}
-.st-locked .skill-frame{filter:grayscale(.85) brightness(.55);}
-.st-locked:hover .skill-frame{filter:grayscale(.55) brightness(.78);}
+/* BLOQUEADO (dependência travada): wireframe — só o contorno do hexágono, em
+   opacidade baixa, para indicar que existe algo ali (nada de preto total). */
+.st-locked .skill-frame{filter:none;background:transparent;}
+.st-locked:hover .skill-frame{filter:none;}
+.st-locked .skill-well{background:rgba(6,10,18,.22);backdrop-filter:blur(1.5px);-webkit-backdrop-filter:blur(1.5px);}
+.sk-wireframe{position:absolute;inset:0;z-index:6;pointer-events:none;}
+.sk-wireframe polygon{fill:none;stroke:#9AACC4;stroke-width:2;stroke-linejoin:round;vector-effect:non-scaling-stroke;opacity:.42;}
+.st-locked .sk-wireframe{animation:sk-wirefade 4.2s cubic-bezier(.4,0,.2,1) infinite;}
+@keyframes sk-wirefade{0%,100%{opacity:.6;}50%{opacity:1;}}
 .sk-lock{position:absolute;left:50%;top:41px;transform:translate(-50%,-50%);z-index:6;font-size:.95rem;opacity:.9;pointer-events:none;text-shadow:0 1px 4px #000;}
 
 /* Flare de hover: acende sem quebrar a sincronia da respiração */
@@ -569,20 +591,30 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-sel .sk-light{box-shadow:0 0 26px var(--sk-glow);}
 .st-sel .skill-well{box-shadow:inset 0 0 18px var(--sk-glow);}
 
-/* Linhas de luz que um nó em MAESTRIA (nível 5) emite para seus conectados */
+/* Linhas de conexão: o caminho até a próxima ação pulsa; o resto é sólido/_discreto_ */
 .sk-links{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3;overflow:visible;}
-.sk-link{stroke:var(--sk-link,#F5D98C);stroke-width:2;stroke-linecap:round;opacity:.7;stroke-dasharray:2 11;animation:sk-linkflow 1.7s linear infinite;filter:drop-shadow(0 0 4px var(--sk-link-glow,rgba(245,217,140,.85)));}
+.sk-link{stroke:var(--sk-link,#F5D98C);stroke-width:2;stroke-linecap:round;opacity:.5;}
+/* concluída → concluída: sólida, sem brilho */
+.sk-link.solida{stroke-dasharray:none;opacity:.4;}
+/* travada ainda: pontilhada quase apagada (mostra que um dia existirá) */
+.sk-link.apagada{stroke-dasharray:1 9;opacity:.14;}
+/* último concluído → próximo disponível: brilho pulsante guiando o olhar */
+.sk-link.fluxo{stroke-dasharray:3 10;opacity:.9;stroke-width:2.4;filter:drop-shadow(0 0 4px var(--sk-link-glow,rgba(245,217,140,.85)));animation:sk-linkflow 1.7s linear infinite,sk-linkpulse 2.4s cubic-bezier(.4,0,.2,1) infinite;}
 @keyframes sk-linkflow{to{stroke-dashoffset:-26;}}
-@media(prefers-reduced-motion:reduce){.sk-link{animation:none;}}
+@keyframes sk-linkpulse{0%,100%{opacity:.45;}50%{opacity:1;}}
+@media(prefers-reduced-motion:reduce){.sk-link.fluxo{animation:none;opacity:.85;}}
 
 /* Prateleiras (tiers) */
 .st-shelf{position:relative;border-radius:9px;padding:11px 4px 7px;}
 .st-shelf+.st-shelf{margin-top:2px;border-top:1px dashed var(--shelf-line,rgba(159,179,200,.16));}
 .st-shelf-row{display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
+/* fileira com galhos: linha única com scroll horizontal quando a ramificação cresce */
+.st-shelf-row.branching{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:2px 4px 6px;}
+.sk-branch{transition:margin .3s cubic-bezier(.4,0,.2,1);flex-shrink:0;}
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
-@media(prefers-reduced-motion:reduce){.sk-seed,.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
+@media(prefers-reduced-motion:reduce){.sk-seed,.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-orbitring i,.st-locked .sk-wireframe,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
@@ -1557,36 +1589,36 @@ const SKILL_PALETTES={
   surdo:    {d:'#A569FF',s:'#5B2C9D'},
   automacao:{d:'#FFF7D1',s:'#E8C547'},
 };
+// Paleta curada: exatamente 15 cores distintas cobrindo o espectro inteiro,
+// divididas em 3 "climas" de iluminação — neon, pastel e metálico/padrão.
 const SKILL_PALETTE_PRESETS=[
-  {nome:'Ouro',d:'#F5D98C',s:'#D18B1F'},
-  {nome:'Rosa',d:'#FF6EB3',s:'#A02E6E'},
-  {nome:'Azul Arcano',d:'#63B6FF',s:'#1F5BA8'},
-  {nome:'Esmeralda',d:'#58D68D',s:'#1E8449'},
-  {nome:'Violeta',d:'#A569FF',s:'#5B2C9D'},
-  {nome:'Branco-Ouro',d:'#FFF7D1',s:'#E8C547'},
-  {nome:'Fogo',d:'#FFAB70',s:'#F97316'},
-  {nome:'Oceano',d:'#6CD4FF',s:'#1E90FF'},
-  {nome:'Pêssego',d:'#FFBA9A',s:'#F08A5D'},
-  {nome:'Lavanda',d:'#C7B8FF',s:'#8A63FF'},
-  {nome:'Jade',d:'#7BE0A5',s:'#0F766E'},
-  {nome:'Gelo',d:'#CDE7FF',s:'#7BA9FF'},
-  {nome:'Rubi',d:'#FF7A8A',s:'#B01030'},
-  {nome:'Turquesa',d:'#5EEAD4',s:'#0D9488'},
-  {nome:'Âmbar',d:'#FFC93C',s:'#B45309'},
-  {nome:'Ciano',d:'#67E8F9',s:'#0E7490'},
-  {nome:'Magenta',d:'#F472D0',s:'#A21CAF'},
-  {nome:'Limão',d:'#D9F99D',s:'#4D7C0F'},
-  {nome:'Índigo',d:'#8FA3FF',s:'#3730A3'},
-  {nome:'Coral',d:'#FF9E7A',s:'#E14D2A'},
-  {nome:'Bronze',d:'#E0A46A',s:'#8B5A2B'},
-  {nome:'Prata',d:'#E2E8F0',s:'#64748B'},
-  {nome:'Vinho',d:'#E06A8B',s:'#7A1E3A'},
-  {nome:'Selva',d:'#86EFAC',s:'#166534'},
-  {nome:'Cobalto',d:'#7DA8FF',s:'#1E3A8A'},
-  {nome:'Sol',d:'#FFE066',s:'#F59E0B'},
-  {nome:'Ametista',d:'#D8B4FE',s:'#7E22CE'},
-  {nome:'Néon',d:'#A3FF6E',s:'#3F9B0B'},
+  // NEON — fundo escuro, cor vibrante no centro
+  {nome:'Rubi Neon',st:'neon',d:'#FF4D5E',s:'#7A0C22'},
+  {nome:'Laranja Neon',st:'neon',d:'#FF8A3C',s:'#9E3300'},
+  {nome:'Lima Neon',st:'neon',d:'#A3FF6E',s:'#2F8F0B'},
+  {nome:'Ciano Neon',st:'neon',d:'#4DE8FF',s:'#0A6382'},
+  {nome:'Magenta Neon',st:'neon',d:'#FF5EC8',s:'#8E1163'},
+  // PASTEL — cores suaves e difusas
+  {nome:'Rosa Pastel',st:'pastel',d:'#FFC9DD',s:'#D977A5'},
+  {nome:'Lavanda',st:'pastel',d:'#D6C9FF',s:'#9A7BE8'},
+  {nome:'Menta',st:'pastel',d:'#BDF0D8',s:'#5FBF95'},
+  {nome:'Céu',st:'pastel',d:'#CDE7FF',s:'#7FA8D9'},
+  {nome:'Manteiga',st:'pastel',d:'#FFEDB3',s:'#E0B44E'},
+  // METÁLICO/PADRÃO — iluminação clássica, brilho no canto superior
+  {nome:'Ouro',st:'metal',d:'#F5D98C',s:'#D18B1F'},
+  {nome:'Prata',st:'metal',d:'#E2E8F0',s:'#64748B'},
+  {nome:'Cobre',st:'metal',d:'#E0A46A',s:'#8B5A2B'},
+  {nome:'Grafite',st:'metal',d:'#9AA7B8',s:'#39445A'},
+  {nome:'Vinho',st:'metal',d:'#D8608B',s:'#6E1834'},
 ];
+// Clima da paleta: define como o nó é iluminado (neon vibrante · pastel difuso · metal clássico)
+function skPalStyle(pal){const pp=SKILL_PALETTE_PRESETS.find(p=>p.d===(pal&&pal.d)&&p.s===(pal&&pal.s));return pp?pp.st:'metal';}
+// Prévia do seletor: cada estilo tem seu próprio degradê de swatch
+function palSwatchBg(pp){
+  if(pp.st==='neon')return`radial-gradient(circle at 50% 44%, ${_mix(pp.d,'#FFFFFF',.3)} 0%, ${pp.d} 30%, ${pp.s} 62%, #05070D 100%)`;
+  if(pp.st==='pastel')return`radial-gradient(circle at 50% 38%, ${_mix(pp.d,'#FFFFFF',.62)} 0%, ${pp.d} 48%, ${_mix(pp.s,'#FFFFFF',.3)} 92%)`;
+  return`radial-gradient(circle at 34% 24%, ${_mix(pp.d,'#FFFFFF',.78)} 0%, ${pp.d} 44%, ${pp.s} 100%)`;
+}
 function treePalette(tree){
   if(tree&&tree.destaque)return{d:tree.destaque,s:tree.secundaria||tree.destaque};
   if(tree&&SKILL_PALETTES[tree.id])return SKILL_PALETTES[tree.id];
@@ -5619,6 +5651,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const hideEmoji=!!(stl&&stl.semEmoji);                  // toggle "Sem emojis" — foco no nome
   const alive=lv>0&&(!stl||stl.vida!==false);            // toggle "Vida" — orbe respirando
   const locked=!!lock;                                   // depende de outra habilidade
+  const pst=skPalStyle(pal);                             // 'neon' · 'pastel' · 'metal' — clima da paleta
 
   // ── PROGRESSÃO EM CAMADAS (NÍVEL 0–5 por PORCENTAGEM lv/max) ──
   // O hexágono externo NUNCA muda; a geometria central é o símbolo de cada estágio:
@@ -5646,10 +5679,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const sigilCol=stage>=5?_mix(elite,'#FFFFFF',0.2):stage>=3?sigilDeep:sigilVivid;
 
   // preenchimento interno (sk-light): vazio (0/1) → parcial (2, não encosta na borda) → cheio (3+)
+  // trave (lock): wireframe — nada de luz dentro, só o contorno desenhado por cima
   const FRAME=78;
-  const fillFrac=stage<=1?0:stage===2?0.4+((pct-0.2)/0.2)*0.16:stage===3?1.05:1.25;
+  const fillFrac=locked?0:stage<=1?0:stage===2?0.4+((pct-0.2)/0.2)*0.16:stage===3?1.05:1.25;
   const lightD=Math.round(fillFrac*FRAME);
-  const glowK=[0,0.18,0.32,0.6,0.85,1][stage];   // intensidade do brilho por estágio
+  const glowK=locked?0:[0,0.18,0.32,0.6,0.85,1][stage];   // intensidade do brilho por estágio
 
   // vida: SEM animação no nível 1; batida GLOBAL sincronizada, mais forte a cada faixa
   const breath=stage>=2&&(!stl||stl.vida!==false);
@@ -5660,19 +5694,34 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
 
   // rim (borda) do hexágono: opacidade cresce por estágio (adormecido → 40% → 70% → cheio)
   const outlineOp=[0.26,0.42,0.7,0.95,1,1][stage];
-  const frameBg=_rgba(accent,Math.min(1,outlineOp*(0.72+nk*0.28)).toFixed(2));
-  const wellBg=stage>=3
+  const frameBg=locked?'rgba(122,140,166,0.05)':_rgba(accent,Math.min(1,outlineOp*(0.72+nk*0.28)).toFixed(2));
+  // poço (well): lock = quase transparente (wireframe) · 3-4 = VIDRO na cor escolhida
+  // (glassmorphism) · neon = centro vibrante sobre fundo escuro
+  const wellBg=locked?'rgba(6,10,18,0.22)':stage>=5
     ?`radial-gradient(circle at 50% 36%, ${_mix(accent,'#04070E',0.7)} 0%, #04060C 100%)`
+    :stage>=3?(pst==='neon'
+      ?`radial-gradient(circle at 50% 42%, ${_rgba(accent,.30)} 0%, #04060C 82%)`
+      :`linear-gradient(158deg, ${_rgba(_mix(accent,'#FFFFFF',.16),.30)} 0%, ${_rgba(_mix(accent,'#04070E',.45),.60)} 100%)`)
     :'radial-gradient(circle at 50% 36%, #0e1420 0%, #05070d 100%)';
+  // CONCLUÍDO (3-4): luz translúcida → o blur do vidro aparece por trás + inner glow "preenchido"
+  let lightBg=null,innerGlow=null;
+  if(!locked&&stage>=3&&stage<5){
+    const aHot=pst==='pastel'?.58:pst==='neon'?.80:.68;
+    const aC=pst==='pastel'?.34:pst==='neon'?.50:.42;
+    lightBg=`radial-gradient(circle closest-side, ${_rgba(hot,aHot)} 0%, ${_rgba(accent,aC)} ${pst==='neon'?'38%':'56%'}, ${_rgba(rim,.66)} 100%)`;
+    innerGlow=`inset 0 0 16px ${_rgba(glowTone,.45)}`;
+  }
 
   const skVars={
     '--sk-c':accent,'--sk-hot':hot,'--sk-rim':rim,'--sk-spark':spark,
     '--sk-d':lightD+'px',
     '--sk-glow':_rgba(glowTone,Math.min(0.95,(glowK*0.95)*gk).toFixed(2)),
     '--sk-bloom':Math.round((glowK*30)*gk)+'px',
-    '--sk-gloss-op':(glowK*0.8).toFixed(2),
+    '--sk-gloss-op':(pst==='pastel'?glowK*0.55:glowK*0.8).toFixed(2),
     '--sk-frame-bg':frameBg,'--sk-well':wellBg,
     '--sk-frame-glow':Math.round((glowK*24)*gk)+'px',
+    ...(lightBg?{'--sk-light-bg':lightBg}:null),
+    ...(innerGlow?{'--sk-inner':innerGlow}:null),
     // anel externo (halo · nível 4+): espessura + velocidade (gira ao contrário do interno)
     '--sk-ring-line':stage>=4?_rgba(accent,0.35):'transparent',
     '--sk-halo-w':stage>=5?'3px':'2.4px',
@@ -5726,6 +5775,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     {/* partículas orbitando (nível 4+); no nível 5 duas camadas em velocidades diferentes */}
     {stage>=4&&<div className="sk-orbit sk-o1">{Array.from({length:stage>=5?4:3},(_,i)=><i key={i}style={{'--a':`${i*(360/(stage>=5?4:3))}deg`}}/>)}</div>}
     {stage>=5&&<div className="sk-orbit sk-o2">{Array.from({length:3},(_,i)=><i key={i}style={{'--a':`${i*120+60}deg`}}/>)}</div>}
+    {/* maestria: anel de órbita girando ao redor do ícone (o prêmio mais valioso) */}
+    {stage>=5&&<div className="sk-orbitring" aria-hidden="true"><i/></div>}
     {/* corpo em cristal: rim (frame) + poço escuro (well) + camadas de luz + anel interno */}
     <div className="skill-frame">
       <div className="skill-well">
@@ -5738,6 +5789,8 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
         <div className="skill-core">
           {!hideEmoji&&<span style={{opacity:emojiOp,filter:emojiFilt,textShadow:'0 1px 3px rgba(0,0,0,.6)',transition:'all .4s cubic-bezier(.4,0,.2,1)',transform:'translateY(19px) scale(.72)'}}>{skill.emoji}</span>}
         </div>
+        {/* bloqueado: wireframe — só o contorno do hexágono, baixa opacidade */}
+        {locked&&<svg className="sk-wireframe" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="50,1 99,26 99,74 50,99 1,74 1,26"/></svg>}
       </div>
     </div>
     {/* coroa de dominada (elite) */}
@@ -5925,7 +5978,8 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
 }
 
 function TreeFormModal({open,onClose,onSave,onDelete,init}){
-  const blank={nome:'',emoji:'🌳',destaque:SKILL_PALETTE_PRESETS[0].d,secundaria:SKILL_PALETTE_PRESETS[0].s};
+  const ouro=SKILL_PALETTE_PRESETS.find(p=>p.nome==='Ouro')||SKILL_PALETTE_PRESETS[0];
+  const blank={nome:'',emoji:'🌳',destaque:ouro.d,secundaria:ouro.s};
   const[f,setF]=useState(init||blank);
   useEffect(()=>{setF(init||blank);},[open]);
   function save(){if(!f.nome.trim())return;onSave({...f,cor:f.destaque});onClose();}
@@ -5965,17 +6019,24 @@ function TreeFormModal({open,onClose,onSave,onDelete,init}){
         {colorField('Profundidade',sec,v=>setPal(dst,v))}
         <button className="btn btn-gh"style={{padding:'7px 10px',fontSize:'.72rem'}}onClick={()=>setPal(sec,dst)}>⇄ inverter</button>
       </div>
-      {/* degradês prontos */}
-      <div className="fcb"style={{marginBottom:6}}>
-        <span className="st-label">Degradês prontos</span>
+      {/* paleta curada: 15 cores em 3 climas de iluminação — cada estilo com seu próprio degradê de prévia */}
+      <div className="fcb"style={{marginBottom:8}}>
+        <span className="st-label">Paleta curada · {SKILL_PALETTE_PRESETS.length} cores</span>
         {!isPreset&&<span style={{fontSize:'.62rem',color:'var(--tx3)'}}>degradê personalizado ativo</span>}
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(34px,1fr))',gap:7}}>
-        {SKILL_PALETTE_PRESETS.map(pp=>{
-          const on=dst===pp.d&&sec===pp.s;
-          return<div key={pp.nome}onClick={()=>setPal(pp.d,pp.s)}title={pp.nome}style={{aspectRatio:'1',borderRadius:'50%',cursor:'pointer',background:`radial-gradient(circle at 40% 30%, ${_mix(pp.d,'#FFFFFF',.4)} 0%, ${pp.d} 44%, ${pp.s} 100%)`,border:`2px solid ${on?'#FFF1B3':'transparent'}`,boxShadow:on?`0 0 10px ${pp.d}`:'inset 0 0 7px rgba(0,0,0,.55)',transform:on?'scale(1.14)':'none',transition:'all .15s'}}/>;
-        })}
-      </div>
+      {[['neon','⚡ Neon · centro vibrante no escuro'],['pastel','🌸 Pastel · suave e difuso'],['metal','🪙 Metálico · brilho clássico']].map(([k,lab])=>{
+        const group=SKILL_PALETTE_PRESETS.filter(pp=>pp.st===k);
+        if(!group.length)return null;
+        return<div key={k}style={{marginBottom:10}}>
+          <div style={{fontFamily:'var(--fm)',fontSize:'.56rem',letterSpacing:'.14em',textTransform:'uppercase',color:'var(--tx4)',marginBottom:5}}>{lab}</div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(34px,1fr))',gap:7}}>
+            {group.map(pp=>{
+              const on=dst===pp.d&&sec===pp.s;
+              return<div key={pp.nome}onClick={()=>setPal(pp.d,pp.s)}title={pp.nome}style={{aspectRatio:'1',borderRadius:'50%',cursor:'pointer',background:palSwatchBg(pp),border:`2px solid ${on?'#FFF1B3':'transparent'}`,boxShadow:on?`0 0 10px ${pp.d}`:'inset 0 0 7px rgba(0,0,0,.55)',transform:on?'scale(1.14)':'none',transition:'all .15s'}}/>;
+            })}
+          </div>
+        </div>;
+      })}
     </Fld>
     <Btns style={{justifyContent:'space-between'}}>
       {init&&onDelete?<button className="btn"style={{background:'rgba(239,68,68,.12)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)'}}onClick={()=>{onDelete();onClose();}}>🗑 Excluir área</button>:<span/>}
@@ -6024,6 +6085,35 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
   </div>;
 }
 
+// ── RAMIFICAÇÃO VISUAL: filho linkado a um pai sai do tronco em galhos alternados ──
+// Arm = deslocamento lateral (-2..+2) calculado como um layout de árvore/DAG:
+// tronco (sem pai linkado) = 0; filhos alternam direita/esquerda e continuam pra
+// fora, de forma que galhos diferentes nunca caem na mesma coluna vertical.
+// O espaçamento é feito com margin (empurra o layout de verdade → sem sobreposição).
+function skBranchArms(tree){
+  const skills=(tree&&tree.skills)||[];
+  const byId={};skills.forEach(s=>byId[s.id]=s);
+  const parentOf={};
+  skills.forEach(s=>{const r=skillReqs(s).find(x=>x.id!==s.id&&byId[x.id]);if(r)parentOf[s.id]=r.id;});
+  const kidsOf={};
+  Object.keys(parentOf).forEach(cid=>{(kidsOf[parentOf[cid]]=kidsOf[parentOf[cid]]||[]).push(cid);});
+  const arms={},visit=new Set();
+  function walk(id,arm){
+    if(visit.has(id))return;                    // guarda contra ciclos
+    visit.add(id);arms[id]=arm;
+    (kidsOf[id]||[]).forEach((k,i)=>{
+      let a;
+      if(arm===0)a=i%2===0?1:-1;                // 1º galho p'ra direita, 2º p'ra esquerda
+      else if(i%2===0)a=arm+Math.sign(arm);     // continua abrindo pra fora
+      else a=arm-Math.sign(arm)*2;              // dobra e volta pro outro lado
+      walk(k,Math.max(-2,Math.min(2,a)));
+    });
+  }
+  skills.forEach(s=>{if(!parentOf[s.id])walk(s.id,0);});
+  skills.forEach(s=>walk(s.id,0));              // ciclos/órfãos: entram como tronco
+  return arms;
+}
+
 function SkillTreeSection({st,setSt,setTab}){
   const trees=(st.skilltree&&st.skilltree.trees)||[];
   const stl=readStyle(st);
@@ -6067,10 +6157,21 @@ function SkillTreeSection({st,setSt,setTab}){
 
   const tree=trees.find(t=>t.id===sel)||trees[0]||null;
 
-  // ── LINHAS DE LUZ: nós em MAESTRIA (estágio 5) emitem para os conectados ──
+  // galhos da ramificação visual (DAG) — memo junto dos outros hooks (antes do early return)
+  const arms=useMemo(()=>skBranchArms(tree),[tree&&tree.id,(tree&&tree.skills||[]).map(s=>s.id+':'+skillReqs(s).map(r=>r.id).join(',')).join('|')]);
+
+  // ── LINHAS DE CONEXÃO: caminho dinâmico entre pré-requisitos ──
+  // fluxo = pai concluído → filho disponível (brilho pulsante, guia o olhar)
+  // solida = concluída → concluída (sem brilho) · apagada = ainda travada
   // As posições saem do DOM real (centro de cada .skill-frame) relativo ao wrapper da árvore.
   const treeRef=useRef(null);
   const[links,setLinks]=useState([]);
+  const[vw,setVw]=useState(typeof window!=='undefined'?window.innerWidth:1200);
+  useEffect(()=>{
+    const on=()=>setVw(window.innerWidth);
+    window.addEventListener('resize',on);
+    return()=>window.removeEventListener('resize',on);
+  },[]);
   useEffect(()=>{
     if(!tree){setLinks([]);return;}
     let raf;
@@ -6078,14 +6179,21 @@ function SkillTreeSection({st,setSt,setTab}){
       const c=treeRef.current;if(!c)return;
       const cr=c.getBoundingClientRect();const pos={};
       c.querySelectorAll('[data-sk]').forEach(el=>{const f=el.querySelector('.skill-frame')||el;const r=f.getBoundingClientRect();pos[el.getAttribute('data-sk')]={x:r.left-cr.left+r.width/2,y:r.top-cr.top+r.height/2};});
-      const isGold=s=>{const mx=s.maxNivel||1,lv=s.nivel||0;return lv>0&&lv/mx>0.8;};   // pct>80% → estágio 5
+      const byId={};tree.skills.forEach(s=>byId[s.id]=s);
+      const isDone=s=>(s.nivel||0)>=(s.maxNivel||1);
       const arr=[],seen=new Set();
-      tree.skills.forEach(s=>{
-        if(!isGold(s))return;
-        const nb=new Set();
-        skillReqs(s).forEach(r=>nb.add(r.id));
-        tree.skills.forEach(o=>{if(skillReqs(o).some(r=>r.id===s.id))nb.add(o.id);});
-        nb.forEach(nid=>{const a=pos[s.id],b=pos[nid];if(a&&b){const k=s.id+'>'+nid;if(!seen.has(k)){seen.add(k);arr.push({k,x1:a.x,y1:a.y,x2:b.x,y2:b.y});}}});
+      tree.skills.forEach(child=>{
+        skillReqs(child).forEach(r=>{
+          const parent=byId[r.id];
+          if(!parent||parent.id===child.id)return;
+          const k=parent.id+'>'+child.id;
+          if(seen.has(k))return;seen.add(k);
+          const a=pos[parent.id],b=pos[child.id];
+          if(!a||!b)return;
+          const pDone=isDone(parent),cDone=isDone(child);
+          const kind=pDone&&!cDone&&!skillLock(child,tree)?'fluxo':pDone&&cDone?'solida':'apagada';
+          arr.push({k,x1:a.x,y1:a.y,x2:b.x,y2:b.y,kind});
+        });
       });
       setLinks(arr);
     };
@@ -6095,7 +6203,7 @@ function SkillTreeSection({st,setSt,setTab}){
     if(typeof ResizeObserver!=='undefined'&&treeRef.current){ro=new ResizeObserver(run);ro.observe(treeRef.current);}
     window.addEventListener('resize',run);
     return()=>{cancelAnimationFrame(raf);if(ro)ro.disconnect();window.removeEventListener('resize',run);};
-  },[tree&&tree.id,(tree&&tree.skills||[]).map(s=>s.id+(s.nivel||0)+'/'+(s.maxNivel||1)+(s.tier||1)+(s.subcat||'')).join('|'),nodeSel]);
+  },[tree&&tree.id,(tree&&tree.skills||[]).map(s=>s.id+(s.nivel||0)+'/'+(s.maxNivel||1)+(s.tier||1)+(s.subcat||'')+':'+skillReqs(s).map(r=>r.id+(r.lv||1)).join(',')).join('|'),nodeSel,vw]);
 
   // ── ações ──
   function setLevel(treeId,skillId,delta){
@@ -6164,6 +6272,12 @@ function SkillTreeSection({st,setSt,setTab}){
   // travas por requisito (recalculadas a cada render — dependem do nível das outras)
   const locks={};
   tree.skills.forEach(s=>{const l=skillLock(s,tree);if(l)locks[s.id]=l;});
+
+  // ── Galhos (layout DAG): deslocamento lateral por nó linkado; clampado em tela
+  // estreita pra caber no mobile — se ainda crescer, a fileira ganha scroll horizontal
+  const narrow=vw<560;
+  const branchGap=narrow?64:96;
+  const armMax=narrow?1:2;
 
   // ── FOCUS MODE: vizinhança do nó selecionado (pré-requisitos + dependentes) ──
   // Só o nó escolhido, o que ele exige e o que dele depende ficam acesos; o resto recua.
@@ -6271,8 +6385,12 @@ function SkillTreeSection({st,setSt,setTab}){
               const t=i+1,items=col.byTier[t]||[];
               return<div key={t}className="st-shelf"style={{zIndex:1,minHeight:84,'--shelf-line':`${pal.d}33`,background:i%2?`linear-gradient(180deg,${pal.d}0d,transparent 78%)`:'transparent'}}>
                 <span className="st-shelf-tag"style={{color:pal.d}}>{roman(t)} · {skillLevelXP(t,1)} XP</span>
-                <div className="st-shelf-row">
-                  {items.map(s=><SkillNode key={s.id}skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onClick={()=>{if(nodeSel===s.id){setNodeSel(null);setDetailSel(null);}else{setNodeSel(s.id);setDetailSel(null);}}}/>)}
+                <div className={"st-shelf-row"+(items.some(s=>(arms[s.id]||0)!==0)?" branching":"")}>
+                  {items.map(s=>{const arm=Math.max(-armMax,Math.min(armMax,arms[s.id]||0));
+                    return<div key={s.id} className="sk-branch" style={arm>0?{marginLeft:arm*branchGap}:arm<0?{marginRight:(-arm)*branchGap}:null}>
+                      <SkillNode skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onClick={()=>{if(nodeSel===s.id){setNodeSel(null);setDetailSel(null);}else{setNodeSel(s.id);setDetailSel(null);}}}/>
+                    </div>;
+                  })}
                 </div>
               </div>;
             })}
@@ -6282,8 +6400,8 @@ function SkillTreeSection({st,setSt,setTab}){
           </div>
         </div>;
       })}
-      {/* linhas de luz da maestria (por cima dos cards, conectando centros) */}
-      {links.length>0&&<svg className="sk-links" style={{'--sk-link':pal.d,'--sk-link-glow':_rgba(pal.d,0.85)}} aria-hidden="true">{links.map(l=><line key={l.k} className="sk-link" x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}/>)}</svg>}
+      {/* linhas de conexão (por cima dos cards, conectando centros): fluxo pulsa no próximo passo */}
+      {links.length>0&&<svg className="sk-links" style={{'--sk-link':pal.d,'--sk-link-glow':_rgba(pal.d,0.85)}} aria-hidden="true">{links.map(l=><line key={l.k} className={"sk-link "+(l.kind||'solida')} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2}/>)}</svg>}
     </div>
     </div>
 
