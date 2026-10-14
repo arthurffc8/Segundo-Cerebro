@@ -616,6 +616,12 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 
 @media(prefers-reduced-motion:reduce){.sk-seed,.sk-sigil,.sk-halo::before,.sk-innerring,.sk-orbit,.sk-facets,.sk-maxcrown,.sk-orbitring i,.st-locked .sk-wireframe,.sk-live .sk-light,.sk-live .sk-gloss,.sk-live .skill-frame{animation:none!important;}}
 .skill-badge{margin-top:7px;font-family:var(--serif);font-size:.6rem;font-weight:700;letter-spacing:.05em;padding:1px 9px;border-radius:3px;line-height:1.5;white-space:nowrap;}
+/* Controles de nível inline (abaixo do hexágono): sobe/desce sem abrir janela */
+.sk-levelctl{display:flex;align-items:center;justify-content:center;gap:5px;margin-top:7px;}
+.sk-levelctl .skill-badge{margin-top:0;cursor:pointer;}
+.sk-lvbtn{width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:.72rem;font-weight:700;line-height:1;padding:0;cursor:pointer;background:rgba(11,21,34,.8);border:1px solid var(--sk-c,#F5D98C);color:var(--sk-c,#F5D98C);transition:all .2s ease;}
+.sk-lvbtn:hover:not(:disabled){background:var(--sk-c,#F5D98C);color:#0B1522;transform:scale(1.15);box-shadow:0 0 8px var(--sk-glow,rgba(0,0,0,0));}
+.sk-lvbtn:disabled{opacity:.28;cursor:default;border-color:rgba(92,107,124,.4);color:#5C6B7C;background:rgba(11,21,34,.5);}
 .skill-name{margin-top:5px;font-family:var(--serif);font-size:.68rem;font-weight:700;letter-spacing:.035em;text-align:center;line-height:1.25;max-width:76px;text-shadow:0 1px 3px rgba(0,0,0,.85);}
 
 /* ═══════════════════════════════════════════════════════════════════════════════
@@ -5640,7 +5646,7 @@ function skSigilD(stage){
   return d+' Z';
 }
 
-function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen}){
+function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen,onLevel}){
   const max=skill.maxNivel||1;
   const lv=Math.min(skill.nivel||0,max);
   const started=lv>0;
@@ -5797,8 +5803,12 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     {maxed&&<div className="sk-maxcrown"><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
     {/* cadeado: ainda depende de outra habilidade */}
     {locked&&<div className="sk-lock">🔒</div>}
-    {/* Badge */}
-    <div className="skill-badge"style={{background:'rgba(11,21,34,0.8)',color:badgeColor,border:`1px solid ${badgeBorder}`}}>{lv}/{max}</div>
+    {/* Badge + controles de nível: subir/descer direto no nó, sem abrir janela */}
+    <div className="sk-levelctl">
+      <button className="sk-lvbtn" title="Baixar nível" disabled={lv<=0} onClick={e=>{e.stopPropagation();if(lv>0&&onLevel)onLevel(-1);}}>−</button>
+      <div className="skill-badge" title="Detalhes" style={{background:'rgba(11,21,34,0.8)',color:badgeColor,border:`1px solid ${badgeBorder}`}} onClick={e=>{e.stopPropagation();onOpen&&onOpen();}}>{lv}/{max}</div>
+      <button className="sk-lvbtn" title={locked?'Travada por requisito':maxed?'Já dominada':'Subir nível'} disabled={maxed||locked} onClick={e=>{e.stopPropagation();if(!maxed&&!locked&&onLevel)onLevel(1);}}>+</button>
+    </div>
     {/* Pratica de hoje */}
     {practiced&&<div style={{position:'absolute',top:2,right:2,width:8,height:8,borderRadius:'50%',background:'#22c55e',border:'1.5px solid #0B1522',boxShadow:'0 0 4px #22c55e',zIndex:3}}/>}
     {/* Pips: nível visual */}
@@ -5828,13 +5838,6 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoR
   const tier=Math.max(1,skill.tier||1);
   const reqLabel=skillReqListLabel(skill,tree);
   const sBtn=(en)=>({width:48,height:48,borderRadius:'50%',background:en?cor+'22':'var(--card2)',border:`1px solid ${en?cor+'66':'var(--bd2)'}`,color:en?cor:'var(--tx4)',fontSize:'1.6rem',fontWeight:700,cursor:en?'pointer':'default',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0});
-  // detecta level-up (quando lv aumenta) — dispara ritual
-  const prevLvRef=useRef(lv);
-  const[ritual,setRitual]=useState(null);
-  useEffect(()=>{
-    if(lv>prevLvRef.current){setRitual({newLevel:lv,skill,tree});}
-    prevLvRef.current=lv;
-  },[lv,skill,tree]);
   // histórico e streak
   const history=useMemo(()=>skillPracticeHistory(st,skill.id,8),[st,skill.id]);
   const streak=useMemo(()=>skillStreak(st,skill.id),[st,skill.id]);
@@ -5888,9 +5891,6 @@ function SkillNodeModal({skill,cor,onClose,onLevel,onEdit,onDelete,st,tree,onGoR
       <button className="btn btn-ac"style={{flex:1}}onClick={()=>{onClose();onGoReel&&onGoReel(skill.id);}}>▶ Treinar nos Reels</button>
       <button className="btn"style={{background:'rgba(239,68,68,.12)',color:'#ef4444',border:'1px solid rgba(239,68,68,.3)'}}onClick={onDelete}>🗑</button>
     </Btns>
-    {ritual&&tree&&<SkillRitual skill={ritual.skill}tree={ritual.tree}newLevel={ritual.newLevel}
-      onClose={()=>setRitual(null)}
-      onGoReel={()=>{setRitual(null);onClose();onGoReel&&onGoReel(skill.id);}}/>}
   </Modal>;
 }
 
@@ -6388,7 +6388,7 @@ function SkillTreeSection({st,setSt,setTab}){
                 <div className={"st-shelf-row"+(items.some(s=>(arms[s.id]||0)!==0)?" branching":"")}>
                   {items.map(s=>{const arm=Math.max(-armMax,Math.min(armMax,arms[s.id]||0));
                     return<div key={s.id} className="sk-branch" style={arm>0?{marginLeft:arm*branchGap}:arm<0?{marginRight:(-arm)*branchGap}:null}>
-                      <SkillNode skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onClick={()=>{if(nodeSel===s.id){setNodeSel(null);setDetailSel(null);}else{setNodeSel(s.id);setDetailSel(null);}}}/>
+                      <SkillNode skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onLevel={d=>setLevel(tree.id,s.id,d)}onClick={()=>{setEditSkill(s);setSkillPreset(null);setDetailSel(null);setSkillModal(true);}}/>
                     </div>;
                   })}
                 </div>
