@@ -608,9 +608,6 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .st-shelf{position:relative;border-radius:9px;padding:11px 4px 7px;}
 .st-shelf+.st-shelf{margin-top:2px;border-top:1px dashed var(--shelf-line,rgba(159,179,200,.16));}
 .st-shelf-row{display:flex;align-items:flex-start;justify-content:center;gap:10px;flex-wrap:wrap;}
-/* fileira com galhos: linha única com scroll horizontal quando a ramificação cresce */
-.st-shelf-row.branching{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:thin;padding:2px 4px 6px;}
-.sk-branch{transition:margin .3s cubic-bezier(.4,0,.2,1);flex-shrink:0;}
 .st-lockbar{margin:0 0 10px;padding:7px 10px;border-radius:6px;font-size:.72rem;line-height:1.4;text-align:center;background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.28);color:#fca5a5;}
 .st-reqbar{margin:0 0 10px;padding:6px 10px;border-radius:6px;font-size:.7rem;line-height:1.4;text-align:center;background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.22);color:#86efac;}
 
@@ -5605,7 +5602,10 @@ function CrownIcon({color,deep,variant}){
 
 // ── REQUISITOS: uma habilidade pode depender de níveis de outras ────────────
 // skill.reqs = [{id:'<id da outra skill>', lv:<nível mínimo>}]
+// Regra: dependências só valem dentro da MESMA subcategoria (coluna) — assim as
+// cadeias ficam sempre na vertical e as linhas nunca se cruzam entre colunas.
 function skillReqs(s){return Array.isArray(s&&s.reqs)?s.reqs.filter(r=>r&&r.id):[];}
+function sameSubcat(a,b){return((a&&a.subcat)||'')===((b&&b.subcat)||'');}
 // null = liberada · {missing:[{skill,need}]} = ainda travada
 function skillLock(skill,tree){
   const reqs=skillReqs(skill);
@@ -5615,6 +5615,7 @@ function skillLock(skill,tree){
   reqs.forEach(r=>{
     const src=list.find(x=>x.id===r.id);
     if(!src)return;                        // requisito apagado → ignora
+    if(!sameSubcat(skill,src))return;      // fora da subcategoria → não vale
     const need=Math.max(1,Math.min(src.maxNivel||1,r.lv||1));
     if((src.nivel||0)<need)missing.push({skill:src,need});
   });
@@ -5625,7 +5626,7 @@ function skillReqListLabel(skill,tree){
   const list=(tree&&tree.skills)||[];
   return skillReqs(skill).map(r=>{
     const src=list.find(x=>x.id===r.id);
-    return src?`${src.nome} nv ${Math.max(1,Math.min(src.maxNivel||1,r.lv||1))}`:null;
+    return src&&sameSubcat(skill,src)?`${src.nome} nv ${Math.max(1,Math.min(src.maxNivel||1,r.lv||1))}`:null;
   }).filter(Boolean).join(' · ');
 }
 
@@ -5906,7 +5907,8 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
   },[open]);
   function save(){
     if(!f.nome.trim())return;
-    const reqs=(f.reqs||[]).filter(r=>r&&r.id&&r.id!==(init&&init.id)).map(r=>({id:r.id,lv:Math.max(1,+r.lv||1)}));
+    // requisitos: só valem habilidades da MESMA subcategoria (sem cruzar colunas)
+    const reqs=(f.reqs||[]).filter(r=>r&&r.id&&r.id!==(init&&init.id)&&others.some(o=>o.id===r.id)).map(r=>({id:r.id,lv:Math.max(1,+r.lv||1)}));
     onSave({...f,maxNivel:Math.max(1,Math.min(9,+f.maxNivel||1)),tier:Math.max(1,+f.tier||1),subcat:f.subcat||(list[0]?list[0].id:''),levels:(f.levels||[]).slice(0,Math.max(1,Math.min(9,+f.maxNivel||1))+1),reqs});
     onClose();
   }
@@ -5919,8 +5921,11 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
     });
   }
   function setLv(i,v){setF(p=>({...p,levels:(p.levels||[]).map((d,j)=>j===i?v:d)}));}
-  // requisitos: outras habilidades da MESMA árvore que precisam estar num nível mínimo
-  const others=(allSkills||[]).filter(x=>!init||x.id!==init.id);
+  // requisitos: só outras habilidades da MESMA subcategoria (coluna) — mantém a cadeia vertical
+  const others=(allSkills||[]).filter(x=>(!init||x.id!==init.id)&&(x.subcat||'')===(f.subcat||''));
+  function changeSubcat(nc){
+    setF(p=>({...p,subcat:nc,reqs:(p.reqs||[]).filter(r=>(allSkills||[]).some(o=>o.id===r.id&&(o.subcat||'')===(nc||'')))}));
+  }
   function addReq(){if(!others.length)return;setF(p=>({...p,reqs:[...(p.reqs||[]),{id:others[0].id,lv:1}]}));}
   function setReq(i,patch){setF(p=>({...p,reqs:(p.reqs||[]).map((r,j)=>j===i?{...r,...patch}:r)}));}
   function delReq(i){setF(p=>({...p,reqs:(p.reqs||[]).filter((r,j)=>j!==i)}));}
@@ -5932,7 +5937,7 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
     </div>
     <div className="g2c">
       <Fld label="Subcategoria (coluna)">
-        <select value={f.subcat}onChange={e=>setF(p=>({...p,subcat:e.target.value}))}>
+        <select value={f.subcat}onChange={e=>changeSubcat(e.target.value)}>
           {list.map(sc=><option key={sc.id}value={sc.id}>{sc.nome}</option>)}
         </select>
       </Fld>
@@ -5957,7 +5962,7 @@ function SkillFormModal({open,onClose,onSave,init,subcats,maxTier,allSkills}){
         </div>
       ))}
       <button className="btn btn-gh"style={{width:'100%',fontSize:'.72rem',padding:'6px'}}onClick={addReq}>＋ adicionar requisito</button>
-      <div style={{fontSize:'.62rem',color:'var(--tx4)',marginTop:5,lineHeight:1.4,textAlign:'center'}}>Enquanto os requisitos não forem cumpridos, esta habilidade fica travada (🔒) e não sobe de nível.</div>
+      <div style={{fontSize:'.62rem',color:'var(--tx4)',marginTop:5,lineHeight:1.4,textAlign:'center'}}>Só habilidades da mesma subcategoria podem ser requisito. Enquanto os requisitos não forem cumpridos, esta habilidade fica travada (🔒) e não sobe de nível.</div>
     </div>}
     {(f.levels||[]).length>0&&<div style={{marginTop:12,paddingTop:8,borderTop:'1px solid rgba(255,255,255,.06)'}}>
       <div style={{fontSize:'.65rem',color:'var(--tx3)',marginBottom:6,fontWeight:600,textTransform:'uppercase',letterSpacing:'.08em',textAlign:'center'}}>📏 Critérios por Nível</div>
@@ -6085,34 +6090,9 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
   </div>;
 }
 
-// ── RAMIFICAÇÃO VISUAL: filho linkado a um pai sai do tronco em galhos alternados ──
-// Arm = deslocamento lateral (-2..+2) calculado como um layout de árvore/DAG:
-// tronco (sem pai linkado) = 0; filhos alternam direita/esquerda e continuam pra
-// fora, de forma que galhos diferentes nunca caem na mesma coluna vertical.
-// O espaçamento é feito com margin (empurra o layout de verdade → sem sobreposição).
-function skBranchArms(tree){
-  const skills=(tree&&tree.skills)||[];
-  const byId={};skills.forEach(s=>byId[s.id]=s);
-  const parentOf={};
-  skills.forEach(s=>{const r=skillReqs(s).find(x=>x.id!==s.id&&byId[x.id]);if(r)parentOf[s.id]=r.id;});
-  const kidsOf={};
-  Object.keys(parentOf).forEach(cid=>{(kidsOf[parentOf[cid]]=kidsOf[parentOf[cid]]||[]).push(cid);});
-  const arms={},visit=new Set();
-  function walk(id,arm){
-    if(visit.has(id))return;                    // guarda contra ciclos
-    visit.add(id);arms[id]=arm;
-    (kidsOf[id]||[]).forEach((k,i)=>{
-      let a;
-      if(arm===0)a=i%2===0?1:-1;                // 1º galho p'ra direita, 2º p'ra esquerda
-      else if(i%2===0)a=arm+Math.sign(arm);     // continua abrindo pra fora
-      else a=arm-Math.sign(arm)*2;              // dobra e volta pro outro lado
-      walk(k,Math.max(-2,Math.min(2,a)));
-    });
-  }
-  skills.forEach(s=>{if(!parentOf[s.id])walk(s.id,0);});
-  skills.forEach(s=>walk(s.id,0));              // ciclos/órfãos: entram como tronco
-  return arms;
-}
+// ── RAMIFICAÇÃO VISUAL: removida ──
+// Cadeias de dependência agora vivem obrigatoriamente na mesma coluna (subcategoria),
+// então os nós linkados ficam alinhados na vertical — sem deslocamento lateral, sem scroll.
 
 function SkillTreeSection({st,setSt,setTab}){
   const trees=(st.skilltree&&st.skilltree.trees)||[];
@@ -6157,9 +6137,6 @@ function SkillTreeSection({st,setSt,setTab}){
 
   const tree=trees.find(t=>t.id===sel)||trees[0]||null;
 
-  // galhos da ramificação visual (DAG) — memo junto dos outros hooks (antes do early return)
-  const arms=useMemo(()=>skBranchArms(tree),[tree&&tree.id,(tree&&tree.skills||[]).map(s=>s.id+':'+skillReqs(s).map(r=>r.id).join(',')).join('|')]);
-
   // ── LINHAS DE CONEXÃO: caminho dinâmico entre pré-requisitos ──
   // fluxo = pai concluído → filho disponível (brilho pulsante, guia o olhar)
   // solida = concluída → concluída (sem brilho) · apagada = ainda travada
@@ -6186,6 +6163,7 @@ function SkillTreeSection({st,setSt,setTab}){
         skillReqs(child).forEach(r=>{
           const parent=byId[r.id];
           if(!parent||parent.id===child.id)return;
+          if(!sameSubcat(child,parent))return;   // dependência fora da coluna → não desenha linha
           const k=parent.id+'>'+child.id;
           if(seen.has(k))return;seen.add(k);
           const a=pos[parent.id],b=pos[child.id];
@@ -6272,12 +6250,6 @@ function SkillTreeSection({st,setSt,setTab}){
   // travas por requisito (recalculadas a cada render — dependem do nível das outras)
   const locks={};
   tree.skills.forEach(s=>{const l=skillLock(s,tree);if(l)locks[s.id]=l;});
-
-  // ── Galhos (layout DAG): deslocamento lateral por nó linkado; clampado em tela
-  // estreita pra caber no mobile — se ainda crescer, a fileira ganha scroll horizontal
-  const narrow=vw<560;
-  const branchGap=narrow?64:96;
-  const armMax=narrow?1:2;
 
   // ── FOCUS MODE: vizinhança do nó selecionado (pré-requisitos + dependentes) ──
   // Só o nó escolhido, o que ele exige e o que dele depende ficam acesos; o resto recua.
@@ -6385,12 +6357,10 @@ function SkillTreeSection({st,setSt,setTab}){
               const t=i+1,items=col.byTier[t]||[];
               return<div key={t}className="st-shelf"style={{zIndex:1,minHeight:84,'--shelf-line':`${pal.d}33`,background:i%2?`linear-gradient(180deg,${pal.d}0d,transparent 78%)`:'transparent'}}>
                 <span className="st-shelf-tag"style={{color:pal.d}}>{roman(t)} · {skillLevelXP(t,1)} XP</span>
-                <div className={"st-shelf-row"+(items.some(s=>(arms[s.id]||0)!==0)?" branching":"")}>
-                  {items.map(s=>{const arm=Math.max(-armMax,Math.min(armMax,arms[s.id]||0));
-                    return<div key={s.id} className="sk-branch" style={arm>0?{marginLeft:arm*branchGap}:arm<0?{marginRight:(-arm)*branchGap}:null}>
-                      <SkillNode skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onLevel={d=>setLevel(tree.id,s.id,d)}onClick={()=>{setEditSkill(s);setSkillPreset(null);setDetailSel(null);setSkillModal(true);}}/>
-                    </div>;
-                  })}
+                <div className="st-shelf-row">
+                  {items.map(s=>
+                    <SkillNode key={s.id} skill={s}pal={pal}selected={nodeSel===s.id}related={focusOn&&relatedIds.has(s.id)}stl={stl}practiced={practicedToday.has(s.id)}lock={locks[s.id]}onOpen={()=>setDetailSel(s.id)}onLevel={d=>setLevel(tree.id,s.id,d)}onClick={()=>{setEditSkill(s);setSkillPreset(null);setDetailSel(null);setSkillModal(true);}}/>
+                  )}
                 </div>
               </div>;
             })}
