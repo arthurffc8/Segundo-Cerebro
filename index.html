@@ -1088,7 +1088,23 @@ const{useState,useEffect,useMemo,useRef,useCallback}=React;
 
 // ── INTELIGÊNCIA ARTIFICIAL (Claude ou Gemini) ──────────────────────
 const AI_CFG_KEY='sc-ai-cfg';
-const AI_DEF_MODEL={anthropic:'claude-3-5-haiku-latest',gemini:'gemini-2.5-flash'};
+const AI_DEF_MODEL={anthropic:'claude-haiku-5-5',gemini:'gemini-flash-latest'};
+const AI_OLD_DEFAULTS=['claude-3-5-haiku-latest','gemini-2.5-flash'];
+// Pergunta ao Google quais modelos a chave pode usar e escolhe o Flash mais novo.
+async function aiGeminiPick(key,exclude){
+  try{
+    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models?pageSize=200',{headers:{'x-goog-api-key':key}});
+    if(!res.ok)return null;
+    const list=((await res.json()).models||[])
+      .filter(m=>(m.supportedGenerationMethods||[]).includes('generateContent'))
+      .map(m=>String(m.name||'').replace(/^models\//,''))
+      .filter(n=>/^gemini-/.test(n)&&n!==exclude&&!/(tts|image|embedding|live|audio|lite|preview|exp)/i.test(n));
+    if(list.includes('gemini-flash-latest')&&exclude!=='gemini-flash-latest')return 'gemini-flash-latest';
+    const ver=n=>parseFloat((n.match(/gemini-(\d+(?:\.\d+)?)/)||[])[1]||0);
+    const flash=list.filter(n=>/flash/i.test(n)).sort((a,b)=>ver(b)-ver(a));
+    return flash[0]||list.sort((a,b)=>ver(b)-ver(a))[0]||null;
+  }catch(e){return null;}
+}
 function aiLoadCfg(){try{const s=localStorage.getItem(AI_CFG_KEY);return s?JSON.parse(s):null;}catch{return null;}}
 function aiSaveCfg(c){localStorage.setItem(AI_CFG_KEY,JSON.stringify(c));}
 function aiClearCfg(){localStorage.removeItem(AI_CFG_KEY);}
@@ -1118,20 +1134,33 @@ async function aiErr(res){
 async function aiRequest(system,blocks,maxTokens,modelOverride){
   const c=aiLoadCfg();
   if(!c||!c.key)throw new Error('IA não configurada');
-  const model=aiModel(c,modelOverride);
+  let model=aiModel(c,modelOverride);
   if(aiProvider(c)==='gemini'){
     const body={
       contents:[{role:'user',parts:aiBlocksToGemini(blocks)}],
       generationConfig:{maxOutputTokens:(maxTokens||300)+256},
     };
     if(system)body.systemInstruction={parts:[{text:system}]};
-    // Flash 2.x "pensa" por padrão e o raciocínio consome o orçamento de saída → desliga.
-    if(/flash/i.test(model))body.generationConfig.thinkingConfig={thinkingBudget:0};
-    const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(model)+':generateContent',{
-      method:'POST',
-      headers:{'content-type':'application/json','x-goog-api-key':c.key},
-      body:JSON.stringify(body),
-    });
+    const call=m=>{
+      // Flash 2.x "pensa" por padrão e o raciocínio consome o orçamento de saída → desliga.
+      // Nos modelos mais novos o thinkingBudget:0 pode ser recusado → só dá folga de tokens.
+      if(/^gemini-2\.\d+-flash/i.test(m)){body.generationConfig.thinkingConfig={thinkingBudget:0};body.generationConfig.maxOutputTokens=(maxTokens||300)+256;}
+      else{delete body.generationConfig.thinkingConfig;body.generationConfig.maxOutputTokens=(maxTokens||300)+2048;}
+      return fetch('https://generativelanguage.googleapis.com/v1beta/models/'+encodeURIComponent(m)+':generateContent',{
+        method:'POST',
+        headers:{'content-type':'application/json','x-goog-api-key':c.key},
+        body:JSON.stringify(body),
+      });
+    };
+    let res=await call(model);
+    // Modelo aposentado/inexistente → descobre um Flash disponível para a chave e salva.
+    if(res.status===404||res.status===400){
+      const alt=await aiGeminiPick(c.key,model);
+      if(alt&&alt!==model){
+        const r2=await call(alt);
+        if(r2.ok){model=alt;res=r2;if(!modelOverride)aiSaveCfg({...c,model:alt});}
+      }
+    }
     if(!res.ok)await aiErr(res);
     const data=await res.json();
     const cand=(data.candidates&&data.candidates[0])||null;
@@ -1143,11 +1172,17 @@ async function aiRequest(system,blocks,maxTokens,modelOverride){
     }
     return out;
   }
-  const res=await fetch('https://api.anthropic.com/v1/messages',{
+  const callA=m=>fetch('https://api.anthropic.com/v1/messages',{
     method:'POST',
     headers:{'content-type':'application/json','x-api-key':c.key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-    body:JSON.stringify({model,max_tokens:maxTokens||300,system:system||'',messages:[{role:'user',content:blocks}]}),
+    body:JSON.stringify({model:m,max_tokens:maxTokens||300,system:system||'',messages:[{role:'user',content:blocks}]}),
   });
+  let res=await callA(model);
+  // Modelo aposentado → tenta o padrão atual e salva.
+  if(res.status===404&&model!==AI_DEF_MODEL.anthropic){
+    const r2=await callA(AI_DEF_MODEL.anthropic);
+    if(r2.ok){res=r2;if(!modelOverride)aiSaveCfg({...c,model:AI_DEF_MODEL.anthropic});}
+  }
   if(!res.ok)await aiErr(res);
   const data=await res.json();
   return((data.content&&data.content[0]&&data.content[0].text)||'').trim();
@@ -1161,7 +1196,7 @@ async function aiCallBlocks(system,blocks,maxTokens,modelOverride){
 }
 // Claude 3.5 Haiku não aceita imagem — cai para um modelo com visão quando necessário.
 // Nos modelos Gemini atuais a visão já vem inclusa, então mantém o mesmo.
-const AI_VISION_MODEL='claude-opus-5';
+const AI_VISION_MODEL='claude-haiku-5-5';
 function aiModelForImage(){
   const c=aiLoadCfg();const m=(c&&c.model)||'';
   if(aiProvider(c)==='gemini')return aiModel(c);
@@ -6601,7 +6636,7 @@ function CfgIA(){
   const provSalvo=saved?aiProvider(saved):'gemini'; // sem nada salvo, Gemini é o caminho mais fácil (cota gratuita)
   const[prov,setProv]=useState(provSalvo);
   const[key,setKey]=useState((saved&&saved.key)||'');
-  const[model,setModel]=useState((saved&&saved.model)||AI_DEF_MODEL[provSalvo]);
+  const[model,setModel]=useState((saved&&saved.model&&!AI_OLD_DEFAULTS.includes(saved.model)&&saved.model)||AI_DEF_MODEL[provSalvo]);
   const[status,setStatus]=useState('');
   const[testing,setTesting]=useState(false);
   const info=prov==='gemini'
@@ -6610,7 +6645,7 @@ function CfgIA(){
   // Ao trocar de provedor, só mexe no modelo se ele ainda for o padrão do outro.
   function trocaProv(v){
     setProv(v);
-    if(!model.trim()||model.trim()===AI_DEF_MODEL.anthropic||model.trim()===AI_DEF_MODEL.gemini)setModel(AI_DEF_MODEL[v]);
+    if(!model.trim()||model.trim()===AI_DEF_MODEL.anthropic||model.trim()===AI_DEF_MODEL.gemini||AI_OLD_DEFAULTS.includes(model.trim()))setModel(AI_DEF_MODEL[v]);
     setStatus('');
   }
   function cfgAtual(){return{provider:prov,key:key.trim(),model:model.trim()||AI_DEF_MODEL[prov]};}
@@ -6623,7 +6658,12 @@ function CfgIA(){
     if(!key.trim()){setStatus('Cole a chave primeiro.');return;}
     setTesting(true);setStatus('Testando...');
     aiSaveCfg(cfgAtual());
-    try{const r=await aiCall('Responda em 1 palavra.','Diga: funcionando',20);setStatus('✓ Conectado! Resposta: '+r);}
+    try{
+      const r=await aiCall('Responda em 1 palavra.','Diga: funcionando',20);
+      const usado=aiModel();
+      if(usado!==model.trim())setModel(usado);
+      setStatus('✓ Conectado'+(usado!==model.trim()?' (modelo trocado automaticamente para '+usado+')':'')+'! Resposta: '+r);
+    }
     catch(e){setStatus('✗ '+e.message);}
     setTesting(false);
   }
