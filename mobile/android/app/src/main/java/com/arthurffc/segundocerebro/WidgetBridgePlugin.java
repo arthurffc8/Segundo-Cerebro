@@ -24,7 +24,11 @@ public class WidgetBridgePlugin extends Plugin {
                 .edit()
                 .putString(HojeWidget.KEY_PAYLOAD, payload)
                 .apply();
+        // Todos os widgets leem o mesmo payload — redesenha todos na hora
         HojeWidget.refreshAll(context);
+        PendenciasWidget.refreshAll(context);
+        TarefasWidget.refreshAll(context);
+        ArvoresWidget.refreshAll(context);
         call.resolve();
     }
 }

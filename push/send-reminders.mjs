@@ -19,19 +19,32 @@ const VAPID_SUBJECT = process.env.VAPID_SUBJECT || 'mailto:arthursferreira52@gma
 const LOOKBACK_MIN = Number(process.env.LOOKBACK_MIN || 25);
 const DRY_RUN = process.env.DRY_RUN === '1';
 
+// No Actions, `::error::`/`::warning::` viram anotações — aparecem no resumo da
+// execução e no e-mail de falha, sem precisar abrir o log (que exige login).
+const annotate = (level, msg) => console.log(process.env.GITHUB_ACTIONS ? `::${level}::${msg}` : msg);
+
 function boot() {
-  if (!VAPID_PRIVATE) {
-    console.error('Falta o secret VAPID_PRIVATE_KEY.');
+  const faltando = [];
+  if (!VAPID_PRIVATE) faltando.push('VAPID_PRIVATE_KEY');
+  if (!process.env.FIREBASE_SERVICE_ACCOUNT) faltando.push('FIREBASE_SERVICE_ACCOUNT');
+  if (faltando.length) {
+    // Sem os secrets não há o que fazer: avisa e sai limpo, pra não gerar um
+    // e-mail de falha a cada 15 min enquanto o robô não foi configurado.
+    annotate('warning', `Push desligado: falta(m) o(s) secret(s) ${faltando.join(' e ')}. Veja push/README.md.`);
+    return null;
+  }
+  let conta;
+  try { conta = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT); }
+  catch {
+    annotate('error', 'FIREBASE_SERVICE_ACCOUNT não é um JSON válido — cole o conteúdo inteiro do .json da conta de serviço.');
     process.exit(1);
   }
-  if (!process.env.FIREBASE_SERVICE_ACCOUNT) {
-    console.error('Falta o secret FIREBASE_SERVICE_ACCOUNT.');
+  try { webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE.trim()); }
+  catch (e) {
+    annotate('error', `Chave VAPID inválida (${e.message}). Confira VAPID_PRIVATE_KEY/VAPID_SUBJECT.`);
     process.exit(1);
   }
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
-  admin.initializeApp({
-    credential: admin.credential.cert(JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT)),
-  });
+  admin.initializeApp({ credential: admin.credential.cert(conta) });
   return admin.firestore();
 }
 
@@ -156,6 +169,7 @@ function plan(state, c, ds) {
 
 async function run() {
   const db = boot();
+  if (!db) return;
   const parents = await db.collection('push').listDocuments();
   console.log(`[push] ${parents.length} usuário(s) inscrito(s)`);
   let enviados = 0;
@@ -236,5 +250,9 @@ export { plan, localNow, notifCfg, pendingToday, habitDayStats };
 
 // só executa quando chamado direto (permite importar as funções em testes)
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  run().catch((e) => { console.error(e); process.exit(1); });
+  run().catch((e) => {
+    annotate('error', `Falha no robô de lembretes: ${e.message}`);
+    console.error(e);
+    process.exit(1);
+  });
 }

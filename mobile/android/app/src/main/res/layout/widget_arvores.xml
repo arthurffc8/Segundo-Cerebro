@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/arvore_root"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/widget_bg"
+    android:orientation="vertical"
+    android:padding="14dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="🌳  ÁRVORES DE TALENTO"
+        android:textColor="#F0F0F0"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/arvore_resumo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:text="@string/widget_carregando"
+        android:textColor="#F5D98C"
+        android:textSize="11sp" />
+
+    <ProgressBar
+        android:id="@+id/arvore_nivel_bar"
+        style="@style/WidgetProgress"
+        android:layout_marginTop="6dp" />
+
+    <LinearLayout
+        android:id="@+id/arvore_row_0"
+        style="@style/WidgetTreeRow">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView android:id="@+id/arvore_nome_0" style="@style/WidgetTreeName" />
+            <TextView android:id="@+id/arvore_valor_0" style="@style/WidgetTreeValue" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/arvore_bar_0"
+            style="@style/WidgetProgress"
+            android:layout_height="4dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/arvore_row_1"
+        style="@style/WidgetTreeRow">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView android:id="@+id/arvore_nome_1" style="@style/WidgetTreeName" />
+            <TextView android:id="@+id/arvore_valor_1" style="@style/WidgetTreeValue" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/arvore_bar_1"
+            style="@style/WidgetProgress"
+            android:layout_height="4dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/arvore_row_2"
+        style="@style/WidgetTreeRow">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView android:id="@+id/arvore_nome_2" style="@style/WidgetTreeName" />
+            <TextView android:id="@+id/arvore_valor_2" style="@style/WidgetTreeValue" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/arvore_bar_2"
+            style="@style/WidgetProgress"
+            android:layout_height="4dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/arvore_row_3"
+        style="@style/WidgetTreeRow">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView android:id="@+id/arvore_nome_3" style="@style/WidgetTreeName" />
+            <TextView android:id="@+id/arvore_valor_3" style="@style/WidgetTreeValue" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/arvore_bar_3"
+            style="@style/WidgetProgress"
+            android:layout_height="4dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/arvore_row_4"
+        style="@style/WidgetTreeRow">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView android:id="@+id/arvore_nome_4" style="@style/WidgetTreeName" />
+            <TextView android:id="@+id/arvore_valor_4" style="@style/WidgetTreeValue" />
+        </LinearLayout>
+
+        <ProgressBar
+            android:id="@+id/arvore_bar_4"
+            style="@style/WidgetProgress"
+            android:layout_height="4dp"
+            android:layout_marginTop="3dp" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/arvore_empty"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:maxLines="2"
+        android:text="@string/widget_carregando"
+        android:textColor="#9A9A9A"
+        android:textSize="11sp" />
+</LinearLayout>

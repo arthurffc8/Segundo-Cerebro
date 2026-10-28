@@ -8554,18 +8554,49 @@ function widgetPayload(st){
   const resumo=p.total
     ?p.tasks+' tarefa'+(p.tasks===1?'':'s')+' · '+p.habits+' hábito'+(p.habits===1?'':'s')+' pendentes'
     :'Tudo em dia hoje \u{1F451}';
-  return{resumo,itens,pendencias,vazio:itens.length?'':'Nada agendado pra hoje.'};
+  return{resumo,itens,pendencias,vazio:itens.length?'':'Nada agendado pra hoje.',tarefas:widgetTarefas(st,td),arvores:widgetArvores(st)};
+}
+// Barra em texto pro widget do Windows (Adaptive Cards não tem barra de progresso)
+function widgetBarra(pct,n=10){const k=Math.round(Math.max(0,Math.min(100,pct))/100*n);return'▰'.repeat(k)+'▱'.repeat(n-k);}
+// Widget "Tarefas": as de hoje (abertas primeiro, por hora) + quantas ficaram pra trás
+function widgetTarefas(st,td){
+  const all=st.tasks||[];
+  const hoje=all.filter(t=>t.date===td);
+  const feitas=hoje.filter(t=>t.done).length;
+  const atrasadas=all.filter(t=>t.date&&t.date<td&&!t.done).length;
+  const ord=t=>(t.done?'1':'0')+(t.time||'99:99');
+  const itens=[...hoje].sort((a,b)=>ord(a)<ord(b)?-1:1).map(t=>({titulo:t.title,hora:t.time||'',feita:!!t.done,alta:t.prio==='alta'}));
+  const total=hoje.length;
+  const pct=total?Math.round(feitas/total*100):0;
+  const resumo=total?`${feitas} de ${total} feita${total===1?'':'s'} · ${pct}%`:'Nenhuma tarefa pra hoje';
+  return{feitas,total,pct,barra:widgetBarra(pct),atrasadas,resumo,itens:itens.map(t=>({...t,marca:t.feita?'✓':'○'}))};
+}
+// Widget "Árvores de talento": nível do jogador + progresso de cada área
+function widgetArvores(st){
+  const xp=calcSkillXP(st);
+  const li=getLevelInfo(xp);
+  const pctNivel=li.nextXp?Math.round((xp-li.curXp)/(li.nextXp-li.curXp)*100):100;
+  const arvores=((st.skilltree&&st.skilltree.trees)||[]).map(t=>{
+    let nivel=0,max=0,txp=0,maximas=0;
+    (t.skills||[]).forEach(s=>{
+      const m=s.maxNivel||1,n=Math.min(s.nivel||0,m);
+      nivel+=n;max+=m;txp+=skillTotalXP(s);if(n>=m)maximas++;
+    });
+    return{emoji:t.emoji||'🌳',nome:t.nome||'Área',cor:treePalette(t).d,nivel,max,pct:max?Math.round(nivel/max*100):0,xp:txp,maximas,skills:(t.skills||[]).length,barra:widgetBarra(max?nivel/max*100:0)};
+  }).sort((a,b)=>b.xp-a.xp);
+  return{xp,lvl:li.lvl,classe:li.cls.nome,pctNivel,barra:widgetBarra(pctNivel),resumo:`Nv ${li.lvl} · ${li.cls.nome} · ${xp.toLocaleString('pt-BR')} XP`,arvores};
 }
 function useWidgetSync(st){
   useEffect(()=>{
-    if(isNative()||isTauri()||!('serviceWorker' in navigator))return;
+    if(isNative()){const id=setTimeout(()=>nativeWidget(st),1500);return()=>clearTimeout(id);}
+    if(isTauri()||!('serviceWorker' in navigator))return;
     const id=setTimeout(()=>{
       navigator.serviceWorker.ready.then(reg=>{
         if(reg.active)reg.active.postMessage({type:'SC_WIDGET_DATA',payload:widgetPayload(st)});
       }).catch(()=>{});
     },1500);
     return()=>clearTimeout(id);
-  },[st.tasks,st.eventos,st.habits,st.habitLog,st.pendencias]);
+  },[st.tasks,st.eventos,st.habits,st.habitLog,st.pendencias,st.skilltree]);
 }
 
 function initialTab(){

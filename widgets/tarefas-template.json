@@ -1,0 +1,71 @@
+{
+  "type": "AdaptiveCard",
+  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+  "version": "1.6",
+  "body": [
+    {
+      "type": "ColumnSet",
+      "columns": [
+        {
+          "type": "Column",
+          "width": "auto",
+          "items": [
+            { "type": "TextBlock", "text": "✅", "size": "Large", "spacing": "None" }
+          ]
+        },
+        {
+          "type": "Column",
+          "width": "stretch",
+          "items": [
+            { "type": "TextBlock", "text": "Tarefas de hoje", "weight": "Bolder", "size": "Medium", "spacing": "None", "wrap": true },
+            { "type": "TextBlock", "text": "${tarefas.resumo}", "isSubtle": true, "size": "Small", "spacing": "None", "wrap": true }
+          ]
+        }
+      ]
+    },
+    { "type": "TextBlock", "text": "${tarefas.barra}", "color": "Accent", "spacing": "Small", "$when": "${tarefas.total > 0}" },
+    {
+      "type": "TextBlock",
+      "text": "⚠ ${tarefas.atrasadas} atrasada(s)",
+      "color": "Attention",
+      "size": "Small",
+      "spacing": "Small",
+      "$when": "${tarefas.atrasadas > 0}"
+    },
+    {
+      "type": "Container",
+      "spacing": "Medium",
+      "items": [
+        {
+          "type": "Container",
+          "$data": "${tarefas.itens}",
+          "items": [
+            {
+              "type": "TextBlock",
+              "text": "${marca}  ${if(hora, hora + '  ', '')}${titulo}",
+              "size": "Small",
+              "isSubtle": "${feita}",
+              "wrap": true,
+              "spacing": "Small"
+            }
+          ]
+        },
+        {
+          "type": "TextBlock",
+          "text": "Nenhuma tarefa pra hoje.",
+          "size": "Small",
+          "isSubtle": true,
+          "wrap": true,
+          "$when": "${tarefas.total == 0}"
+        }
+      ]
+    }
+  ],
+  "actions": [
+    {
+      "type": "Action.Execute",
+      "title": "Abrir tarefas",
+      "verb": "abrir-agenda"
+    }
+  ]
+}

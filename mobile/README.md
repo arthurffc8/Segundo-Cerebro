@@ -41,7 +41,7 @@ node sync-www.mjs && npx cap sync android
 ## Instalar o widget
 
 Segure um espaço vazio na tela de início → **Widgets** → **Segundo Cérebro** →
-arraste o widget **Hoje** ou **Pendências**.
+arraste o widget **Hoje**, **Pendências**, **Tarefas** (tarefas de hoje + barra de progresso + atrasadas) ou **Árvores de talento** (nível do jogador + progresso de cada área).
 
 O widget lê um JSON guardado em `SharedPreferences`. Quem escreve é o app web:
 

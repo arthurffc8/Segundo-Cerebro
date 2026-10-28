@@ -95,6 +95,38 @@
       "screenshots": [
         { "src": "./icons/icon-512.png", "sizes": "512x512", "label": "Widget Pendências" }
       ]
+    },
+    {
+      "name": "Tarefas",
+      "short_name": "Tarefas",
+      "description": "Tarefas de hoje com o progresso do dia",
+      "tag": "sc-tarefas",
+      "template": "sc-tarefas",
+      "ms_ac_template": "./widgets/tarefas-template.json",
+      "data": "./widgets/hoje-data.json",
+      "type": "application/json",
+      "auth": false,
+      "update": 900,
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" }],
+      "screenshots": [
+        { "src": "./icons/icon-512.png", "sizes": "512x512", "label": "Widget Tarefas" }
+      ]
+    },
+    {
+      "name": "Árvores de talento",
+      "short_name": "Árvores de talento",
+      "description": "Nível e progresso das árvores de talento",
+      "tag": "sc-arvores",
+      "template": "sc-arvores",
+      "ms_ac_template": "./widgets/arvores-template.json",
+      "data": "./widgets/hoje-data.json",
+      "type": "application/json",
+      "auth": false,
+      "update": 900,
+      "icons": [{ "src": "./icons/icon-192.png", "sizes": "192x192", "type": "image/png" }],
+      "screenshots": [
+        { "src": "./icons/icon-512.png", "sizes": "512x512", "label": "Widget Árvores de talento" }
+      ]
     }
   ]
 }

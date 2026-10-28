@@ -1,4 +1,4 @@
-const CACHE_NAME = 'segundo-cerebro-v11';
+const CACHE_NAME = 'segundo-cerebro-v12';
 const WIDGET_DATA_URL = './widgets/hoje-data.json';
 const ASSETS_TO_CACHE = [
   './',
@@ -15,6 +15,8 @@ const ASSETS_TO_CACHE = [
   './icons/favicon-64.png',
   './widgets/hoje-template.json',
   './widgets/pendencias-template.json',
+  './widgets/tarefas-template.json',
+  './widgets/arvores-template.json',
   './widgets/hoje-data.json',
   './classes/1.jpg',
   './classes/2.jpg',
@@ -203,6 +205,10 @@ self.addEventListener('widgetresume', event => {
 self.addEventListener('widgetclick', event => {
   if (event.action === 'abrir-agenda' || event.action === 'abrir-pendencias') {
     event.waitUntil(self.clients.openWindow('./index.html?tab=tarefas'));
+    return;
+  }
+  if (event.action === 'abrir-skilltree') {
+    event.waitUntil(self.clients.openWindow('./index.html?tab=skilltree'));
     return;
   }
   event.waitUntil(renderWidget(event.widget));

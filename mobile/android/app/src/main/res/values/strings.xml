@@ -10,4 +10,8 @@
     <string name="widget_sem_dados">Nada carregado ainda.</string>
     <string name="widget_mais">+%1$d itens</string>
     <string name="widget_pendencias_vazio">Nenhuma pendência aberta.</string>
+    <string name="widget_tarefas_desc">Tarefas de hoje com o progresso do dia</string>
+    <string name="widget_tarefas_vazio">Nenhuma tarefa pra hoje.</string>
+    <string name="widget_arvores_desc">Nível e progresso das árvores de talento</string>
+    <string name="widget_arvores_vazio">Nenhuma árvore criada ainda.</string>
 </resources>
