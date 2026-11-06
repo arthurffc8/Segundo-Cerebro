@@ -492,16 +492,19 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .skill-node{position:relative;width:88px;display:flex;flex-direction:column;align-items:center;cursor:pointer;flex-shrink:0;z-index:1;--sk-beat:3.6s;--ease-sk:cubic-bezier(.4,0,.2,1);transition:transform .3s var(--ease-sk),opacity .3s var(--ease-sk),filter .3s var(--ease-sk);}
 .skill-node:hover{transform:translateY(-3px);}
 .skill-node:active{transform:translateY(-1px) scale(.98);}
-/* palco do medalhão: centraliza aro, halo, órbitas e raios; reserva altura de 64px pra alinhar a prateleira */
-.sk-orb{position:relative;width:var(--sk-size,48px);height:var(--sk-size,48px);margin-top:calc(64px - var(--sk-size,48px));isolation:isolate;transition:width .4s var(--ease-sk),height .4s var(--ease-sk),margin .4s var(--ease-sk);}
+/* palco do medalhão: centraliza aro, halo, órbitas e raios; reserva altura de 70px pra alinhar a prateleira */
+.sk-orb{position:relative;width:var(--sk-size,48px);height:var(--sk-size,48px);margin-top:calc(70px - var(--sk-size,48px));isolation:isolate;transition:width .4s var(--ease-sk),height .4s var(--ease-sk),margin .4s var(--ease-sk);}
 /* aro = trilho apagado + arco na cor da área, proporcional ao nível */
 /* forma da faixa (clip-path) + brilho via drop-shadow no invólucro, que respeita o recorte */
 .sk-shape{position:relative;width:100%;height:100%;z-index:1;filter:drop-shadow(0 0 var(--sk-bloom,0px) var(--sk-glow,transparent));transition:filter .4s var(--ease-sk);}
-.skill-frame{position:relative;box-sizing:border-box;width:100%;height:100%;border-radius:50%;padding:3px;z-index:1;clip-path:var(--sk-shape,circle(50%));background:conic-gradient(var(--sk-c) 0 var(--sk-p,0deg),rgba(148,163,184,.13) var(--sk-p,0deg) 360deg);transition:clip-path .4s var(--ease-sk);}
-.skill-well{position:relative;width:100%;height:100%;border-radius:50%;clip-path:var(--sk-shape,circle(50%));overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--sk-well,#0d131d),#0b1019;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -6px 12px rgba(0,0,0,.35);}
+.skill-frame{position:relative;box-sizing:border-box;width:100%;height:100%;border-radius:50%;padding:var(--sk-thick,3px);z-index:1;clip-path:var(--sk-shape,circle(50%));background:conic-gradient(var(--sk-c) 0 var(--sk-p,0deg),rgba(148,163,184,.13) var(--sk-p,0deg) 360deg);transition:clip-path .7s var(--ease-sk),padding .4s var(--ease-sk);}
+.skill-well{position:relative;width:100%;height:100%;border-radius:50%;clip-path:var(--sk-shape,circle(50%));transition:clip-path .7s var(--ease-sk);overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--sk-well,#0d131d),#0b1019;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -6px 12px rgba(0,0,0,.35);}
 .skill-core{position:relative;z-index:3;font-size:1.4rem;line-height:1;display:flex;align-items:center;justify-content:center;transition:opacity .4s var(--ease-sk),filter .4s var(--ease-sk);}
-.sk-s0 .skill-core{font-size:1.2rem;}
-.sk-s5 .skill-core{font-size:1.55rem;filter:drop-shadow(0 1px 1px rgba(90,60,10,.5));}
+.sk-s0 .skill-core{font-size:1.15rem;}
+.sk-s1 .skill-core{font-size:1.28rem;}
+.sk-s3 .skill-core{font-size:1.45rem;}
+.sk-s4 .skill-core{font-size:1.52rem;}
+.sk-s5 .skill-core{font-size:1.62rem;filter:drop-shadow(0 1px 1px rgba(90,60,10,.5));}
 .skill-core .sk-roman{font-family:var(--serif);font-size:.82rem;font-weight:700;color:var(--sk-c);}
 .sk-s5 .skill-core .sk-roman{color:#5a3d0c;}
 @keyframes sk-spin{to{transform:rotate(360deg);}}
@@ -536,6 +539,12 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-s5 .sk-halo{border-color:rgba(247,210,104,.5);box-shadow:0 0 10px rgba(247,210,104,.22);}
 .sk-maxcrown{position:absolute;left:50%;top:-14px;width:22px;height:16px;margin-left:-11px;z-index:6;pointer-events:none;animation:sk-crownfloat var(--sk-beat) var(--ease-sk) infinite;}
 @keyframes sk-crownfloat{0%,100%{transform:translateY(0);}50%{transform:translateY(-2px);}}
+/* subiu de faixa: dois anéis de luz se expandem e somem + clarão no miolo (enquanto a forma morfa) */
+.sk-burst{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:5;opacity:0;border:2px solid var(--sk-hot);box-shadow:0 0 14px var(--sk-glow),inset 0 0 10px var(--sk-glow);animation:sk-burst .85s var(--ease-sk) forwards;}
+.sk-burst2{border-width:1px;animation-delay:.16s;}
+@keyframes sk-burst{0%{opacity:1;transform:scale(.75);}100%{opacity:0;transform:scale(1.95);}}
+.sk-flash{position:absolute;inset:0;z-index:4;pointer-events:none;opacity:0;background:radial-gradient(circle closest-side,rgba(255,255,255,.85),var(--sk-hot) 45%,transparent 100%);animation:sk-flash .7s var(--ease-sk) forwards;}
+@keyframes sk-flash{0%{opacity:.9;}100%{opacity:0;}}
 /* travada: só contorno tracejado, miolo vazio */
 .st-locked .skill-frame{background:none;padding:0;border:1.5px dashed rgba(154,172,196,.35);}
 .st-locked .sk-shape{filter:none;animation:none;}
@@ -5625,13 +5634,24 @@ function skillReqListLabel(skill,tree){
 }
 
 // Formato de cada faixa (clip-path do aro e do miolo): a silhueta já conta o nível de longe.
+// Todas têm 48 vértices (múltiplo de 4, 6, 12, 16 e 24 lados), começando no topo em sentido horário:
+// assim o navegador MORFA uma forma na outra quando a faixa muda.
+const _SK_N=48;
+function _skPoly(pts){ // espalha os 48 pontos igualmente pelos lados → os cantos continuam exatos
+  const per=_SK_N/pts.length,out=[];
+  pts.forEach((a,i)=>{const b=pts[(i+1)%pts.length];for(let k=0;k<per;k++){const t=k/per;out.push(`${(a[0]+(b[0]-a[0])*t).toFixed(1)}% ${(a[1]+(b[1]-a[1])*t).toFixed(1)}%`);}});
+  return`polygon(${out.join(',')})`;
+}
+function _skStar(n,inner){ // n pontas (uma no topo), vales em inner × raio
+  return Array.from({length:n*2},(_,i)=>{const r=i%2?inner:1,a=-Math.PI/2+i*Math.PI/n;return[50+50*r*Math.cos(a),50+50*r*Math.sin(a)];});
+}
 const SKILL_SHAPES=[
-  'circle(50%)',                                                         // 0 adormecido · semente
-  'polygon(50% 0,100% 50%,50% 100%,0 50%)',                             // 1 faísca · losango (gema bruta)
-  'polygon(50% 0,93% 25%,93% 75%,50% 100%,7% 75%,7% 25%)',               // 2 runas · hexágono
-  'polygon(50% 0,65.5% 23.2%,93.3% 25%,81% 50%,93.3% 75%,65.5% 76.8%,50% 100%,34.5% 76.8%,6.7% 75%,19% 50%,6.7% 25%,34.5% 23.2%)', // 3 núcleo · estrela de 6 pontas (o hexágono ganha pontas)
-  'polygon(50% 0,63.4% 17.7%,85.4% 14.6%,82.3% 36.6%,100% 50%,82.3% 63.4%,85.4% 85.4%,63.4% 82.3%,50% 100%,36.6% 82.3%,14.6% 85.4%,17.7% 63.4%,0 50%,17.7% 36.6%,14.6% 14.6%,36.6% 17.7%)', // 4 ascensão · estrela de 8 pontas
-  'polygon(50.0% 0.0%,61.5% 7.0%,75.0% 6.7%,81.5% 18.5%,93.3% 25.0%,93.0% 38.5%,100.0% 50.0%,93.0% 61.5%,93.3% 75.0%,81.5% 81.5%,75.0% 93.3%,61.5% 93.0%,50.0% 100.0%,38.5% 93.0%,25.0% 93.3%,18.5% 81.5%,6.7% 75.0%,7.0% 61.5%,0.0% 50.0%,7.0% 38.5%,6.7% 25.0%,18.5% 18.5%,25.0% 6.7%,38.5% 7.0%)', // 5 maestria · selo solar
+  _skPoly(Array.from({length:_SK_N},(_,i)=>{const a=-Math.PI/2+i*2*Math.PI/_SK_N;return[50+50*Math.cos(a),50+50*Math.sin(a)];})), // 0 adormecido · semente (círculo)
+  _skPoly([[50,0],[100,50],[50,100],[0,50]]),                           // 1 faísca · losango (gema bruta)
+  _skPoly([[50,0],[93,25],[93,75],[50,100],[7,75],[7,25]]),             // 2 runas · hexágono
+  _skPoly(_skStar(6,.62)),                                              // 3 núcleo · estrela de 6 pontas (o hexágono ganha pontas)
+  _skPoly(_skStar(8,.7)),                                               // 4 ascensão · estrela de 8 pontas
+  _skPoly(_skStar(12,.89)),                                             // 5 maestria · selo solar
 ];
 function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen,onLevel}){
   const max=skill.maxNivel||1;
@@ -5649,10 +5669,10 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   //  0 Adormecido . CÍRCULO pequeno e cinza, emoji em silhueta, parado
   //  1 Faísca ..... LOSANGO, arco acende + faísca pulsando no vértice de cima
   //  2 Runas ...... HEXÁGONO, miolo tinge + anel de runas girando por dentro
-  //  3 Núcleo ..... OCTÓGONO, miolo cheio + luz central respirando + brilho pulsando
-  //  4 Ascensão ... ESCUDO + halo externo com cometa girando + 3 partículas em órbita
+  //  3 Núcleo ..... ESTRELA DE 6, miolo cheio + luz central respirando + brilho pulsando
+  //  4 Ascensão ... ESTRELA DE 8 + halo externo com cometa girando + 3 partículas em órbita
   //  5 Maestria ... SELO SOLAR de OURO: aro metálico girando, raios, reflexo, 2 órbitas, coroa
-  //  O tamanho também cresce a cada faixa (48 → 64px).
+  //  Hierarquia: tamanho (46 → 70px) e espessura do aro (2 → 4.5px) crescem a cada faixa.
   const pct=max>0?Math.min(1,lv/max):0;
   const stage=locked||pct<=0?0:pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
   const accent=(locked||stage===0)?'#4A5568':stage>=5?SKILL_GOLD:d;
@@ -5667,9 +5687,18 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
     :`radial-gradient(circle at 50% 30%, ${_rgba(_mix(accent,'#FFFFFF',.25),aHot)} 0%, ${_rgba(accent,aMid)} 50%, #0a0f18 100%)`;
   const glowK=locked?0:[0,.2,.3,.45,.6,.75][stage];
 
+  // subiu de faixa → explosão de luz (só na mudança; abrir a tela não dispara)
+  const prevStage=useRef(stage);
+  const[burst,setBurst]=useState(0);
+  useEffect(()=>{
+    if(stage>prevStage.current&&!still)setBurst(b=>b+1);
+    prevStage.current=stage;
+  },[stage]);
+
   const skVars={
     '--sk-c':accent,'--sk-hot':hot,
-    '--sk-size':[48,56,56,60,62,64][stage]+'px',
+    '--sk-size':[46,52,57,61,65,70][stage]+'px',
+    '--sk-thick':[2,2.5,3,3.5,4,4.5][stage]+'px',
     '--sk-shape':SKILL_SHAPES[stage],
     '--sk-p':(locked?0:pct*360).toFixed(1)+'deg',
     '--sk-well':wellBg,
@@ -5699,6 +5728,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
       {stage>=5&&<div className="sk-orbit sk-o2">{Array.from({length:2},(_,i)=><i key={i}style={{'--a':`${i*180+60}deg`}}/>)}</div>}
       <div className="sk-shape"><div className="skill-frame">
         <div className="skill-well">
+          {burst>0&&<div key={'f'+burst} className="sk-flash"/>}
           {stage>=3&&<div className="sk-pulse"/>}
           {stage>=2&&stage<5&&<svg className="sk-runes" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41"/></svg>}
           {!locked&&<div className="skill-core"style={{opacity:emojiOp,filter:emojiFilt}}>
@@ -5706,6 +5736,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
           </div>}
         </div>
       </div>{stage===1&&<i className="sk-spark"/>}</div>
+      {burst>0&&<React.Fragment key={'b'+burst}><div className="sk-burst"/><div className="sk-burst sk-burst2"/></React.Fragment>}
       {maxed&&<div className="sk-maxcrown"><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
       {locked&&<div className="sk-lock">🔒</div>}
     </div>
