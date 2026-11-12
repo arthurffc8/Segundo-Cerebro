@@ -507,6 +507,23 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .sk-s5 .skill-core{font-size:1.62rem;filter:drop-shadow(0 1px 1px rgba(90,60,10,.5));}
 .skill-core .sk-roman{font-family:var(--serif);font-size:.82rem;font-weight:700;color:var(--sk-c);}
 .sk-s5 .skill-core .sk-roman{color:#5a3d0c;}
+.sk-center-mark{position:absolute;left:50%;top:50%;z-index:2;pointer-events:none;transform:translate(-50%,-50%);}
+.sk-mark-point{z-index:4;width:5px;height:5px;border-radius:50%;background:var(--sk-hot);box-shadow:0 0 5px 2px var(--sk-c),0 0 12px var(--sk-c);}
+.sk-mark-tripartite{width:72%;height:72%;filter:drop-shadow(0 1px 2px rgba(0,0,0,.9));}
+.sk-mark-tripartite circle{fill:rgba(5,12,18,.48);stroke:var(--sk-hot);stroke-width:3;}
+.sk-mark-tripartite path{fill:none;stroke:#071018;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;}
+.sk-mark-tripartite path+path{stroke:rgba(255,255,255,.3);stroke-width:1.2;}
+.sk-mark-sphere{width:72%;height:72%;border-radius:50%;background:radial-gradient(circle at 34% 28%,#fff 0%,var(--sk-hot) 13%,var(--sk-c) 43%,rgba(5,12,18,.2) 76%);box-shadow:0 0 8px var(--sk-c),inset -3px -4px 8px rgba(0,0,0,.55);animation:sk-sphere-pulse 2.8s ease-in-out infinite;}
+@keyframes sk-sphere-pulse{0%,100%{transform:translate(-50%,-50%) scale(.94);filter:brightness(.85);}50%{transform:translate(-50%,-50%) scale(1.06);filter:brightness(1.25);}}
+.sk-mark-explosion{width:94%;height:94%;background:radial-gradient(circle,#fff 0 4%,var(--sk-hot) 7%,var(--sk-c) 17%,transparent 68%);filter:drop-shadow(0 0 7px var(--sk-c));animation:sk-explosion 1.8s cubic-bezier(.2,.7,.3,1) infinite;}
+.sk-mark-explosion::before{content:'';position:absolute;inset:0;background:conic-gradient(from 0deg,transparent 0 8deg,var(--sk-hot) 9deg 11deg,transparent 12deg 38deg,var(--sk-hot) 39deg 41deg,transparent 42deg 82deg,var(--sk-hot) 83deg 85deg,transparent 86deg 128deg,var(--sk-hot) 129deg 131deg,transparent 132deg 178deg,var(--sk-hot) 179deg 181deg,transparent 182deg 218deg,var(--sk-hot) 219deg 221deg,transparent 222deg 268deg,var(--sk-hot) 269deg 271deg,transparent 272deg 308deg,var(--sk-hot) 309deg 311deg,transparent 312deg);-webkit-mask:radial-gradient(circle,transparent 0 28%,#000 38% 72%,transparent 82%);mask:radial-gradient(circle,transparent 0 28%,#000 38% 72%,transparent 82%);}
+@keyframes sk-explosion{0%,100%{transform:translate(-50%,-50%) scale(.78);opacity:.62;}48%{transform:translate(-50%,-50%) scale(1.08);opacity:1;}60%{transform:translate(-50%,-50%) scale(.96);opacity:.9;}}
+.sk-mark-heraldic{width:88%;height:88%;filter:drop-shadow(0 0 3px rgba(247,210,104,.65));}
+.sk-mark-heraldic .sk-heraldic-fill{fill:rgba(103,69,11,.48);stroke:#f6d77e;stroke-width:2.4;}
+.sk-mark-heraldic .sk-heraldic-line{fill:none;stroke:#fff0bd;stroke-width:1.25;stroke-linecap:round;stroke-linejoin:round;}
+.sk-mark-heraldic .sk-heraldic-detail{fill:none;stroke:#d9a83e;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round;}
+.sk-edge-dots{position:absolute;inset:0;width:100%;height:100%;z-index:4;overflow:visible;pointer-events:none;}
+.sk-edge-dots circle{fill:var(--sk-hot);stroke:var(--sk-c);stroke-width:2;filter:drop-shadow(0 0 3px var(--sk-glow));}
 @keyframes sk-spin{to{transform:rotate(360deg);}}
 /* 1 : faísca pulsando no vértice de cima do losango */
 .sk-spark{position:absolute;left:50%;top:-3px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;z-index:3;pointer-events:none;background:var(--sk-hot);box-shadow:0 0 7px 2px var(--sk-glow);animation:sk-tippulse 1.8s var(--ease-sk) infinite;}
@@ -1644,11 +1661,11 @@ function treePalette(tree){
   return{d:c,s:c};
 }
 // Parâmetros visuais editáveis pelo usuário (painel de personalização)
-const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false,vida:true,ramoFundo:1};
+const DEF_STYLE={preset:'templo',glow:1,auraStep:5,neon:0.9,moldura:true,entalhes:true,louros:true,fundoTema:true,fundoIntensidade:1,semEmoji:false,vida:true,ramoFundo:1,somenteRamoFundo:false};
 const SKILL_STYLE_PRESETS={
-  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false,vida:true, ramoFundo:1},
-  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true,vida:false,ramoFundo:1},
-  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false,vida:true, ramoFundo:0.5},
+  templo:{glow:1,   auraStep:5,neon:0.9,moldura:true, entalhes:true, louros:true, fundoTema:true, fundoIntensidade:1,   semEmoji:false,vida:true, ramoFundo:1,somenteRamoFundo:false},
+  limpo: {glow:0.55,auraStep:3,neon:0.25,moldura:false,entalhes:false,louros:false,fundoTema:false,fundoIntensidade:0.25,semEmoji:true,vida:false,ramoFundo:1,somenteRamoFundo:false},
+  neon:  {glow:1.6, auraStep:7,neon:1.9,moldura:true, entalhes:false,louros:true, fundoTema:true, fundoIntensidade:1.4,  semEmoji:false,vida:true, ramoFundo:0.5,somenteRamoFundo:false},
 };
 function readStyle(st){return{...DEF_STYLE,...((st&&st.skilltree&&st.skilltree.style)||{})};}
 // alpha 0..1 → hex 2 dígitos
@@ -5697,6 +5714,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
   const stage=locked||pct<=0?0:pct<=0.2?1:pct<=0.4?2:pct<=0.6?3:pct<=0.8?4:5;
   const ringCount=stage===2?1:stage===3?2:stage===4?2:0;
   const ringShape=ringCount?(stage===2?SKILL_HEX_POINTS:stage===3?_skStar(6,.62):_skStar(8,.62)).map(p=>p.join(',')).join(' '):'';
+  const edgeDots=stage===2?[[93,25],[7,75]]:stage===3?[[50,0],[93.3,75],[6.7,75]]:[];
   const accent=(locked||stage===0)?'#4A5568':stage>=5?SKILL_GOLD:d;
   const hot=_mix(accent,'#FFFFFF',.55);
   const maxHi=_mix(SKILL_GOLD,'#FFFFFF',0.45);
@@ -5719,7 +5737,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
 
   const skVars={
     '--sk-c':accent,'--sk-hot':hot,
-    '--sk-size':[46,52,57,61,65,70][stage]+'px',
+    '--sk-size':[46,49,57,64,65,70][stage]+'px',
     '--sk-thick':[2,2.5,3,3.5,4,4.5][stage]+'px',
     '--sk-shape':SKILL_SHAPES[stage],
     '--sk-p':(locked||stage===0?0:360).toFixed(1)+'deg',
@@ -5752,6 +5770,11 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
         <div className="skill-well">
           {burst>0&&<div key={'f'+burst} className="sk-flash"/>}
           {stage>=3&&<div className="sk-pulse"/>}
+          {stage===1&&<span className="sk-center-mark sk-mark-point"/>}
+          {stage===2&&<svg className="sk-center-mark sk-mark-tripartite"viewBox="0 0 100 100"aria-hidden="true"><circle cx="50"cy="50"r="42"/><path d="M50 11v78M16 31l68 39M84 31 16 70"/><path d="M50 11v78M16 31l68 39M84 31 16 70"/></svg>}
+          {stage===3&&<span className="sk-center-mark sk-mark-sphere"/>}
+          {stage===4&&<span className="sk-center-mark sk-mark-explosion"/>}
+          {stage===5&&<svg className="sk-center-mark sk-mark-heraldic"viewBox="0 0 100 100"aria-hidden="true"><path className="sk-heraldic-fill" d="M50 7 82 19v27c0 22-13 37-32 48C31 83 18 68 18 46V19Z"/><path className="sk-heraldic-line" d="M50 14 75 23v23c0 17-9 29-25 39-16-10-25-22-25-39V23Z"/><path className="sk-heraldic-detail" d="M31 38c6-11 13-13 19-4 6-9 13-7 19 4-7 0-11 4-12 10 8 0 12 4 13 10-8-3-14-1-20 8-6-9-12-11-20-8 1-6 5-10 13-10-1-6-5-10-12-10Z"/><path className="sk-heraldic-line" d="M50 28v8m-11 32 11-7 11 7M34 22l-7-8m39 8 7-8"/></svg>}
           {ringCount>0&&<svg className="sk-inner-rings"viewBox="0 0 100 100"aria-hidden="true">{Array.from({length:ringCount},(_,i)=><polygon key={i}points={ringShape}transform={`translate(50 50) scale(${1-(i+1)*.14}) translate(-50 -50)`}/>)}</svg>}
           {stage===4&&<svg className="sk-runes" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="41"/></svg>}
           {!locked&&<div className="skill-core"style={{opacity:emojiOp,filter:emojiFilt}}>
@@ -5759,6 +5782,7 @@ function SkillNode({skill,pal,selected,stl,onClick,practiced,lock,related,onOpen
           </div>}
         </div>
       </div>{stage===1&&<i className="sk-spark"/>}</div>
+      {edgeDots.length>0&&<svg className="sk-edge-dots"viewBox="0 0 100 100"aria-hidden="true">{edgeDots.map(([x,y],i)=><circle key={i}cx={x}cy={y}r="5"/>)}</svg>}
       {burst>0&&<React.Fragment key={'b'+burst}><div className="sk-burst"/><div className="sk-burst sk-burst2"/></React.Fragment>}
       {maxed&&<div className="sk-maxcrown"><CrownIcon color={maxHi}deep={s}variant={crownVariant(skill.tier)}/></div>}
       {locked&&<div className="sk-lock">🔒</div>}
@@ -6041,6 +6065,7 @@ function SkillStylePanel({stl,setStyle,applyPreset}){
     {toggle('Entalhes','entalhes')}
     {toggle('Coroa de louros (no máx.)','louros')}
     {toggle('Fundo temático','fundoTema')}
+    {toggle('Somente fundo das subcategorias','somenteRamoFundo')}
   </div>;
 }
 
@@ -6219,7 +6244,7 @@ function SkillTreeSection({st,setSt,setTab}){
   const fi=stl.fundoIntensidade;
   const _bgSvg=`<svg xmlns='http://www.w3.org/2000/svg' width='100' height='100'><text x='50' y='66' font-size='46' text-anchor='middle' opacity='0.05'>${tree.emoji}</text></svg>`;
   const _washes=`radial-gradient(ellipse 130% 55% at 50% -8%, ${pal.d}${_ah(0.13*fi)}, transparent 62%), radial-gradient(ellipse at 50% 112%, ${pal.s}${_ah(0.16*fi)}, transparent 55%)`;
-  const treeBg=_washes+(stl.fundoTema?`, url("data:image/svg+xml,${encodeURIComponent(_bgSvg)}")`:'');
+  const treeBg=stl.somenteRamoFundo?'none':_washes+(stl.fundoTema?`, url("data:image/svg+xml,${encodeURIComponent(_bgSvg)}")`:'');
   // borda neon dos ramos (personalizável)
   const neon=stl.neon!=null?stl.neon:1;
   // fundo da coluna (subcategoria): 0 = vidro (deixa o fundo do app aparecer),
