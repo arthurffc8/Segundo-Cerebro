@@ -1077,6 +1077,140 @@ body::after {
 .theme-datarabbit .btn-ac{background:linear-gradient(135deg,#f59e0b,#d97706);color:#1a0f2e;box-shadow:0 0 18px rgba(245,158,11,.35);}
 .theme-datarabbit .score-n,.theme-datarabbit .mval{text-shadow:0 0 16px rgba(245,158,11,.45);}
 .theme-datarabbit .sch-t{color:#c4b5e0;}
+/* Estrutura do aplicativo */
+.workspace {
+  --ui-font:'DM Sans',system-ui,sans-serif;
+  --ui-radius:16px;
+  --ui-gutter:clamp(16px,4vw,56px);
+  --ui-muted:color-mix(in srgb,var(--tx) 70%,var(--bg));
+  min-height:100vh;
+}
+body { background:var(--bg); }
+body::before,body::after { display:none; }
+.workspace :focus-visible { outline:2px solid var(--ac); outline-offset:3px; }
+.workspace .navbar {
+  background:color-mix(in srgb,var(--bg) 93%,transparent);
+  border-bottom:1px solid var(--bd);
+  box-shadow:none;
+}
+.workspace .nav-header,.workspace .nav-tabs {
+  width:100%;max-width:1392px;margin:auto;padding:12px var(--ui-gutter);
+}
+.workspace .nav-header { border:0;gap:12px; }
+.workspace .nav-tabs { padding-top:0;padding-bottom:8px;gap:4px; }
+.workspace .tab-btn,.workspace.layout-sidebar .sb-btn {
+  background:transparent;border:1px solid transparent;border-radius:9px;
+  font-family:var(--ui-font);font-size:.87rem;color:var(--ui-muted);box-shadow:none;
+  min-height:40px;transform:none;
+}
+.workspace .tab-btn:hover,.workspace.layout-sidebar .sb-btn:hover { background:var(--card2);color:var(--tx); }
+.workspace .tab-btn.on,.workspace.layout-sidebar .sb-btn.on {
+  background:color-mix(in srgb,var(--ac) 11%,var(--card));
+  border-color:color-mix(in srgb,var(--ac) 32%,var(--bd));color:var(--tx);
+}
+.workspace .tab-btn.on::after,.workspace.layout-sidebar .sb-btn.on::before { display:none; }
+.workspace .tab-btn>span:first-child,.workspace .sb-emoji { filter:none;opacity:1;transform:none; }
+.brand { display:flex;align-items:center;gap:10px;min-width:0;font-family:var(--ui-font); }
+.brand-mark {
+  display:grid;place-items:center;width:36px;height:36px;flex:none;
+  background:var(--card2);border:1px solid var(--bd);border-radius:11px;font-size:1.15rem;
+}
+.brand-name { display:block;font-size:.98rem;font-weight:700;line-height:1.15; }
+.brand-user { display:block;color:var(--ui-muted);font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:3px; }
+.brand-copy { min-width:0; }
+.workspace.layout-sidebar .sidebar {
+  width:218px;padding:18px 12px;background:var(--bg);
+}
+.workspace.layout-sidebar .sidebar-top { padding:0 4px 18px;margin-bottom:12px;width:100%; }
+.workspace.layout-sidebar .main-wrap { margin-left:218px; }
+.workspace .workspace-main { min-width:0; }
+.workspace .workspace-main > .sec {
+  width:100%;max-width:1392px;margin:0 auto;padding:clamp(22px,4vw,52px) var(--ui-gutter) 48px;
+}
+.workspace .workspace-main > .sec .sch { gap:12px;flex-wrap:wrap; }
+.workspace .sch-t,.workspace .modal-h {
+  font-family:var(--ui-font);text-transform:none;letter-spacing:-.035em;font-weight:700;
+}
+.workspace .sch-t { font-size:clamp(1.3rem,2.5vw,1.85rem);line-height:1.15; }
+.workspace .card,.workspace .modal,.workspace .hab-row,.workspace .tsk-row {
+  background:var(--card);border-color:var(--bd);border-radius:var(--ui-radius);
+  box-shadow:0 12px 28px rgb(0 0 0 / .12);
+}
+.workspace .btn { min-height:36px;box-shadow:none;border-radius:9px; }
+.workspace .btn-ac,.workspace .btn-ac:hover {
+  background:var(--ac);color:#080808;box-shadow:none;
+}
+.workspace input,.workspace select,.workspace textarea { box-shadow:none; }
+.workspace .stabs { gap:6px;justify-content:flex-start; }
+.workspace .stabs > button { min-height:36px;box-shadow:none; }
+.workspace .overlay { padding:clamp(12px,3vw,32px); }
+.workspace .modal { padding:clamp(18px,4vw,28px); }
+.workspace .nav-tabs,.workspace .stabs { scrollbar-width:thin; }
+
+/* Hoje */
+.today-hero {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:24px;
+  position:relative;isolation:isolate;overflow:hidden;
+  background:linear-gradient(120deg,var(--card),color-mix(in srgb,var(--ac) 14%,var(--card)));
+  border:1px solid var(--bd);border-radius:24px;padding:clamp(22px,4vw,54px);
+  font-family:var(--ui-font);margin-bottom:20px;
+}
+.today-hero::before {
+  content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+  background-image:linear-gradient(var(--bd) 1px,transparent 1px),linear-gradient(90deg,var(--bd) 1px,transparent 1px);
+  background-size:28px 28px;mask-image:linear-gradient(105deg,transparent 42%,#000);
+}
+.today-date { color:var(--ui-muted);font-size:.84rem;font-weight:700; }
+.today-title {
+  font-family:Georgia,serif;font-size:clamp(3.75rem,8vw,7.5rem);font-weight:400;
+  letter-spacing:-.075em;line-height:.95;margin:10px 0 18px;
+}
+.today-greeting { color:var(--ui-muted);font-size:1.08rem;overflow-wrap:anywhere;margin-bottom:20px; }
+.today-score {
+  --score-size:clamp(126px,22vw,238px);
+  display:grid;place-items:center;width:var(--score-size);aspect-ratio:1;
+  border-radius:50%;border:1px solid var(--bd3);padding:9px;
+  background:conic-gradient(var(--ac) var(--score-progress),var(--bd) 0);
+  box-shadow:0 0 0 9px color-mix(in srgb,var(--ac) 9%,transparent);
+}
+.today-score-center {
+  display:grid;align-content:center;justify-items:center;width:100%;height:100%;border-radius:50%;
+  background:var(--card);padding:6px;text-align:center;
+}
+.today-score strong { font-variant-numeric:tabular-nums;font-size:clamp(1.5rem,5vw,4rem);line-height:1;max-width:100%;overflow-wrap:anywhere; }
+.today-score span { color:var(--ui-muted);font-size:.76rem;margin-top:4px; }
+.today-grid { display:grid;grid-template-columns:minmax(0,1.65fr) minmax(0,1fr);gap:20px;align-items:start; }
+.today-rail { display:grid;gap:14px;min-width:0; }
+.workspace .today-panel { padding:clamp(14px,2.5vw,24px);min-width:0; }
+.today-panel .sch { margin-bottom:16px; }
+.today-panel .sch-t { margin:0;font-size:1.25rem; }
+.today-count { color:var(--ui-muted);font-family:var(--fm);font-size:.77rem;white-space:nowrap; }
+.workspace .today-panel :is(.tsk-row,.hab-row) { background:var(--card2);box-shadow:none;border-radius:11px;margin-top:9px;margin-bottom:0; }
+.today-panel :is(.tsk-row,.hab-row) { overflow-wrap:anywhere; }
+.today-panel .chk { margin-top:2px; }
+.today-empty { padding:15px 0 4px;color:var(--ui-muted);font-size:.9rem;line-height:1.5; }
+.today-quote { border-left:2px solid var(--ac);padding:8px 14px;color:var(--ui-muted);font:italic 1.05rem/1.55 Georgia,serif;overflow-wrap:anywhere; }
+@media(max-width:960px) {
+  .today-grid { grid-template-columns:minmax(0,1fr); }
+}
+@media(max-width:760px) {
+  .workspace.layout-sidebar .sidebar { width:58px;padding:12px 5px; }
+  .workspace.layout-sidebar .main-wrap { margin-left:58px; }
+  .workspace.layout-sidebar .sb-nav { align-items:stretch; }
+  .workspace.layout-sidebar .sb-btn { padding-left:4px;padding-right:4px; }
+}
+@media(max-width:520px) {
+  .today-hero { gap:13px;padding:18px;border-radius:16px; }
+  .today-title { font-size:clamp(2.75rem,11vw,3.75rem); }
+  .today-score { --score-size:clamp(76px,23vw,114px);padding:5px;box-shadow:none; }
+  .today-date,.today-score span { font-size:.7rem; }
+  .today-greeting { font-size:.92rem;margin-bottom:13px; }
+  .today-grid { gap:14px; }
+  .layout-sidebar .today-hero { grid-template-columns:minmax(0,1fr); }
+}
+@media(prefers-reduced-motion:reduce) {
+  .workspace .sec { animation:none; }
+}
 </style>
 </head>
 <body>
@@ -1212,6 +1346,7 @@ function aiParseArray(raw){
 // ── FIREBASE SYNC ────────────────────────────────────────────────────────────
 
 const FB_CFG_KEY='sc-fb-cfg';
+const LOCAL_STATE_KEY='sc-v3';
 let _fbApp=null,_fbAuth=null,_fbDb=null;
 
 function fbLoadCfg(){try{const s=localStorage.getItem(FB_CFG_KEY);return s?JSON.parse(s):null;}catch{return null;}}
@@ -1220,11 +1355,9 @@ function fbClearCfg(){localStorage.removeItem(FB_CFG_KEY);}
 
 function fbInit(cfg){
   try{
-    if(_fbApp){
-      // Already initialized — check if same config
-      return true;
-    }
-    _fbApp=firebase.initializeApp(cfg,'cerebro');
+    const primary=firebase.apps.find(app=>app.name==='cerebro');
+    const name=primary&&primary.options.projectId!==cfg.projectId?'cerebro-'+cfg.projectId:'cerebro';
+    _fbApp=firebase.apps.find(app=>app.name===name)||firebase.initializeApp(cfg,name);
     _fbAuth=firebase.auth(_fbApp);
     _fbDb=firebase.firestore(_fbApp);
     return true;
@@ -1253,20 +1386,42 @@ function fbOnAuth(cb){
   return _fbAuth.onAuthStateChanged(cb);
 }
 
-async function fbPush(uid,state){
-  if(!_fbDb)return;
-  await _fbDb.collection('cerebro').doc(uid).set({
-    data:JSON.stringify(state),
-    updatedAt:firebase.firestore.FieldValue.serverTimestamp(),
-  });
+function cloudRevision(doc){
+  if(!doc.exists)return null;
+  const {revision,updatedAt,data}=doc.data();
+  if(revision)return 'write:'+revision;
+  if(updatedAt)return 'legacy:'+updatedAt.seconds+':'+updatedAt.nanoseconds;
+  return 'legacy-data:'+data;
 }
 
-async function fbPull(uid){
-  if(!_fbDb)return null;
-  const doc=await _fbDb.collection('cerebro').doc(uid).get();
-  if(!doc.exists)return null;
-  const raw=doc.data()?.data;
-  return raw?JSON.parse(raw):null;
+async function fbPush(account,state,expectedRevision){
+  const {db,uid}=account;
+  const ref=db.collection('cerebro').doc(uid);
+  const data=JSON.stringify(state);
+  const revision=uidForSync();
+  await db.runTransaction(async tx=>{
+    const doc=await tx.get(ref);
+    if(cloudRevision(doc)!==expectedRevision){
+      const error=new Error('A cópia da nuvem mudou.');
+      error.code='sync-conflict';
+      throw error;
+    }
+    tx.set(ref,{data,revision,updatedAt:firebase.firestore.FieldValue.serverTimestamp()});
+  });
+  return 'write:'+revision;
+}
+
+function uidForSync(){
+  return crypto.randomUUID?.()||Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+}
+
+async function fbPull(account){
+  const doc=await account.db.collection('cerebro').doc(account.uid).get({source:'server'});
+  if(!doc.exists)return {state:null,revision:null};
+  const data=doc.data();
+  const state=JSON.parse(data.data);
+  if(!state||typeof state!=='object'||Array.isArray(state))throw new Error('Cópia da nuvem inválida.');
+  return {state,revision:cloudRevision(doc)};
 }
 
 // ── PUSH (lembretes com o app fechado) ──────────────────────────────────────
@@ -2161,8 +2316,6 @@ function sanitizeSkilltree(state){
     // Futevôlei: vermelho antigo → rosa
     if(t.id==='futevolei'&&t.destaque==='#D94747'){nt={...nt,destaque:'#FF6EB3',secundaria:'#A02E6E',cor:'#FF6EB3'};changed=true;}
     if(!nt.destaque&&SKILL_PALETTES[nt.id]){nt={...nt,destaque:SKILL_PALETTES[nt.id].d,secundaria:SKILL_PALETTES[nt.id].s,cor:SKILL_PALETTES[nt.id].d};changed=true;}
-    // substituir árvore de futebol antiga (IDs fb1-fb12) pela nova estrutura FUNDAMENTOS/MENTAL/FREESTYLE
-    if(t.id==='futebol'&&t.skills&&t.skills.some(s=>/^fb\d+$/.test(s.id))){const def=DEF_SKILLTREES.find(d=>d.id==='futebol');if(def){nt={...def,skills:def.skills.map(s=>({...s}))};changed=true;}}
     // backfill de subcategorias (colunas) em dados antigos
     const def=defMap[nt.id];
     if((!nt.subcats||!nt.subcats.length)){
@@ -2185,15 +2338,19 @@ function sanitizeSkilltree(state){
   return{...state,skilltree:{...state.skilltree,trees,style}};
 }
 
-function loadSt(){
+function normalizeState(state){
+  return sanitizeSkilltree(sanitizeTabs(mergeDeep(makeInit(),state)));
+}
+
+function loadLocalState(){
   try{
-    const s=localStorage.getItem('sc-v3');
+    const s=localStorage.getItem(LOCAL_STATE_KEY);
     if(s){
-      const p=JSON.parse(s);
-      return sanitizeSkilltree(sanitizeTabs(mergeDeep(makeInit(),p)));
+      const {_cloudSync,...data}=JSON.parse(s);
+      return {state:normalizeState(data),meta:_cloudSync||null};
     }
   }catch(e){}
-  return makeInit();
+  return {state:makeInit(),meta:{owner:null,revision:null,pending:false}};
 }
 function mergeDeep(target,source){
   const out={...target};
@@ -2209,16 +2366,19 @@ function mergeDeep(target,source){
 
 // ── SCORE UTILS ──────────────────────────────────────────────────────────────
 
+function combineScores(config,tScore,hScore){
+  if(config.scoreFormula==='weighted'){
+    const hw=config.habitWeight/100;
+    return Math.round(hScore*hw+tScore*(1-hw));
+  }
+  return tScore+hScore;
+}
 function getDayScore(st,dateStr){
   const tasks=st.tasks.filter(t=>t.date===dateStr&&t.done);
   const log=st.habitLog[dateStr]||{};
   const tScore=tasks.reduce((s,t)=>s+t.weight,0);
   const hScore=st.habits.reduce((s,h)=>log[h.id]?s+h.weight:s,0);
-  if(st.config.scoreFormula==='weighted'){
-    const hw=st.config.habitWeight/100;
-    return Math.round(hScore*hw+tScore*(1-hw));
-  }
-  return tScore+hScore;
+  return combineScores(st.config,tScore,hScore);
 }
 function getMonthScores(st,year,month){
   const days=daysInMonth(year,month);
@@ -2420,8 +2580,8 @@ function Modal({open,onClose,title,children}){
 function Tog({on,onChange}){
   return<div className={`tog${on?' on':''}`}onClick={onChange}><div className="tog-th"/></div>;
 }
-function Chk({on,onChange}){
-  return<div className={`chk${on?' on':''}`}onClick={onChange}>{on&&<span style={{color:'#fff',fontSize:'10px',fontWeight:'bold'}}>✓</span>}</div>;
+function Chk({on,onChange,label='Concluído'}){
+  return<button type="button" role="checkbox" aria-checked={!!on} aria-label={label} className={`chk${on?' on':''}`}onClick={onChange} style={{background:on?'var(--ac)':'transparent',padding:0}}>{on&&<span aria-hidden="true" style={{color:'#080808',fontSize:'10px',fontWeight:'bold'}}>✓</span>}</button>;
 }
 function Fld({label,children}){
   return<div className="fld"><label>{label}</label>{children}</div>;
@@ -2955,7 +3115,16 @@ function GoalModal({open,onClose,onSave,init}){
 
 function SyncDot({fbUser,syncStatus}){
   if(!fbUser)return null;
-  const map={idle:{c:'#555',title:'Não sincronizado'},syncing:{c:'#eab308',title:'Sincronizando…'},ok:{c:'#22c55e',title:'Sincronizado na nuvem'},err:{c:'#ef4444',title:'Erro na sincronização'}};
+  const map={
+    idle:{c:'#555',title:'Não sincronizado'},
+    loading:{c:'#eab308',title:'Consultando a nuvem…'},
+    restoring:{c:'#eab308',title:'Buscando a cópia da nuvem…'},
+    pending:{c:'#eab308',title:'Alterações aguardando envio'},
+    syncing:{c:'#eab308',title:'Sincronizando…'},
+    ok:{c:'#22c55e',title:'Sincronizado na nuvem'},
+    err:{c:'#ef4444',title:'Falha na sincronização'},
+    conflict:{c:'#f97316',title:'Versões divergentes. Consulte Configurações → Sync.'},
+  };
   const{c,title}=map[syncStatus]||map.idle;
   return<div title={title}style={{display:'flex',alignItems:'center',gap:4,flexShrink:0}}>
     <div style={{width:7,height:7,borderRadius:'50%',background:c,boxShadow:syncStatus==='ok'?`0 0 5px ${c}`:'none',transition:'background .4s,box-shadow .4s'}}/>
@@ -2963,19 +3132,31 @@ function SyncDot({fbUser,syncStatus}){
   </div>;
 }
 
-function Navbar({cur,onChange,st,fbUser,syncStatus,layoutMode}){
+function WorkspaceBrand({user}){
+  return<div className="brand">
+    <span className="brand-mark" aria-hidden="true">{user.avatar}</span>
+    <div className="brand-copy">
+      <span className="brand-name">Segundo Cérebro</span>
+      <span className="brand-user">{user.name}</span>
+    </div>
+  </div>;
+}
+
+function Navbar({cur,onChange,st,fbUser,syncStatus}){
   const tabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
+  const navigation=useRef(null);
+  useEffect(()=>{
+    const nav=navigation.current;
+    const active=nav?.querySelector('[aria-current="page"]');
+    if(active && (active.offsetLeft<nav.scrollLeft || active.offsetLeft+active.offsetWidth>nav.scrollLeft+nav.clientWidth)){
+      nav.scrollLeft=active.offsetLeft-nav.clientWidth/2+active.offsetWidth/2;
+    }
+  },[cur,tabs.map(t=>t.id).join(',')]);
   const xp=useMemo(()=>calcTotalXP(st),[st.skilltree]);
   const info=getLevelInfo(xp);
   return<div className="navbar">
     <div className="nav-header">
-      <div className="fc g8">
-        <span style={{fontSize:'1.2rem'}}>{st.user.avatar}</span>
-        <div>
-          <div style={{fontFamily:'var(--ft)',fontSize:'1.1rem',letterSpacing:'.08em',color:'var(--ac)',lineHeight:1}}>SEGUNDO CÉREBRO</div>
-          <div style={{fontSize:'.68rem',color:'var(--tx2)',lineHeight:1}}>Olá, {st.user.name} — {todayFull()}</div>
-        </div>
-      </div>
+      <WorkspaceBrand user={st.user}/>
       <div className="fc g8">
         <button onClick={()=>onChange('missao')}style={{display:'flex',alignItems:'center',gap:5,padding:'2px 9px 2px 3px',borderRadius:14,background:info.cls.cor+'22',border:`1px solid ${info.cls.cor}66`,cursor:'pointer',transition:'all .15s'}}title={`${info.cls.nome} ${roman(info.sub)} — Nível ${info.lvl}`}>
           <ClassAvatar cls={info.cls}size={22}baseImg={st.classBaseImg}mini={true}/>
@@ -2984,11 +3165,11 @@ function Navbar({cur,onChange,st,fbUser,syncStatus,layoutMode}){
         <SyncDot fbUser={fbUser}syncStatus={syncStatus}/>
       </div>
     </div>
-    <div className="nav-tabs">
-      {tabs.map(t=><button key={t.id}className={`tab-btn${cur===t.id?' on':''}`}onClick={()=>onChange(t.id)}>
-        <span>{t.emoji}</span>{t.label}
+    <nav className="nav-tabs" aria-label="Navegação principal" ref={navigation} style={{position:'relative'}}>
+      {tabs.map(t=><button key={t.id}className={`tab-btn${cur===t.id?' on':''}`} aria-current={cur===t.id?'page':undefined} onClick={()=>onChange(t.id)}>
+        <span aria-hidden="true">{t.emoji}</span>{t.label}
       </button>)}
-    </div>
+    </nav>
   </div>;
 }
 
@@ -2999,16 +3180,10 @@ function Sidebar({cur,onChange,st,fbUser,syncStatus}){
   const xp=useMemo(()=>calcTotalXP(st),[st.skilltree]);
   const info=getLevelInfo(xp);
   return<aside className="sidebar">
-    <div className="sidebar-top">
-      <span className="sb-avatar">{st.user.avatar}</span>
-      <div style={{minWidth:0}}>
-        <div className="sb-title">SEGUNDO CÉREBRO</div>
-        <div className="sb-sub">Olá, {st.user.name}</div>
-      </div>
-    </div>
-    <nav className="sb-nav">
-      {tabs.map(t=><button key={t.id}className={`sb-btn${cur===t.id?' on':''}`}onClick={()=>onChange(t.id)}title={t.label}>
-        <span className="sb-emoji">{t.emoji}</span>
+    <div className="sidebar-top"><WorkspaceBrand user={st.user}/></div>
+    <nav className="sb-nav" aria-label="Navegação principal">
+      {tabs.map(t=><button key={t.id}className={`sb-btn${cur===t.id?' on':''}`} aria-current={cur===t.id?'page':undefined} onClick={()=>onChange(t.id)} aria-label={t.label} title={t.label}>
+        <span className="sb-emoji" aria-hidden="true">{t.emoji}</span>
         <span className="sb-label">{t.label}</span>
       </button>)}
     </nav>
@@ -3019,7 +3194,7 @@ function Sidebar({cur,onChange,st,fbUser,syncStatus}){
       </button>
       <div className="sb-btn"style={{cursor:'default'}}>
         <SyncDot fbUser={fbUser}syncStatus={syncStatus}/>
-        <span className="sb-label"style={{fontSize:'.68rem',color:'var(--tx3)'}}>Sync</span>
+        <span className="sb-label"style={{fontSize:'.68rem',color:'var(--ui-muted)'}}>Sincronização</span>
       </div>
     </div>
   </aside>;
@@ -3256,7 +3431,10 @@ function HojeSection({st,setSt}){
   const score=getDayScore(st,td);
   const doneT=todayTasks.filter(t=>t.done).length;
   const doneH=activeHabits.filter(h=>dayLog[h.id]).length;
-  const maxScore=todayTasks.reduce((s,t)=>s+t.weight,0)+activeHabits.reduce((s,h)=>s+h.weight,0);
+  const maxTaskScore=todayTasks.reduce((sum,task)=>sum+task.weight,0);
+  const maxHabitScore=st.habits.reduce((sum,habit)=>habit.active||dayLog[habit.id]?sum+habit.weight:sum,0);
+  const maxScore=combineScores(st.config,maxTaskScore,maxHabitScore);
+  const scoreProgress=maxScore>0?Math.max(0,Math.min(100,score/maxScore*100)):0;
 
   function toggleTask(id){
     setSt(p=>{
@@ -3357,17 +3535,36 @@ function HojeSection({st,setSt}){
     return()=>{cancel=true;};
   },[td]);
 
-  return<div className="sec">
+  return<div className="sec today">
     {focusOpen&&<FocusMode st={st}onClose={()=>setFocusOpen(false)}/>}
 
-    {/* Tarefas do dia */}
-    <div className="sch">
-      <div className="sch-t">Tarefas de Hoje</div>
-      <button className="btn btn-ac"onClick={()=>{setEditTask(null);setTaskModal(true);}}>+ Tarefa</button>
-    </div>
-    {todayTasks.length===0&&<div style={{color:'var(--tx3)',fontSize:'.85rem',padding:'12px 0'}}>Sem tarefas para hoje. Adicione uma!</div>}
+    <header className="today-hero">
+      <div>
+        <time className="today-date" dateTime={td}>{todayFull()}</time>
+        <h1 className="today-title">Hoje</h1>
+        <p className="today-greeting">Olá, {st.user.name}.</p>
+        <button type="button" className="btn btn-gh" onClick={()=>setFocusOpen(true)}>⏱ Modo Foco</button>
+      </div>
+      <div className="today-score" style={{'--score-progress':scoreProgress+'%'}}>
+        <div className="today-score-center">
+          <strong>{score}</strong>
+          <span>Pontos hoje</span>
+        </div>
+      </div>
+    </header>
+
+    <div className="today-grid">
+    <section className="card today-panel" aria-labelledby="today-tasks">
+      <div className="sch">
+        <div className="fc g10">
+          <h2 className="sch-t" id="today-tasks">Tarefas</h2>
+          <span className="today-count" aria-label={`${doneT} de ${todayTasks.length} concluídas`}>{doneT}/{todayTasks.length}</span>
+        </div>
+        <button className="btn btn-ac" onClick={()=>{setEditTask(null);setTaskModal(true);}}>+ Tarefa</button>
+      </div>
+    {todayTasks.length===0&&<p className="today-empty">Nenhuma tarefa para hoje.</p>}
     {todayTasks.map(t=><div key={t.id}className={`tsk-row${t.done?' done':''}`}>
-      <Chk on={t.done}onChange={()=>toggleTask(t.id)}/>
+      <Chk on={t.done} onChange={()=>toggleTask(t.id)} label={t.title}/>
       <div style={{flex:1,minWidth:0}}>
         <div style={{fontSize:'.88rem',fontWeight:600,textDecoration:t.done?'line-through':'none',color:t.done?'var(--tx2)':'var(--tx)'}}>{t.title}</div>
         <div className="fc g6 mt4"style={{flexWrap:'wrap'}}>
@@ -3377,13 +3574,17 @@ function HojeSection({st,setSt}){
           {t.fixedId&&<span className="tsk-fixed">fixa</span>}
         </div>
       </div>
-      <button className="btn-ic"onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
+      <button className="btn-ic" aria-label={`Editar ${t.title}`} onClick={()=>{setEditTask(t);setTaskModal(true);}}>✏️</button>
     </div>)}
+    </section>
 
-    {/* Hábitos */}
-    <div className="sch mt12">
-      <div className="sch-t">Hábitos de Hoje</div>
+    <div className="today-rail">
+    <section className="card today-panel" aria-labelledby="today-habits">
+    <div className="sch">
+      <h2 className="sch-t" id="today-habits">Hábitos</h2>
+      <span className="today-count" aria-label={`${doneH} de ${activeHabits.length} concluídos`}>{doneH}/{activeHabits.length}</span>
     </div>
+    {activeHabits.length===0&&<p className="today-empty">Nenhum hábito ativo.</p>}
     {activeHabits.map(h=>{
       const done=!!(dayLog[h.id]);
       return<div key={h.id}className="hab-row"style={{borderColor:done?h.color+'33':'var(--bd)',opacity:h.active?1:.5}}>
@@ -3392,39 +3593,14 @@ function HojeSection({st,setSt}){
           <div style={{fontWeight:600,fontSize:'.88rem',textDecoration:done?'line-through':'none',color:done?'var(--tx2)':'var(--tx)'}}>{h.name}</div>
           <div style={{fontSize:'.7rem',fontFamily:'var(--fm)',color:h.color}}>+{h.weight}pts</div>
         </div>
-        <Chk on={done}onChange={()=>toggleHabit(h.id)}/>
+        <Chk on={done} onChange={()=>toggleHabit(h.id)} label={h.name}/>
       </div>;
     })}
 
-    {/* Score strip */}
-    <div className="card mb14"style={{background:'var(--card)',borderColor:'var(--ac2)'}}>
-      <div className="fcb"style={{marginBottom:10}}>
-        <div style={{fontSize:'.72rem',fontWeight:700,color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.08em'}}>{todayFull()}</div>
-        <button onClick={()=>setFocusOpen(true)}style={{display:'flex',alignItems:'center',gap:5,padding:'5px 12px',borderRadius:8,background:'var(--ac)',border:'none',color:'#000',fontWeight:700,fontSize:'.75rem',cursor:'pointer',flexShrink:0}}>⏱ Modo Foco</button>
-      </div>
-      <div className="fc g16"style={{flexWrap:'wrap'}}>
-        <div>
-          <div className="score-n">{score}</div>
-          <div style={{fontSize:'.68rem',color:'var(--tx2)',textTransform:'uppercase',letterSpacing:'.08em'}}>Score do dia</div>
-        </div>
-        <div className="flex col g4"style={{flex:1,minWidth:120}}>
-          <div className="fcb"style={{fontSize:'.8rem'}}>
-            <span style={{color:'var(--tx2)'}}>Tarefas</span>
-            <span style={{fontFamily:'var(--fm)',color:'var(--ac)'}}>{doneT}/{todayTasks.length}</span>
-          </div>
-          <PBar val={doneT}max={Math.max(todayTasks.length,1)}color="var(--ac)"/>
-          <div className="fcb mt4"style={{fontSize:'.8rem'}}>
-            <span style={{color:'var(--tx2)'}}>Hábitos</span>
-            <span style={{fontFamily:'var(--fm)',color:'var(--ac)'}}>{doneH}/{activeHabits.length}</span>
-          </div>
-          <PBar val={doneH}max={Math.max(activeHabits.length,1)}color="var(--ac)"/>
-        </div>
-      </div>
-    </div>
+    </section>
 
-    {/* Sequência de Fogo */}
-    <div className="card mb14"style={{borderColor:fireLevel>=4?'var(--ok)':fireLevel>=2?'var(--warn)':'var(--bd)',overflow:'hidden',padding:0}}>
-      <div className="fcb"style={{padding:'10px 14px',background:`linear-gradient(135deg,${fireLevel>=4?'#22c55e22':fireLevel>=2?'#eab30822':'transparent'},transparent)`}}>
+    <div className="card today-panel" style={{borderColor:fireLevel>=4?'var(--ok)':fireLevel>=2?'var(--warn)':'var(--bd)'}}>
+      <div className="fcb g10" style={{flexWrap:'wrap'}}>
         <div className="fc g10">
           <span style={{fontSize:fireLevel===0?'1.3rem':'1.6rem',filter:fireLevel>=3?'drop-shadow(0 0 6px #f97316)':'none',transition:'all .3s'}}>
             {fireEmojis[fireLevel]}
@@ -3443,12 +3619,11 @@ function HojeSection({st,setSt}){
           <div style={{fontFamily:'var(--fm)',fontSize:'.8rem',fontWeight:700,color:'var(--ac)'}}>{nextMilestone}d</div>
         </div>}
       </div>
-      {streak>0&&<div style={{padding:'0 14px 10px'}}><PBar val={streak}max={nextMilestone}color={fireLevel>=4?'#22c55e':fireLevel>=2?'#eab308':'var(--ac)'}/></div>}
+      {streak>0&&<div className="mt8"><PBar val={streak}max={nextMilestone}color={fireLevel>=4?'#22c55e':fireLevel>=2?'#eab308':'var(--ac)'}/></div>}
     </div>
 
-    {/* Frase */}
-    <div style={{padding:'10px 14px',background:'var(--ac1)',border:'1px solid var(--ac2)',borderRadius:'var(--r)',marginBottom:'14px',fontStyle:'italic',fontSize:'.85rem',color:'var(--ac)',lineHeight:1.5}}>
-      "{frase}"
+    {frase&&<blockquote className="today-quote">{frase}</blockquote>}
+    </div>
     </div>
 
     <TaskModal open={taskModal}onClose={()=>{setTaskModal(false);setEditTask(null);}}onSave={saveTask}onSaveFixed={saveFixed}init={editTask}cats={st.categories}/>
@@ -6435,7 +6610,8 @@ function ConquistasSection({st,setSt}){
 
 // ── CONFIG SYNC ──────────────────────────────────────────────────────────────
 
-function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
+function CfgSync({sync}){
+  const {fbUser,syncStatus,storageError,setFirebaseConfig,onManualSync,restoreCloud}=sync;
   const[cfgText,setCfgText]=useState('');
   const[connecting,setConnecting]=useState(false);
   const[err,setErr]=useState('');
@@ -6466,6 +6642,7 @@ function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
       const ok=fbInit(cfg);
       if(!ok)throw new Error('Falha ao inicializar Firebase. Verifique a config.');
       fbSaveCfg(cfg);
+      setFirebaseConfig(cfg);
       setCfgText('');
     }catch(e){
       setErr(e.message||'Config inválida.');
@@ -6481,21 +6658,15 @@ function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
   }
 
   async function logout(){
-    await fbSignOut();
-    setFbUser(null);
+    setErr('');
+    try{await fbSignOut();}catch(e){setErr(e.message||'Erro ao sair da conta.');}
   }
 
   async function pullCloud(){
     if(!fbUser)return;
     setPulling(true);setErr('');
     try{
-      const cloud=await fbPull(fbUser.uid);
-      if(!cloud){setErr('Nenhum dado encontrado na nuvem.');setPulling(false);return;}
-      if(window.confirm('Substituir dados locais pelos dados da nuvem? (Cancelar = mesclar)')){
-        setSt(cloud);
-      }else{
-        setSt(p=>mergeDeep(p,cloud));
-      }
+      await restoreCloud();
     }catch(e){setErr(e.message||'Erro ao buscar dados da nuvem.');}
     setPulling(false);
   }
@@ -6505,14 +6676,19 @@ function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
     fbSignOut().catch(()=>{});
     fbClearCfg();
     _fbApp=null;_fbAuth=null;_fbDb=null;
-    setFbUser(null);
+    setFirebaseConfig(null);
     setErr('');
   }
 
-  const statusColor=syncStatus==='ok'?'#22c55e':syncStatus==='syncing'?'#eab308':syncStatus==='err'?'#ef4444':'#555';
-  const statusLabel=syncStatus==='ok'?'Sincronizado':syncStatus==='syncing'?'Sincronizando…':syncStatus==='err'?'Erro na sync':'Não sincronizado';
+  const busy=['loading','syncing','restoring'].includes(syncStatus);
+  const statusColor=syncStatus==='ok'?'#22c55e':syncStatus==='err'?'#ef4444':syncStatus==='idle'?'#555':'#eab308';
+  const statusLabel=({
+    loading:'Consultando a nuvem…',pending:'Alterações aguardando envio',syncing:'Sincronizando…',
+    ok:'Sincronizado',err:'Falha na sincronização',conflict:'Versões divergentes',restoring:'Buscando dados…',
+  })[syncStatus]||'Não sincronizado';
 
   return<div>
+    {storageError&&<p role="alert" style={{color:'var(--er)',marginBottom:12}}>O aparelho não conseguiu salvar os dados localmente. Exporte uma cópia em Configurações → Dados antes de fechar o app.</p>}
     {/* Status */}
     {isConfigured&&<div style={{display:'flex',alignItems:'center',gap:8,padding:'10px 14px',background:'var(--card2)',border:'1px solid var(--bd)',borderRadius:'var(--r)',marginBottom:16}}>
       <div style={{width:8,height:8,borderRadius:'50%',background:statusColor,flexShrink:0,boxShadow:`0 0 6px ${statusColor}`}}/>
@@ -6563,12 +6739,13 @@ function CfgSync({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
     {isConfigured&&fbUser&&<div className="cfg-s">
       <div className="cfg-t">Sincronização ativa</div>
       <div style={{fontSize:'.8rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.6}}>
-        Seus dados são enviados para a nuvem automaticamente após cada alteração (3 segundos de debounce). Você pode acessar em qualquer dispositivo fazendo login com a mesma conta Google.
+        As alterações são salvas neste aparelho e enviadas automaticamente à nuvem.
       </div>
+      {syncStatus==='conflict'&&<p role="status" style={{fontSize:'.8rem',color:'var(--warn)',marginBottom:12}}>A cópia deste aparelho é diferente da cópia da nuvem. Escolha qual delas deseja manter.</p>}
       {err&&<div style={{color:'#ef4444',fontSize:'.78rem',marginBottom:8}}>{err}</div>}
       <div style={{display:'flex',flexDirection:'column',gap:8}}>
-        <button className="btn btn-ac"onClick={onManualSync}>☁️ Enviar dados agora</button>
-        <button className="btn btn-gh"onClick={pullCloud}disabled={pulling}>{pulling?'Buscando…':'⬇️ Buscar dados da nuvem'}</button>
+        <button className="btn btn-ac"onClick={onManualSync} disabled={busy||pulling}>☁️ Enviar dados agora</button>
+        <button className="btn btn-gh"onClick={pullCloud} disabled={busy||pulling}>{pulling?'Buscando…':'⬇️ Buscar dados da nuvem'}</button>
         <button className="btn btn-gh"onClick={logout}style={{fontSize:'.75rem',color:'var(--tx3)'}}>Sair da conta</button>
         <button className="btn-er"style={{fontSize:'.72rem',padding:'5px 10px',borderRadius:'var(--r)',width:'auto',alignSelf:'flex-start'}}onClick={disconnect}>Desconectar Firebase</button>
       </div>
@@ -6638,7 +6815,7 @@ function CfgIA(){
   </div>;
 }
 
-function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
+function ConfigSection({st,setSt,sync}){
   const[sub,setSub]=useState('aparencia');
   const subs=[{k:'aparencia',l:'🎨 Aparência'},{k:'ia',l:'🤖 IA'},{k:'notif',l:'🔔 Alertas'},{k:'sync',l:'☁️ Sync'},{k:'navbar',l:'🗂 Navbar'},{k:'score',l:'🏅 Score'},{k:'cats',l:'🏷 Categorias'},{k:'dados',l:'💾 Dados'},{k:'perfil',l:'👤 Perfil'}];
   function setCfg(f,v){setSt(p=>({...p,config:{...p.config,[f]:v}}));}
@@ -6649,8 +6826,8 @@ function ConfigSection({st,setSt,fbUser,setFbUser,syncStatus,onManualSync}){
     </div>
     {sub==='aparencia'&&<CfgAparencia st={st}setSt={setSt}setCfg={setCfg}/>}
     {sub==='ia'&&<CfgIA/>}
-    {sub==='notif'&&<CfgNotif st={st}setSt={setSt}fbUser={fbUser}/>}
-    {sub==='sync'&&<CfgSync st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={onManualSync}/>}
+    {sub==='notif'&&<CfgNotif st={st}setSt={setSt}fbUser={sync.fbUser}/>}
+    {sub==='sync'&&<CfgSync sync={sync}/>}
     {sub==='navbar'&&<CfgNavbar st={st}setSt={setSt}/>}
     {sub==='score'&&<CfgScore st={st}setCfg={setCfg}/>}
     {sub==='cats'&&<CfgCats st={st}setSt={setSt}/>}
@@ -8551,20 +8728,189 @@ function initialTab(){
     const t=new URLSearchParams(location.search).get('tab');
     if(t&&DEF_TABS.some(x=>x.id===t))return t;
   }catch(e){}
-  return'skilltree';
+  return'hoje';
 }
-function App(){
-  const[st,setSt]=useState(loadSt);
-  const[tab,setTab]=useState(initialTab);
-  const[fbUser,setFbUser]=useState(null);
-  const[syncStatus,setSyncStatus]=useState('idle'); // 'idle'|'syncing'|'ok'|'err'
-  const syncTimer=useRef(null);
-  const isFirstSync=useRef(true);
 
-  // Persist locally
+function resolveCloudState(local,cloud,owner){
+  const {meta,state}=local;
+  if(meta?.owner&&meta.owner!==owner)return 'conflict';
+  if(!cloud.state)return meta?.revision?'conflict':'upload';
+  if(JSON.stringify(state)===JSON.stringify(cloud.state))return 'acknowledge';
+  if(meta?.owner===owner){
+    if(!meta.pending)return 'download';
+    return meta.revision===cloud.revision?'upload':'conflict';
+  }
+  return meta&&!meta.pending?'download':'conflict';
+}
+
+function useCloudSync(st,setSt,initialLocal){
+  const local=useRef(initialLocal);
+  const accountRef=useRef(null);
+  const checkedAccount=useRef(null);
+  const job=useRef(null);
+  const [cfg,setFirebaseConfig]=useState(fbLoadCfg);
+  const [account,setAccount]=useState(null);
+  const [ready,setReady]=useState(null);
+  const [status,setStatus]=useState('idle');
+  const [storageError,setStorageError]=useState(false);
+
+  const persist=useCallback((state,meta)=>{
+    local.current={state,meta};
+    try{
+      localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify({...state,_cloudSync:meta}));
+      setStorageError(false);
+    }catch(error){
+      console.warn('Falha ao salvar dados locais:',error);
+      setStorageError(true);
+    }
+  },[]);
+
+  React.useLayoutEffect(()=>{
+    const {state,meta}=local.current;
+    if(st!==state)persist(st,{...meta,pending:true});
+    else if(st===initialLocal.state)persist(st,meta);
+  },[st,initialLocal,persist]);
+
   useEffect(()=>{
-    try{localStorage.setItem('sc-v3',JSON.stringify(st));}catch(e){}
-  },[st]);
+    setReady(null);
+    setStatus('idle');
+    if(!cfg||!fbInit(cfg))return;
+    const db=_fbDb;
+    const unsubscribe=fbOnAuth(user=>{
+      const next=user?{user,uid:user.uid,db,owner:JSON.stringify([cfg.projectId,user.uid])}:null;
+      accountRef.current=next;
+      setReady(null);
+      setAccount(next);
+      setStatus(next?'loading':'idle');
+    });
+    return ()=>{
+      unsubscribe();
+      accountRef.current=null;
+      setAccount(null);
+    };
+  },[cfg]);
+
+  const acceptCloud=useCallback((current,cloud)=>{
+    checkedAccount.current=current;
+    const meta={owner:current.owner,revision:cloud.revision,pending:false};
+    persist(cloud.state,meta);
+    setSt(cloud.state);
+    setReady(current);
+    setStatus('ok');
+  },[persist,setSt]);
+
+  useEffect(()=>{
+    if(!account||checkedAccount.current===account)return;
+    let cancelled=false,timer;
+    async function reconcile(){
+      try{
+        if(job.current===account){
+          timer=setTimeout(reconcile,30000);
+          return;
+        }
+        const cloud=await fbPull(account);
+        if(cancelled||accountRef.current!==account)return;
+        if(job.current===account){
+          timer=setTimeout(reconcile,30000);
+          return;
+        }
+        if(cloud.state)cloud.state=normalizeState(cloud.state);
+        const action=resolveCloudState(local.current,cloud,account.owner);
+        checkedAccount.current=account;
+        if(action==='conflict'){setStatus('conflict');return;}
+        if(action==='download'){acceptCloud(account,cloud);return;}
+        const pending=action==='upload';
+        persist(local.current.state,{owner:account.owner,revision:cloud.revision,pending});
+        setReady(account);
+        setStatus(pending?'pending':'ok');
+      }catch(error){
+        if(cancelled||accountRef.current!==account)return;
+        console.warn('Falha ao buscar a versão da nuvem:',error);
+        setStatus('err');
+        timer=setTimeout(reconcile,30000);
+      }
+    }
+    reconcile();
+    return ()=>{cancelled=true;clearTimeout(timer);};
+  },[account,ready,acceptCloud,persist]);
+
+  const upload=useCallback(async(current,manual=false)=>{
+    if(!current||accountRef.current!==current||job.current===current)return;
+    if(!manual&&ready!==current)return;
+    job.current=current;
+    setStatus('syncing');
+    try{
+      let expected=local.current.meta?.revision??null;
+      if(manual&&ready!==current){
+        const cloud=await fbPull(current);
+        if(accountRef.current!==current)return;
+        if(cloud.state&&!window.confirm('Substituir a cópia da nuvem pelos dados deste aparelho?')){
+          setStatus('conflict');
+          return;
+        }
+        expected=cloud.revision;
+      }
+      const {state}=local.current;
+      const revision=await fbPush(current,state,expected);
+      if(accountRef.current!==current)return;
+      checkedAccount.current=current;
+      const pending=local.current.state!==state;
+      persist(local.current.state,{owner:current.owner,revision,pending});
+      setReady(current);
+      setStatus(pending?'pending':'ok');
+    }catch(error){
+      if(accountRef.current!==current)return;
+      if(error.code==='sync-conflict'){
+        setReady(null);
+        setStatus('conflict');
+      }else{
+        console.warn('Falha ao enviar dados para a nuvem:',error);
+        setStatus('err');
+      }
+    }finally{
+      if(job.current===current)job.current=null;
+    }
+  },[persist,ready]);
+
+  useEffect(()=>{
+    if(!account||ready!==account||!local.current.meta?.pending||status==='syncing'||status==='restoring')return;
+    if(status==='ok'){
+      setStatus('pending');
+      return;
+    }
+    const timer=setTimeout(()=>upload(account),status==='err'?30000:3000);
+    return ()=>clearTimeout(timer);
+  },[account,ready,st,status,upload]);
+
+  async function restoreCloud(){
+    if(!account||accountRef.current!==account||job.current===account)return;
+    job.current=account;
+    setStatus('restoring');
+    let restored=false;
+    try{
+      const cloud=await fbPull(account);
+      if(accountRef.current!==account)return;
+      if(!cloud.state)throw new Error('Nenhum dado encontrado na nuvem.');
+      if(window.confirm('Substituir os dados deste aparelho pela cópia da nuvem?')){
+        acceptCloud(account,{...cloud,state:normalizeState(cloud.state)});
+        restored=true;
+      }
+    }finally{
+      if(job.current===account)job.current=null;
+      if(!restored&&accountRef.current===account)setStatus(status);
+    }
+  }
+
+  return {fbUser:account?.user||null,syncStatus:status,storageError,setFirebaseConfig,
+    onManualSync:()=>upload(account,true),restoreCloud};
+}
+
+function App(){
+  const[initialLocal]=useState(loadLocalState);
+  const[st,setSt]=useState(initialLocal.state);
+  const[tab,setTab]=useState(initialTab);
+  const sync=useCloudSync(st,setSt,initialLocal);
+  const {fbUser,syncStatus}=sync;
 
   // Lembretes + contador no ícone do app
   useNotifEngine(st,setSt);
@@ -8604,55 +8950,6 @@ function App(){
   // Apply theme
   useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.config.bgOpacity,st.classBaseImg,st.skilltree]);
 
-  // Init Firebase on mount if config exists
-  useEffect(()=>{
-    const cfg=fbLoadCfg();
-    if(!cfg)return;
-    const ok=fbInit(cfg);
-    if(!ok)return;
-    const unsub=fbOnAuth(async user=>{
-      setFbUser(user);
-      if(user&&isFirstSync.current){
-        isFirstSync.current=false;
-        // On first login, pull cloud and merge (cloud wins for older local data)
-        try{
-          const cloud=await fbPull(user.uid);
-          if(cloud)setSt(p=>sanitizeSkilltree(sanitizeTabs(mergeDeep(p,cloud))));
-        }catch(e){console.warn('Pull on login failed:',e);}
-      }
-    });
-    return unsub;
-  },[]);
-
-  // Auto-sync to cloud 3s after any state change
-  useEffect(()=>{
-    if(!fbUser)return;
-    clearTimeout(syncTimer.current);
-    setSyncStatus('syncing');
-    syncTimer.current=setTimeout(async()=>{
-      try{
-        await fbPush(fbUser.uid,st);
-        setSyncStatus('ok');
-      }catch(e){
-        console.warn('Sync error:',e);
-        setSyncStatus('err');
-      }
-    },3000);
-    return()=>clearTimeout(syncTimer.current);
-  },[st,fbUser]);
-
-  // Manual sync
-  const manualSync=useCallback(async()=>{
-    if(!fbUser)return;
-    setSyncStatus('syncing');
-    try{
-      await fbPush(fbUser.uid,st);
-      setSyncStatus('ok');
-    }catch(e){
-      setSyncStatus('err');
-    }
-  },[fbUser,st]);
-
   // História de evolução: detecta quando o usuário sobe de classe
   const curClass=getLevelInfo(calcTotalXP(st)).cls;
   useEffect(()=>{
@@ -8686,10 +8983,12 @@ function App(){
     conquistas:<ConquistasSection st={st}setSt={setSt}/>,
     eixo:<EixoSection st={st}setSt={setSt}/>,
     calorias:<CaloriasSection st={st}setSt={setSt}/>,
-    config:<ConfigSection st={st}setSt={setSt}fbUser={fbUser}setFbUser={setFbUser}syncStatus={syncStatus}onManualSync={manualSync}/>,
+    config:<ConfigSection st={st}setSt={setSt}sync={sync}/>,
   };
 
-  const visibleTab=(st.config.tabs||DEF_TABS).some(t=>t.id===tab&&t.visible!==false)?tab:'hoje';
+  const visibleTabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
+  const fallbackTab=visibleTabs.find(t=>t.id==='hoje')||visibleTabs[0];
+  const visibleTab=visibleTabs.some(t=>t.id===tab)?tab:(fallbackTab?.id||'hoje');
 
   const story=st.aiClassStory;
   const storyCls=story?CLASSES.find(c=>c.id===story.classId):null;
@@ -8697,14 +8996,14 @@ function App(){
   const layoutMode=st.config.layoutMode||'classic';
   const menuMode=st.config.menuMode||'top';
   const isSidebar=menuMode==='side';
-  const rootClass=[layoutMode==='redesign'?'layout-redesign':'',isSidebar?'layout-sidebar':''].filter(Boolean).join(' ');
+  const rootClass=['workspace',layoutMode==='redesign'?'layout-redesign':'',isSidebar?'layout-sidebar':''].filter(Boolean).join(' ');
   return<div className={rootClass}>
     {isSidebar
       ?<Sidebar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}/>
-      :<Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}layoutMode={layoutMode}/>}
-    <div className={isSidebar?('main-wrap'+(layoutMode==='redesign'?' layout-container':'')):(layoutMode==='redesign'?'layout-container':'')}>
+      :<Navbar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}/>}
+    <main className={`workspace-main${isSidebar?' main-wrap':''}`}>
       {sections[visibleTab]||null}
-    </div>
+    </main>
     {story&&storyCls&&<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)setSt(p=>({...p,aiClassStory:null}));}}>
       <div className="modal"style={{textAlign:'center',maxWidth:380,border:`1px solid ${storyCls.cor}66`,boxShadow:`0 0 30px ${storyCls.cor}44`}}>
         <div style={{fontFamily:'var(--serif)',fontSize:'.66rem',letterSpacing:'.16em',textTransform:'uppercase',color:storyCls.cor,marginBottom:12}}>Nova Classe Desbloqueada</div>
