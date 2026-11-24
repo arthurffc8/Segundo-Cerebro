@@ -6,7 +6,7 @@
 <title>Segundo Cérebro</title>
 <link rel="icon" href="icon.svg" type="image/svg+xml">
 <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#5b7cff">
+<meta name="theme-color" content="#11161f">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="2°Cérebro">
@@ -29,9 +29,9 @@ window.addEventListener('appinstalled',function(){window.scDeferredInstall=null;
 <style>
 :root{
   --ac:#6ea8ff;--ac1:rgba(110,168,255,.18);--ac2:rgba(255,127,214,.22);
-  --bg:#070d18;--card:#0f1b2d;--card2:#14243d;--card3:#192d4b;
+  --bg:#11161f;--card:#0f1b2d;--card2:#14243d;--card3:#192d4b;
   --bd:#2c3b5d;--bd2:rgba(150,198,255,.18);--bd3:rgba(255,255,255,.22);
-  --tx:#f6f7ff;--tx2:#deebffcc;--tx3:#cddfff99;--tx4:#cddfff66;
+  --tx:#f3f0e9;--tx2:#deebffcc;--tx3:#cddfff99;--tx4:#cddfff66;
   --ok:#5ee7a5;--er:#ff7aa6;--warn:#f9c74f;
   --ff:'Inter',system-ui,sans-serif;
   --fm:'JetBrains Mono','Courier New',monospace;
@@ -1211,6 +1211,60 @@ body::before,body::after { display:none; }
 @media(prefers-reduced-motion:reduce) {
   .workspace .sec { animation:none; }
 }
+
+/* Aurora */
+.theme-claude { color-scheme:dark; }
+.theme-claude body::before {
+  display:block;inset:0;width:auto;height:auto;min-width:0;min-height:0;filter:none;
+  background:
+    linear-gradient(110deg,var(--bg-edge),transparent 78%),
+    radial-gradient(ellipse at 87% 12%,var(--bg-glow),transparent 64%),
+    var(--wallpaper,none) center / cover no-repeat;
+}
+.theme-claude .workspace {
+  --ui-font:var(--ff);
+  --ui-radius:18px;
+  --ui-muted:var(--tx2);
+  --surface:color-mix(in srgb,var(--card) 80%,transparent);
+  --surface-raised:color-mix(in srgb,var(--card2) 88%,transparent);
+}
+.theme-claude .workspace :is(.navbar,.sidebar) {
+  background:color-mix(in srgb,var(--bg) 87%,transparent);
+  border-color:var(--bd2);
+  backdrop-filter:blur(18px);
+}
+.theme-claude .workspace .nav-tabs { gap:6px; }
+.theme-claude .workspace :is(.tab-btn,.sb-btn).on {
+  background:var(--ac1);border-color:var(--ac2);
+}
+.theme-claude .workspace :is(.card,.mcrd,.note-card,.obj-card,.diary-e,.theme-current) {
+  background:var(--surface);border-color:var(--bd2);box-shadow:var(--sh);
+}
+.theme-claude .workspace :is(.hab-row,.tsk-row) {
+  background:var(--surface-raised);border-color:var(--bd2);box-shadow:none;
+}
+.theme-claude .workspace :is(.card,.mcrd,.badge)::before { display:none; }
+.theme-claude .workspace :is(.modal,input,textarea,select) { border-color:var(--bd2); }
+.theme-claude .workspace :is(input,textarea,select):focus { border-color:var(--ac); }
+.theme-claude .workspace .sch-t {
+  font-size:clamp(1.55rem,3vw,2.1rem);text-shadow:0 1px 8px var(--bg);
+}
+.theme-claude .workspace .today-panel .sch-t { font-size:1.25rem; }
+.theme-claude .today-hero {
+  background:linear-gradient(105deg,var(--card) 6%,var(--surface) 46%,transparent);
+  border-color:var(--bd2);box-shadow:var(--sh);
+}
+.theme-claude .today-hero::before { display:none; }
+.theme-claude .today-title {
+  font-family:var(--ft);font-weight:600;font-size:clamp(3rem,8vw,6.5rem);
+}
+.theme-claude .today-score { box-shadow:none; }
+.background-colors { display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin-bottom:16px; }
+.background-colors .btn { display:inline-flex;align-items:center;gap:8px; }
+.background-colors [aria-pressed="true"] { border-color:var(--ac);color:var(--tx); }
+.background-colors i { width:16px;height:16px;border:1px solid var(--bd3);border-radius:50%; }
+.background-colors label { display:inline-flex;align-items:center;gap:8px;color:var(--tx2); }
+.background-colors input[type="color"] { width:36px;height:36px;padding:4px;cursor:pointer; }
 </style>
 </head>
 <body>
@@ -1506,10 +1560,10 @@ const BG_LVL={
 // ── THEME PRESETS ──────────────────────────────────────────────────────────
 const THEMES=[
   {
-    id:'claude', name:'Claude', emoji:'🟠', bg:'#0a0a0a', card:'#141414', card2:'#1c1c1c', bd:'#282828', ac:'#FF6B00',
-    ff:"'Inter', sans-serif", ft:"'Bebas Neue'", r:'10px', sh:'none',
-    desc:'Escuro, sóbrio, com laranja vibrante. Pra quem pensa em sistema e não em hype.',
-    vibes:['foco','sóbrio','sistema'],
+    id:'claude', name:'Aurora', emoji:'◐', bg:'#11161f', card:'#191d25', card2:'#222630', bd:'#343943', ac:'#b8dcbd',
+    ff:"'DM Sans', system-ui, sans-serif", ft:"'DM Sans', system-ui, sans-serif", r:'14px', sh:'0 10px 32px rgba(0,0,0,.18)',
+    tx:'#f3f0e9', tx2:'#d4d0c8', tx3:'#b3afa8', tx4:'#938f89',
+    desc:'Fundo em destaque, painéis translúcidos e texto off-white.',
   },
   {
     id:'minimal', name:'Minimalista', emoji:'⚪', bg:'#f8f9fa', card:'#ffffff', card2:'#f1f3f5', bd:'#dee2e6', ac:'#212529',
@@ -1594,7 +1648,20 @@ const BG_IMAGES=[
   {id:'bg2', name:'Fundo 2', path:'./background/fa90675c-c9c6-48dc-8e9d-6a8666cdf9aa.png'},
 ];
 // Quanto a imagem de fundo aparece por padrão (0 = apagada, 1 = no talo)
-const DEF_BG_OPACITY=0.25;
+const DEF_BG_OPACITY=0.55;
+const DARK_BG_COLORS=[
+  {name:'Noite',value:'#11161f'},
+  {name:'Grafite',value:'#191a1d'},
+  {name:'Floresta',value:'#101f1a'},
+  {name:'Ameixa',value:'#201623'},
+];
+
+function darkBackgroundColor(value,fallback){
+  if(typeof value!=='string'||!/^#[0-9a-f]{6}$/i.test(value))return fallback;
+  const rgb=_hx(value);
+  const scale=48/Math.max(48,...rgb);
+  return '#'+rgb.map(channel=>Math.round(channel*scale).toString(16).padStart(2,'0')).join('');
+}
 const NOTE_COLORS=[
   {k:'default',bg:'var(--card)',bd:'var(--bd)',name:'Padrão'},
   {k:'red',    bg:'#3b1515',bd:'#5c2020',name:'Vermelho'},
@@ -2145,7 +2212,7 @@ function makeInit(){
     config:{
       accent:'#FF6B00',bgLevel:'midnight',fontSize:'medium',animations:true,
       scoreFormula:'simple',habitWeight:50,taskDefW:5,habitDefW:10,
-      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgImage:null,bgOpacity:DEF_BG_OPACITY,
+      tabs:DEF_TABS,themeId:'claude',textColor:'#f0f0f0',accentOverride:null,layoutMode:'classic',themeStyle:'modern',menuMode:'top',bgColor:null,bgImage:null,bgOpacity:DEF_BG_OPACITY,
     },
     push:{on:false},
     notif:{
@@ -2503,13 +2570,17 @@ function applyTheme(config, st){
   const html=document.documentElement;
   const theme=THEMES.find(t=>t.id===config.themeId)||THEMES[0];
   const ac=config.accentOverride||theme.ac;
+  const aurora=theme===THEMES[0];
+  const bg=aurora?darkBackgroundColor(config.bgColor,theme.bg):theme.bg;
   
   r.setProperty('--ac',ac);
   r.setProperty('--ac1',ac+'22');
   r.setProperty('--ac2',ac+'44');
-  r.setProperty('--bg',theme.bg);
-  r.setProperty('--card',theme.card);
-  r.setProperty('--card2',theme.card2);
+  r.setProperty('--bg',bg);
+  r.setProperty('--card',aurora?`color-mix(in srgb,${bg} 80%,#393b42)`:theme.card);
+  r.setProperty('--card2',aurora?`color-mix(in srgb,${bg} 72%,#50525c)`:theme.card2);
+  if(aurora)r.setProperty('--card3',`color-mix(in srgb,${bg} 60%,#555862)`);
+  else r.removeProperty('--card3');
   r.setProperty('--bd',theme.bd);
   r.setProperty('--r',theme.r||'8px');
   r.setProperty('--ff',theme.ff||"'Inter', sans-serif");
@@ -2528,7 +2599,7 @@ function applyTheme(config, st){
   r.setProperty('--tx4',tx4);
 
   // Borders
-  const isDark=theme.bg==='#0a0a0a'||theme.bg.startsWith('#0')||theme.bg.startsWith('#1');
+  const isDark=aurora||theme.bg.startsWith('#0')||theme.bg.startsWith('#1');
   r.setProperty('--bd2',isDark?'rgba(255,255,255,0.10)':'rgba(0,0,0,0.08)');
   r.setProperty('--bd3',isDark?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.14)');
 
@@ -2547,9 +2618,15 @@ function applyTheme(config, st){
   const clsSrc=config.bgImage==='none'?null:classBgImage(st);
   const src=bgImg?bgImg.path:clsSrc;
   const bgOp=src?Math.max(0,Math.min(1,config.bgOpacity!=null?config.bgOpacity:DEF_BG_OPACITY)):0;
-  if(src){
+  document.querySelector('meta[name="theme-color"]').content=bg;
+  if(aurora){
+    body.style.backgroundImage='none';
+    r.setProperty('--bg-edge',_rgba(bg,.65));
+    r.setProperty('--bg-glow',`color-mix(in srgb, color-mix(in srgb,${bg} 60%,#6f8290) 45%,transparent)`);
+    r.setProperty('--wallpaper',src?`linear-gradient(${_rgba(bg,1-bgOp)},${_rgba(bg,1-bgOp)}),url('${src}')`:'none');
+  }else if(src){
     // véu da cor do tema por cima da imagem — quanto mais opaco, mais discreto o fundo
-    const veil=_rgba(theme.bg,1-bgOp);
+    const veil=_rgba(bg,1-bgOp);
     body.style.backgroundImage=`linear-gradient(${veil},${veil}), url('${src}')`;
     body.style.backgroundSize='cover';
     body.style.backgroundPosition='center';
@@ -6849,6 +6926,8 @@ function CfgAparencia({st,setCfg,setSt}){
   }
   const curTheme=THEMES.find(t=>t.id===st.config.themeId)||THEMES[0];
   const activeAc=st.config.accentOverride||curTheme.ac;
+  const aurora=curTheme===THEMES[0];
+  const activeBg=darkBackgroundColor(st.config.bgColor,curTheme.bg);
   // mini mockup reutilizável do app usando cores do tema
   const ThemeMock=({t,big=false})=>{
     return<div className="theme-prev"style={{background:t.bg,border:`1px solid ${t.bd}`,borderRadius:t.r,fontFamily:t.ff,height:big?170:74}}>
@@ -6873,11 +6952,11 @@ function CfgAparencia({st,setCfg,setSt}){
         <div className="tc-cur-info">
           <h3>{curTheme.emoji} {curTheme.name}</h3>
           <p>{curTheme.desc}</p>
-          <div className="tc-vibes">
+          {curTheme.vibes?.length>0&&<div className="tc-vibes">
             {(curTheme.vibes||[]).map(v=><span key={v}className="tc-vibe">{v}</span>)}
-          </div>
+          </div>}
         </div>
-        <ThemeMock t={curTheme}big={true}/>
+        <ThemeMock t={aurora?{...curTheme,bg:activeBg,ac:activeAc}:curTheme}big={true}/>
       </div>
     </div>
     {/* Theme gallery */}
@@ -6929,6 +7008,16 @@ function CfgAparencia({st,setCfg,setSt}){
     {/* Background Image Selection */}
     <div className="cfg-s">
       <div className="cfg-t">Plano de fundo</div>
+      {aurora&&<div className="background-colors" role="group" aria-label="Cor do fundo">
+        {DARK_BG_COLORS.map(({name,value})=><button key={value} type="button" className="btn btn-gh"
+          aria-pressed={activeBg===value} onClick={()=>setCfg('bgColor',value)}>
+          <i aria-hidden="true" style={{background:value}}/>{name}
+        </button>)}
+        <label>
+          <input type="color" value={activeBg} onChange={e=>setCfg('bgColor',darkBackgroundColor(e.target.value,curTheme.bg))}/>
+          Cor personalizada
+        </label>
+      </div>}
       <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
         Por padrão o app usa o retrato da sua <b>classe atual</b> — ele troca sozinho quando você evolui. Use o controle de destaque abaixo para deixá-lo mais discreto ou mais presente.
       </div>
@@ -6967,9 +7056,9 @@ function CfgAparencia({st,setCfg,setSt}){
           <span style={{fontSize:'.8rem',color:'var(--tx2)',fontWeight:600}}>Destaque do fundo</span>
           <span style={{fontSize:'.78rem',color:'var(--ac)',fontWeight:700}}>{Math.round(bgOp*100)}%</span>
         </div>
-        <input type="range"min={0}max={1}step={0.05}value={bgOp}onChange={e=>setCfg('bgOpacity',parseFloat(e.target.value))}style={{width:'100%',accentColor:'var(--ac)',padding:0}}/>
+        <input type="range" aria-label="Destaque do fundo" min={0}max={1}step={0.05}value={bgOp}onChange={e=>setCfg('bgOpacity',parseFloat(e.target.value))}style={{width:'100%',accentColor:'var(--ac)',padding:0}}/>
         <div className="fcb"style={{fontSize:'.68rem',color:'var(--tx3)',marginTop:4}}>
-          <span>Discreto</span><span>No talo</span>
+          <span>Discreto</span><span>Intenso</span>
         </div>
         <div style={{fontSize:'.75rem',color:'var(--tx3)',marginTop:8,lineHeight:1.5}}>
           Vale para a imagem escolhida acima e também para o retrato da classe.
@@ -8948,7 +9037,7 @@ function App(){
   },[]);
 
   // Apply theme
-  useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgImage,st.config.bgOpacity,st.classBaseImg,st.skilltree]);
+  useEffect(()=>{applyTheme(st.config, st);},[st.config.themeId,st.config.accentOverride,st.config.fontSize,st.config.textColor,st.config.bgColor,st.config.bgImage,st.config.bgOpacity,st.classBaseImg,st.skilltree]);
 
   // História de evolução: detecta quando o usuário sobe de classe
   const curClass=getLevelInfo(calcTotalXP(st)).cls;
