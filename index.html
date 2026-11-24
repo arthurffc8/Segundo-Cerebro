@@ -428,8 +428,6 @@ button { cursor:pointer; border:none; outline:none; font-family:var(--ff); trans
 .note-pin{position:absolute;top:8px;right:8px;font-size:.85rem;opacity:.6;}
 .note-title{font-weight:700;font-size:.9rem;margin-bottom:6px;line-height:1.3;}
 .note-text{font-size:.8rem;color:var(--tx2);line-height:1.5;overflow:hidden;display:-webkit-box;-webkit-line-clamp:6;-webkit-box-orient:vertical;}
-.note-item{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--tx2);padding:2px 0;}
-.note-item.done{text-decoration:line-through;opacity:.5;}
 .note-img{width:100%;border-radius:6px;margin-bottom:8px;max-height:180px;object-fit:cover;}
 .note-footer{display:flex;align-items:center;justify-content:space-between;margin-top:10px;padding-top:8px;border-top:1px solid rgba(255,255,255,.05);}
 .note-actions{display:flex;gap:4px;opacity:0;transition:opacity .15s;}
@@ -1123,7 +1121,17 @@ body::before,body::after { display:none; }
 }
 .workspace.layout-sidebar .sidebar-top { padding:0 4px 18px;margin-bottom:12px;width:100%; }
 .workspace.layout-sidebar .main-wrap { margin-left:218px; }
-.workspace .workspace-main { min-width:0; }
+.workspace .workspace-main { min-width:0;padding-bottom:56px; }
+.save-shortcut {
+  position:fixed;z-index:210;right:max(16px,env(safe-area-inset-right));
+  bottom:max(16px,env(safe-area-inset-bottom));display:flex;align-items:end;gap:8px;
+  max-width:calc(100% - 32px);pointer-events:none;
+}
+.save-shortcut .btn { flex:none;min-height:44px;pointer-events:auto; }
+.save-shortcut-message:not(:empty) {
+  padding:8px 12px;background:var(--card);border:1px solid var(--bd);
+  border-radius:10px;color:var(--tx);font-size:.82rem;
+}
 .workspace .workspace-main > .sec {
   width:100%;max-width:1392px;margin:0 auto;padding:clamp(22px,4vw,52px) var(--ui-gutter) 48px;
 }
@@ -3219,6 +3227,21 @@ function WorkspaceBrand({user}){
   </div>;
 }
 
+function SaveShortcut({onSave}){
+  const [message,setMessage]=useState('');
+  const timer=useRef(null);
+  useEffect(()=>()=>clearTimeout(timer.current),[]);
+  function save(){
+    clearTimeout(timer.current);
+    setMessage(onSave()?'Dados salvos neste aparelho.':'Falha ao salvar neste aparelho.');
+    timer.current=setTimeout(()=>setMessage(''),3500);
+  }
+  return <div className="save-shortcut">
+    <span role="status" className="save-shortcut-message">{message}</span>
+    <button type="button" className="btn btn-ac" onClick={save}>Salvar</button>
+  </div>;
+}
+
 function Navbar({cur,onChange,st,fbUser,syncStatus}){
   const tabs=(st.config.tabs||DEF_TABS).filter(t=>t.visible!==false);
   const navigation=useRef(null);
@@ -4040,12 +4063,8 @@ function TarefasSection({st,setSt}){
   // ── LISTAS PRÓPRIAS (criadas livremente, lado a lado) ──
   const lists=st.taskLists||[];
   function addList(){setSt(p=>({...p,taskLists:[...(p.taskLists||[]),{id:uid(),nome:'Nova lista',items:[]}]}));}
-  function renameList(id,nome){setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===id?{...l,nome}:l)}));}
-  function delList(id){setSt(p=>({...p,taskLists:p.taskLists.filter(l=>l.id!==id)}));}
-  function addItem(lid){const txt=(listInput[lid]||'').trim();if(!txt)return;setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:[...l.items,{id:uid(),text:txt,done:false}]}:l)}));setListInput(s=>({...s,[lid]:''}));}
-  function togItem(lid,iid){setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:l.items.map(it=>it.id===iid?{...it,done:!it.done}:it)}:l)}));}
-  function delItem(lid,iid){setSt(p=>({...p,taskLists:p.taskLists.map(l=>l.id===lid?{...l,items:l.items.filter(it=>it.id!==iid)}:l)}));}
-  function moveItem(lid,iid,dir){setSt(p=>({...p,taskLists:p.taskLists.map(l=>{if(l.id!==lid)return l;const items=[...l.items];const i=items.findIndex(it=>it.id===iid);const j=i+dir;if(j<0||j>=items.length)return l;[items[i],items[j]]=[items[j],items[i]];return{...l,items};})}));}
+  function updateList(id,change){setSt(p=>({...p,taskLists:(p.taskLists||[]).map(l=>l.id===id?{...l,...change(l)}:l)}));}
+  function delList(id){setSt(p=>({...p,taskLists:(p.taskLists||[]).filter(l=>l.id!==id)}));}
 
   // ── QUADRO SEMANAL ──
   const DLBL=['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
@@ -4139,32 +4158,11 @@ function TarefasSection({st,setSt}){
         Nenhuma lista ainda.<br/><span style={{fontSize:'.78rem'}}>Crie listas próprias (ideias, pendências, compras...) com "+ Nova Lista".</span>
       </div>}
       <div className="tl-wrap">
-        {lists.map(l=>{
-          const doneN=l.items.filter(i=>i.done).length;
-          const total=l.items.length,full=total>0&&doneN===total;
-          return<div key={l.id}className="tl-card">
-            <div className="tl-head">
-              <input className="tl-title"value={l.nome}onChange={e=>renameList(l.id,e.target.value)}/>
-              <span className={`tl-count${full?' full':''}`}>{doneN}/{total}</span>
-              <button className="tl-del"title="Excluir lista"onClick={()=>delList(l.id)}>×</button>
-            </div>
-            <div className="tl-bar"><i style={{width:total?Math.round(doneN/total*100)+'%':'0%'}}/></div>
-            <div className="tl-body">
-              {total===0&&<div className="tl-empty">Lista vazia — adicione o primeiro item.</div>}
-              {l.items.map((it,i)=><div key={it.id}className={`tl-item${it.done?' done':''}`}>
-                <button className="tl-mv"disabled={i===0}title="Mover para cima"onClick={()=>moveItem(l.id,it.id,-1)}>▲</button>
-                <button className="tl-mv"disabled={i===total-1}title="Mover para baixo"onClick={()=>moveItem(l.id,it.id,1)}>▼</button>
-                <Chk on={it.done}onChange={()=>togItem(l.id,it.id)}/>
-                <span className="tl-text">{it.text}</span>
-                <button className="tl-del"style={{width:20,height:20,fontSize:'.85rem'}}title="Remover item"onClick={()=>delItem(l.id,it.id)}>×</button>
-              </div>)}
-            </div>
-            <div className="tl-add">
-              <input value={listInput[l.id]||''}onChange={e=>setListInput(s=>({...s,[l.id]:e.target.value}))}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem(l.id);}}}placeholder="Novo item..."/>
-              <button className="btn btn-ac"onClick={()=>addItem(l.id)}>Adicionar</button>
-            </div>
-          </div>;
-        })}
+        {lists.map(l=><ChecklistCard key={l.id} title={l.nome} items={l.items}
+          onRename={nome=>updateList(l.id,()=>({nome}))}
+          onItemsChange={change=>updateList(l.id,list=>({items:change(list.items||[])}))}
+          onDelete={()=>delList(l.id)}
+          draft={listInput[l.id]||''} onDraftChange={value=>setListInput(p=>({...p,[l.id]:value}))}/>)}
         <button className="tl-new"onClick={addList}>+ Nova lista</button>
       </div>
     </div>}
@@ -4865,20 +4863,61 @@ function getNoteStyle(colorKey){
   return{background:c.bg,borderColor:c.bd};
 }
 
-function NoteModal({open,onClose,onSave,init,cats}){
-  const blank={title:'',type:'texto',content:'',items:[],imageData:null,color:'default',catId:'',pinned:false};
-  const[f,setF]=useState(init||blank);
-  const[newItem,setNewItem]=useState('');
-  const fileRef=useRef();
-  useEffect(()=>{setF(init||blank);setNewItem('');},[open]);
-
-  function addItem(){
-    if(!newItem.trim())return;
-    setF(p=>({...p,items:[...p.items,{id:uid(),text:newItem.trim(),done:false}]}));
-    setNewItem('');
+function ChecklistCard({title,items=[],onRename,onItemsChange,onDelete,children,style,draft,onDraftChange}){
+  const [input,setInput]=useState('');
+  const value=draft??input;
+  const setValue=onDraftChange||setInput;
+  const total=items.length;
+  const completed=items.filter(item=>item.done).length;
+  function addItem(event){
+    event.preventDefault();
+    const text=value.trim();
+    if(!text)return;
+    const item={id:uid(),text,done:false};
+    onItemsChange(current=>[...current,item]);
+    setValue('');
   }
-  function togItem(id){setF(p=>({...p,items:p.items.map(i=>i.id===id?{...i,done:!i.done}:i)}));}
-  function delItem(id){setF(p=>({...p,items:p.items.filter(i=>i.id!==id)}));}
+  function moveItem(id,offset){
+    onItemsChange(current=>{
+      const index=current.findIndex(item=>item.id===id);
+      const target=index+offset;
+      if(index<0||target<0||target>=current.length)return current;
+      const reordered=[...current];
+      [reordered[index],reordered[target]]=[reordered[target],reordered[index]];
+      return reordered;
+    });
+  }
+  return <div className="tl-card" style={style}>
+    <div className="tl-head">
+      <input className="tl-title" aria-label="Título da lista" placeholder="Sem título" value={title||''} onChange={e=>onRename(e.target.value)}/>
+      <span className={'tl-count'+(total>0&&completed===total?' full':'')} aria-label={completed+' de '+total+' concluídos'}>{completed}/{total}</span>
+      {onDelete&&<button className="tl-del" type="button" title="Excluir lista" aria-label="Excluir lista" onClick={onDelete}>×</button>}
+    </div>
+    <div className="tl-bar" aria-hidden="true"><i style={{width:(total?Math.round(completed/total*100):0)+'%'}}/></div>
+    <div className="tl-body">
+      {total===0&&<div className="tl-empty">Lista vazia — adicione o primeiro item.</div>}
+      {items.map((item,index)=><div key={item.id} className={'tl-item'+(item.done?' done':'')}>
+        <button className="tl-mv" type="button" disabled={index===0} title="Mover para cima" aria-label={'Mover para cima: '+item.text} onClick={()=>moveItem(item.id,-1)}>▲</button>
+        <button className="tl-mv" type="button" disabled={index===total-1} title="Mover para baixo" aria-label={'Mover para baixo: '+item.text} onClick={()=>moveItem(item.id,1)}>▼</button>
+        <Chk on={item.done} label={item.text} onChange={()=>onItemsChange(current=>current.map(it=>it.id===item.id?{...it,done:!it.done}:it))}/>
+        <span className="tl-text">{item.text}</span>
+        <button className="tl-del" type="button" title="Remover item" aria-label={'Remover: '+item.text} onClick={()=>onItemsChange(current=>current.filter(it=>it.id!==item.id))}>×</button>
+      </div>)}
+    </div>
+    <form className="tl-add" onSubmit={addItem}>
+      <input value={value} onChange={e=>setValue(e.target.value)} aria-label="Novo item" placeholder="Novo item..."/>
+      <button className="btn btn-ac" type="submit">Adicionar</button>
+    </form>
+    {children}
+  </div>;
+}
+
+function NoteModal({open,onClose,onSave,init,cats,initialType='texto'}){
+  const blank={title:'',type:initialType,content:'',items:[],imageData:null,color:'default',catId:'',pinned:false};
+  const[f,setF]=useState(init||blank);
+  const fileRef=useRef();
+  useEffect(()=>{setF(init||blank);},[open]);
+
   function handleImage(e){
     const file=e.target.files[0];if(!file)return;
     const r=new FileReader();
@@ -4893,24 +4932,17 @@ function NoteModal({open,onClose,onSave,init,cats}){
     <div className="stabs mb10">
       {types.map(t=><button key={t.k}className={`stab${f.type===t.k?' on':''}`}onClick={()=>setF(p=>({...p,type:t.k}))}>{t.l}</button>)}
     </div>
-    <Fld label="Título (opcional)"><input value={f.title}onChange={e=>setF(p=>({...p,title:e.target.value}))}placeholder="Título da nota..."/></Fld>
+    {f.type!=='lista'&&<Fld label="Título (opcional)"><input value={f.title} onChange={e=>setF(p=>({...p,title:e.target.value}))} placeholder="Título da nota..."/></Fld>}
 
     {/* Content by type */}
     {f.type==='texto'&&<Fld label="Conteúdo">
       <textarea rows={5}value={f.content}onChange={e=>setF(p=>({...p,content:e.target.value}))}placeholder="Escreva aqui..."/>
     </Fld>}
 
-    {f.type==='lista'&&<Fld label="Itens">
-      {f.items.map(item=><div key={item.id}className="fc g8 mb6">
-        <Chk on={item.done}onChange={()=>togItem(item.id)}/>
-        <span style={{flex:1,fontSize:'.85rem',textDecoration:item.done?'line-through':'none',color:item.done?'var(--tx3)':'var(--tx)'}}>{item.text}</span>
-        <button className="btn-ic"style={{color:'var(--er)'}}onClick={()=>delItem(item.id)}>×</button>
-      </div>)}
-      <div className="fc g6 mt4">
-        <input value={newItem}onChange={e=>setNewItem(e.target.value)}onKeyDown={e=>{if(e.key==='Enter'){e.preventDefault();addItem();}}}placeholder="Novo item... (Enter)"/>
-        <button className="btn btn-ac"style={{padding:'6px 10px',flexShrink:0}}onClick={addItem}>+</button>
-      </div>
-    </Fld>}
+    {f.type==='lista'&&<ChecklistCard style={{width:'100%'}}
+      title={f.title} items={f.items||[]}
+      onRename={title=>setF(p=>({...p,title}))}
+      onItemsChange={change=>setF(p=>({...p,items:change(p.items||[])}))}/>}
 
     {f.type==='imagem'&&<div>
       {f.imageData&&<img src={f.imageData}style={{width:'100%',borderRadius:'8px',marginBottom:'8px',maxHeight:'200px',objectFit:'cover'}}/>}
@@ -4948,6 +4980,7 @@ function NoteModal({open,onClose,onSave,init,cats}){
 
 function AnotacoesSection({st,setSt}){
   const[modal,setModal]=useState(false);
+  const[initialType,setInitialType]=useState('texto');
   const[edit,setEdit]=useState(null);
   const[search,setSearch]=useState('');
   const[catFilter,setCatFilter]=useState('');
@@ -4966,6 +4999,15 @@ function AnotacoesSection({st,setSt}){
     setEdit(null);
   }
   function delNote(id){setSt(p=>({...p,notes:p.notes.filter(n=>n.id!==id)}));}
+  function updateNote(id,change){
+    const updatedAt=TODAY();
+    setSt(p=>({...p,notes:p.notes.map(note=>note.id===id?{...note,...change(note),updatedAt}:note)}));
+  }
+  function openNote(note,type='texto'){
+    setEdit(note);
+    setInitialType(type);
+    setModal(true);
+  }
   function pinNote(id){setSt(p=>({...p,notes:p.notes.map(n=>n.id===id?{...n,pinned:!n.pinned}:n)}));}
   function archiveNote(id){setSt(p=>({...p,notes:p.notes.map(n=>n.id===id?{...n,archived:!n.archived}:n)}));}
   function addCat(){
@@ -4977,7 +5019,7 @@ function AnotacoesSection({st,setSt}){
 
   const notes=useMemo(()=>{
     let n=(st.notes||[]).filter(x=>!x.archived);
-    if(search)n=n.filter(x=>(x.title+x.content+x.items.map(i=>i.text).join(' ')).toLowerCase().includes(search.toLowerCase()));
+    if(search)n=n.filter(x=>([x.title,x.content,...(x.items||[]).map(i=>i.text)].join(' ')).toLowerCase().includes(search.toLowerCase()));
     if(catFilter)n=n.filter(x=>x.catId===catFilter);
     // pinned first
     return [...n.filter(x=>x.pinned),...n.filter(x=>!x.pinned)];
@@ -4991,7 +5033,7 @@ function AnotacoesSection({st,setSt}){
       <div className="sch-t">📝 Anotações</div>
       <div className="fc g6">
         <button className="btn btn-gh"style={{fontSize:'.75rem',padding:'5px 10px'}}onClick={()=>setCatModal(true)}>🏷 Cats</button>
-        <button className="btn btn-ac"onClick={()=>{setEdit(null);setModal(true);}}>+ Nota</button>
+        <button className="btn btn-ac"onClick={()=>openNote(null)}>+ Nota</button>
       </div>
     </div>
 
@@ -5008,8 +5050,27 @@ function AnotacoesSection({st,setSt}){
     {notes.length===0&&<div style={{color:'var(--tx3)',textAlign:'center',padding:'32px 0',fontSize:'.9rem'}}>
       {search?'Nenhuma nota encontrada.':'Sem anotações. Crie a primeira!'}
     </div>}
+    <div className="tl-wrap">
+      {notes.filter(note=>note.type==='lista').map(note=>{
+        const cat=cats.find(c=>c.id===note.catId);
+        return <ChecklistCard key={note.id} title={note.title} items={note.items||[]} style={getNoteStyle(note.color)}
+          onRename={title=>updateNote(note.id,()=>({title}))}
+          onItemsChange={change=>updateNote(note.id,current=>({items:change(current.items||[])}))}
+          onDelete={()=>delNote(note.id)}>
+          <div className="note-footer">
+            <div>{cat&&<span className="cat-tag" style={{background:cat.color+'18',color:cat.color}}>{cat.name}</span>}</div>
+            <div className="note-actions">
+              <button className="btn-ic" title="Editar detalhes" aria-label="Editar detalhes da lista" onClick={()=>openNote(note)}>✏️</button>
+              <button className="btn-ic" title={note.pinned?'Desafixar':'Fixar'} aria-pressed={!!note.pinned} onClick={()=>pinNote(note.id)}>📌</button>
+              <button className="btn-ic" title="Arquivar" onClick={()=>archiveNote(note.id)}>📦</button>
+            </div>
+          </div>
+        </ChecklistCard>;
+      })}
+      <button className="tl-new" onClick={()=>openNote(null,'lista')}>+ Nova lista</button>
+    </div>
     <div className="notes-masonry">
-      {notes.map(note=>{
+      {notes.filter(note=>note.type!=='lista').map(note=>{
         const cat=cats.find(c=>c.id===note.catId);
         const ns=getNoteStyle(note.color);
         return<div key={note.id}className="note-card"style={ns}onClick={()=>{setEdit(note);setModal(true);}}>
@@ -5017,12 +5078,6 @@ function AnotacoesSection({st,setSt}){
           {note.type==='imagem'&&note.imageData&&<img src={note.imageData}className="note-img"onClick={e=>e.stopPropagation()}/>}
           {note.title&&<div className="note-title"style={{paddingRight:note.pinned?'20px':'0'}}>{note.title}</div>}
           {note.type==='texto'&&note.content&&<div className="note-text">{note.content}</div>}
-          {note.type==='lista'&&<div>{note.items.slice(0,6).map(item=><div key={item.id}className={`note-item${item.done?' done':''}`}>
-            <div style={{width:10,height:10,borderRadius:2,flexShrink:0,border:`1.5px solid ${item.done?'var(--ac)':'var(--bd2)'}`,background:item.done?'var(--ac)':'transparent'}}/>
-            <span>{item.text}</span>
-          </div>)}
-          {note.items.length>6&&<div style={{fontSize:'.72rem',color:'var(--tx3)',marginTop:'4px'}}>+{note.items.length-6} itens</div>}
-          </div>}
           {note.type==='imagem'&&note.content&&<div className="note-text"style={{marginTop:'4px'}}>{note.content}</div>}
           <div className="note-footer"onClick={e=>e.stopPropagation()}>
             <div>{cat&&<span className="cat-tag"style={{background:cat.color+'18',color:cat.color}}>{cat.name}</span>}</div>
@@ -5037,7 +5092,7 @@ function AnotacoesSection({st,setSt}){
     </div>
 
     {/* Note modal */}
-    <NoteModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={saveNote}init={edit}cats={cats}/>
+    <NoteModal open={modal}onClose={()=>{setModal(false);setEdit(null);}}onSave={saveNote}init={edit}cats={cats} initialType={initialType}/>
 
     {/* Category modal */}
     <Modal open={catModal}onClose={()=>setCatModal(false)}title="Categorias de notas">
@@ -8848,9 +8903,11 @@ function useCloudSync(st,setSt,initialLocal){
     try{
       localStorage.setItem(LOCAL_STATE_KEY,JSON.stringify({...state,_cloudSync:meta}));
       setStorageError(false);
+      return true;
     }catch(error){
       console.warn('Falha ao salvar dados locais:',error);
       setStorageError(true);
+      return false;
     }
   },[]);
 
@@ -8990,8 +9047,15 @@ function useCloudSync(st,setSt,initialLocal){
     }
   }
 
+  function saveNow(){
+    const {state,meta}=local.current;
+    const saved=persist(state,meta);
+    if(account&&ready===account&&meta?.pending)void upload(account);
+    return saved;
+  }
+
   return {fbUser:account?.user||null,syncStatus:status,storageError,setFirebaseConfig,
-    onManualSync:()=>upload(account,true),restoreCloud};
+    onManualSync:()=>upload(account,true),saveNow,restoreCloud};
 }
 
 function App(){
@@ -9093,6 +9157,7 @@ function App(){
     <main className={`workspace-main${isSidebar?' main-wrap':''}`}>
       {sections[visibleTab]||null}
     </main>
+    <SaveShortcut onSave={sync.saveNow}/>
     {story&&storyCls&&<div className="overlay"onClick={e=>{if(e.target===e.currentTarget)setSt(p=>({...p,aiClassStory:null}));}}>
       <div className="modal"style={{textAlign:'center',maxWidth:380,border:`1px solid ${storyCls.cor}66`,boxShadow:`0 0 30px ${storyCls.cor}44`}}>
         <div style={{fontFamily:'var(--serif)',fontSize:'.66rem',letterSpacing:'.16em',textTransform:'uppercase',color:storyCls.cor,marginBottom:12}}>Nova Classe Desbloqueada</div>
