@@ -1273,6 +1273,136 @@ body::before,body::after { display:none; }
 .background-colors i { width:16px;height:16px;border:1px solid var(--bd3);border-radius:50%; }
 .background-colors label { display:inline-flex;align-items:center;gap:8px;color:var(--tx2); }
 .background-colors input[type="color"] { width:36px;height:36px;padding:4px;cursor:pointer; }
+
+/* Identidades de painel */
+.identity-workspace {
+  --ui-font:var(--ff);--ui-radius:var(--r);--ui-gutter:clamp(12px,2.5vw,36px);
+  --ui-muted:var(--tx2);
+  color-scheme:dark;
+}
+.identity-workspace .navbar { background:var(--card); }
+.identity-workspace .nav-header { border-bottom:1px solid var(--bd); }
+.identity-workspace .nav-tabs { padding-top:6px; }
+.identity-workspace :is(.tab-btn,.sb-btn).on {
+  background:var(--ac);border-color:var(--ac);color:#0d1515;
+}
+.identity-workspace :is(.card,.modal,.tl-card) { box-shadow:none; }
+.identity-workspace :is(.btn,.tab-btn) { border-radius:var(--r); }
+.identity-workspace .workspace-main > .today { padding-top:var(--ui-gutter); }
+.identity-workspace .today-hero { padding:0;display:block;border-radius:var(--r);background:var(--bg); }
+.identity-workspace .today-hero::before { display:none; }
+.identity-workspace .today-intro {
+  display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:4px 12px;
+  padding:14px 16px;border-bottom:1px solid var(--bd);background:var(--card);
+}
+.identity-workspace .today-title {
+  font:700 2.2rem/1 var(--ft);letter-spacing:0;margin:0;grid-column:1;
+}
+.identity-workspace .today-greeting { margin:0;grid-column:1;font-size:.85rem; }
+.identity-workspace .today-intro .btn { grid-column:2;grid-row:1/4; }
+.identity-workspace .today-panel { padding:12px; }
+.identity-workspace :is(#today-tasks,#today-habits) { scroll-margin-top:140px; }
+.identity-display {
+  position:relative;isolation:isolate;display:grid;align-content:center;gap:12px;
+  padding:clamp(12px,3vw,28px);min-height:250px;
+}
+.identity-metric {
+  position:relative;display:grid;justify-items:center;align-content:center;
+  gap:2px;min-width:0;min-height:68px;padding:8px;
+  background:var(--card);border:1px solid var(--bd);border-radius:var(--r);
+  color:var(--tx);text-decoration:none;text-align:center;overflow-wrap:anywhere;
+}
+a.identity-metric:hover { border-color:var(--signal); }
+.identity-metric strong { font:700 clamp(1.6rem,4vw,2.8rem)/.95 var(--ft);font-variant-numeric:tabular-nums; }
+.identity-metric:first-child strong { font-size:clamp(2.5rem,7vw,5.6rem); }
+.identity-metric small,.identity-label { font:500 .76rem/1.25 var(--ff);color:inherit; }
+
+.identity-display--cartografia,.identity-preview--cartografia {
+  background-color:#0a182b;
+  background-image:
+    repeating-linear-gradient(18deg,transparent 0 54px,#8ad0ff45 56px,#d8f2ffb0 57px,#8ad0ff45 58px,transparent 61px 88px),
+    repeating-linear-gradient(105deg,transparent 0 34px,#75bffb25 36px,#b5e5ff75 37px,transparent 39px 66px),
+    repeating-linear-gradient(0deg,transparent 0 10px,#a7caff17 11px 12px,transparent 13px 18px);
+}
+.identity-display--cartografia { grid-template-columns:repeat(2,minmax(0,1fr)); }
+.identity-display--cartografia .identity-metric:first-child {
+  grid-column:1/-1;min-height:145px;background:#081321;border:2px solid var(--signal);
+  box-shadow:0 0 22px #8ad0ff66,inset 0 0 28px #699ac62b;
+}
+.identity-display--cartografia a { border-bottom:3px solid var(--signal); }
+.identity-display--cartografia .identity-metric::after {
+  content:"";width:75%;height:3px;margin-top:5px;border-radius:4px;
+  background:linear-gradient(90deg,var(--signal) var(--level),var(--bd) var(--level));
+}
+.theme-cartografia .today-rail { gap:10px; }
+
+.theme-energia .nav-tabs,.theme-energia .sb-nav { gap:2px; }
+.theme-energia .workspace .btn { min-height:32px; }
+.theme-energia .workspace :is(.sch-t,.brand-name) { font-family:var(--ft);letter-spacing:.035em; }
+.theme-energia .workspace .today-grid { gap:10px; }
+.identity-display--energia,.identity-preview--energia {
+  background:repeating-linear-gradient(0deg,#07130d 0 23px,#1f3929 24px,#07130d 25px);
+}
+.identity-display--energia { grid-template-columns:repeat(3,minmax(0,1fr));align-items:stretch; }
+.identity-display--energia .identity-metric {
+  isolation:isolate;min-height:140px;align-content:end;padding-bottom:14px;
+  background:linear-gradient(0deg,#143d25,#0b1c13);
+  border-color:#497d5b;text-shadow:0 1px 4px #05120b;
+}
+.identity-display--energia .identity-metric::before {
+  content:"";position:absolute;inset:auto 0 0;height:var(--level);z-index:-1;
+  background:#195e36;border-top:2px solid var(--signal);box-shadow:0 -4px 15px #48f33540;
+}
+.identity-display--energia .identity-metric strong { color:var(--signal); }
+
+.identity-display--constelacao,.identity-preview--constelacao {
+  background:
+    radial-gradient(circle at 50% 50%,#5e39858c,transparent 60%),
+    radial-gradient(circle,#d8bcff85 1px,transparent 1.5px) 0 0/25px 25px,
+    #170c2d;
+}
+.identity-display--constelacao { grid-template-columns:minmax(0,1fr) minmax(95px,1.35fr) minmax(0,1fr);align-items:center; }
+.identity-display--constelacao::before {
+  content:"";position:absolute;inset:15% 5%;z-index:-1;
+  border:1px solid #dbb3ff70;border-radius:50%;transform:rotate(-12deg);
+  box-shadow:0 0 0 12px #dbb3ff15,0 0 0 24px #dbb3ff12;
+}
+.identity-display--constelacao .identity-metric:first-child {
+  grid-column:2;grid-row:1;aspect-ratio:1;min-height:0;padding:6px;
+  border-radius:50%;background:var(--ac);color:#21122f;outline:1px solid var(--ac);outline-offset:5px;
+}
+.identity-display--constelacao .identity-metric:nth-child(2) { grid-column:1;grid-row:1; }
+.identity-display--constelacao .identity-metric:nth-child(3) { grid-column:3;grid-row:1; }
+.identity-display--constelacao .identity-metric:first-child strong { font-size:clamp(1.45rem,4vw,3.7rem); }
+.theme-constelacao .today-quote { border-left:0;border-top:1px solid var(--bd); }
+
+.identity-preview {
+  height:98px;display:flex;align-items:center;justify-content:center;gap:9px;
+  overflow:hidden;border:1px solid var(--preview-signal);border-radius:8px;margin-bottom:10px;
+}
+.identity-preview i { display:block;width:17%;height:25%;border:1px solid var(--preview-signal);background:var(--preview-card); }
+.identity-preview--cartografia i:nth-child(2) { width:35%;height:49%;border-radius:8px;box-shadow:0 0 10px var(--preview-signal); }
+.identity-preview--energia i { height:65%;border-radius:3px;background:linear-gradient(0deg,var(--preview-signal) 35%,var(--preview-card) 36%); }
+.identity-preview--energia i:nth-child(2) { background:linear-gradient(0deg,var(--preview-signal) 72%,var(--preview-card) 73%); }
+.identity-preview--energia i:nth-child(3) { background:linear-gradient(0deg,var(--preview-signal) 52%,var(--preview-card) 53%); }
+.identity-preview--constelacao i:nth-child(2) { width:52px;height:52px;border-radius:50%;background:var(--preview-ac); }
+.theme-select { position:absolute;inset:0;width:100%;border-radius:inherit;background:transparent; }
+.theme-card .theme-select:focus-visible { outline-offset:-3px; }
+@media(min-width:1100px) {
+  .identity-workspace:not(.layout-sidebar) .today {
+    display:grid;grid-template-columns:minmax(215px,1fr) minmax(290px,1.65fr) minmax(210px,1fr);
+    grid-template-areas:"tasks central habits";align-items:start;gap:12px;
+  }
+  .identity-workspace:not(.layout-sidebar) .today-grid { display:contents; }
+  .identity-workspace:not(.layout-sidebar) .today-hero { grid-area:central; }
+  .identity-workspace:not(.layout-sidebar) .today-tasks-panel { grid-area:tasks; }
+  .identity-workspace:not(.layout-sidebar) .today-rail { grid-area:habits; }
+  .identity-workspace:not(.layout-sidebar) .identity-display { min-height:clamp(320px,44vh,500px); }
+}
+@media(max-width:520px) {
+  .identity-display { min-height:200px;gap:8px; }
+  .identity-display--energia .identity-metric { min-height:110px; }
+}
 </style>
 </head>
 <body>
@@ -1572,6 +1702,27 @@ const THEMES=[
     ff:"'DM Sans', system-ui, sans-serif", ft:"'DM Sans', system-ui, sans-serif", r:'14px', sh:'0 10px 32px rgba(0,0,0,.18)',
     tx:'#f3f0e9', tx2:'#d4d0c8', tx3:'#b3afa8', tx4:'#938f89',
     desc:'Fundo em destaque, painéis translúcidos e texto off-white.',
+  },
+  {
+    id:'cartografia',name:'Cartografia Noturna',emoji:'◈',identity:true,
+    bg:'#081321',card:'#111f31',card2:'#1b2d45',bd:'#344b67',ac:'#ffbf65',signal:'#b5e5ff',
+    tx:'#f1f5f5',tx2:'#c7d8e9',tx3:'#9fb5cc',tx4:'#8aa2ba',
+    ff:"'Inter',system-ui,sans-serif",ft:"'Barlow Condensed','Bebas Neue',sans-serif",r:'8px',
+    desc:'Mapa luminoso em azul-marinho, marcações âmbar e painéis de acompanhamento.',
+  },
+  {
+    id:'energia',name:'Central de Energia',emoji:'▥',identity:true,
+    bg:'#08120e',card:'#101d16',card2:'#1a3024',bd:'#355344',ac:'#48f384',signal:'#48f384',
+    tx:'#edf7ef',tx2:'#c5ddcd',tx3:'#a2c3af',tx4:'#8cae99',
+    ff:"'Hanken Grotesk',system-ui,sans-serif",ft:"'Bebas Neue',sans-serif",r:'6px',
+    desc:'Console compacto com indicadores de carga para pontos, tarefas e hábitos.',
+  },
+  {
+    id:'constelacao',name:'Constelação',emoji:'✧',identity:true,
+    bg:'#160d28',card:'#22163a',card2:'#352253',bd:'#5c4677',ac:'#ffda98',signal:'#c8a9fb',
+    tx:'#faf2fb',tx2:'#dfceee',tx3:'#c2a9dc',tx4:'#ab94c2',
+    ff:"'DM Sans',system-ui,sans-serif",ft:"'Space Grotesk',sans-serif",r:'12px',
+    desc:'Painel violeta com órbitas douradas ligando seus pontos, tarefas e hábitos.',
   },
   {
     id:'minimal', name:'Minimalista', emoji:'⚪', bg:'#f8f9fa', card:'#ffffff', card2:'#f1f3f5', bd:'#dee2e6', ac:'#212529',
@@ -2584,6 +2735,7 @@ function applyTheme(config, st){
   r.setProperty('--ac',ac);
   r.setProperty('--ac1',ac+'22');
   r.setProperty('--ac2',ac+'44');
+  r.setProperty('--signal',theme.signal||ac);
   r.setProperty('--bg',bg);
   r.setProperty('--card',aurora?`color-mix(in srgb,${bg} 80%,#393b42)`:theme.card);
   r.setProperty('--card2',aurora?`color-mix(in srgb,${bg} 72%,#50525c)`:theme.card2);
@@ -3518,6 +3670,24 @@ function DopaminaMenu({st,setSt}){
 
 // ── HOJE ─────────────────────────────────────────────────────────────────────
 
+function TodayIdentity({id,score,maxScore,scoreProgress,doneT,totalT,doneH,totalH}){
+  const metrics=[
+    {label:'Pontos hoje',value:score,percent:scoreProgress,detail:maxScore>0?'/ '+maxScore:null},
+    {label:'Tarefas',value:doneT,percent:totalT?doneT/totalT*100:0,detail:'/ '+totalT,href:'#today-tasks'},
+    {label:'Hábitos',value:doneH,percent:totalH?doneH/totalH*100:0,detail:'/ '+totalH,href:'#today-habits'},
+  ];
+  return <div className={`identity-display identity-display--${id}`}>
+    {metrics.map(({label,value,percent,detail,href})=>{
+      const Metric=href?'a':'div';
+      return <Metric key={label} className="identity-metric" href={href} style={{'--level':percent+'%'}}>
+        <span className="identity-label">{label}</span>
+        <strong>{value}</strong>
+        {detail&&<small>{detail}</small>}
+      </Metric>;
+    })}
+  </div>;
+}
+
 function HojeSection({st,setSt}){
   const td=TODAY();
   const[taskModal,setTaskModal]=useState(false);
@@ -3535,6 +3705,7 @@ function HojeSection({st,setSt}){
   const maxHabitScore=st.habits.reduce((sum,habit)=>habit.active||dayLog[habit.id]?sum+habit.weight:sum,0);
   const maxScore=combineScores(st.config,maxTaskScore,maxHabitScore);
   const scoreProgress=maxScore>0?Math.max(0,Math.min(100,score/maxScore*100)):0;
+  const identity=THEMES.find(t=>t.id===st.config.themeId&&t.identity);
 
   function toggleTask(id){
     setSt(p=>{
@@ -3639,22 +3810,24 @@ function HojeSection({st,setSt}){
     {focusOpen&&<FocusMode st={st}onClose={()=>setFocusOpen(false)}/>}
 
     <header className="today-hero">
-      <div>
+      <div className="today-intro">
         <time className="today-date" dateTime={td}>{todayFull()}</time>
         <h1 className="today-title">Hoje</h1>
         <p className="today-greeting">Olá, {st.user.name}.</p>
         <button type="button" className="btn btn-gh" onClick={()=>setFocusOpen(true)}>⏱ Modo Foco</button>
       </div>
+      {identity?<TodayIdentity id={identity.id} score={score} maxScore={maxScore} scoreProgress={scoreProgress}
+        doneT={doneT} totalT={todayTasks.length} doneH={doneH} totalH={activeHabits.length}/>:
       <div className="today-score" style={{'--score-progress':scoreProgress+'%'}}>
         <div className="today-score-center">
           <strong>{score}</strong>
           <span>Pontos hoje</span>
         </div>
-      </div>
+      </div>}
     </header>
 
     <div className="today-grid">
-    <section className="card today-panel" aria-labelledby="today-tasks">
+    <section className="card today-panel today-tasks-panel" aria-labelledby="today-tasks">
       <div className="sch">
         <div className="fc g10">
           <h2 className="sch-t" id="today-tasks">Tarefas</h2>
@@ -6985,6 +7158,10 @@ function CfgAparencia({st,setCfg,setSt}){
   const activeBg=darkBackgroundColor(st.config.bgColor,curTheme.bg);
   // mini mockup reutilizável do app usando cores do tema
   const ThemeMock=({t,big=false})=>{
+    if(t.identity)return <div aria-hidden="true" className={`identity-preview identity-preview--${t.id}`}
+      style={{'--preview-signal':t.signal,'--preview-card':t.card,'--preview-ac':t.ac,height:big?145:98}}>
+      <i/><i/><i/>
+    </div>;
     return<div className="theme-prev"style={{background:t.bg,border:`1px solid ${t.bd}`,borderRadius:t.r,fontFamily:t.ff,height:big?170:74}}>
       <div className="theme-prev-sidebar"style={{background:t.card2,border:`1px solid ${t.bd}`}}>
         {[0,1,2].map(i=><i key={i}style={{background:i===1?t.ac:t.bd}}/>)}
@@ -7016,14 +7193,11 @@ function CfgAparencia({st,setCfg,setSt}){
     </div>
     {/* Theme gallery */}
     <div className="cfg-s">
-      <div className="cfg-t">Galeria de temas (Personalidade)</div>
-      <div style={{fontSize:'.78rem',color:'var(--tx2)',marginBottom:12,lineHeight:1.5}}>
-        Escolhe o clima que combina com teu momento. Cada tema muda tipografia, paleta e vibe — não só as cores.
-      </div>
+      <div className="cfg-t">Galeria de temas</div>
       <div style={{display:'grid',gridTemplateColumns:'repeat(auto-fill,minmax(170px,1fr))',gap:'14px'}}>
         {THEMES.map(t=>{
-          const on=st.config.themeId===t.id;
-          return<div key={t.id}className={`theme-card${on?' on':''}`}onClick={()=>setTheme(t.id)}
+          const on=curTheme.id===t.id;
+          return<div key={t.id}className={`theme-card${on?' on':''}`}
             style={{fontFamily:t.ff, borderRadius:t.r, borderColor: on?t.ac:'var(--bd2)', boxShadow: t.sh}}>
             <span className="tc-badge">ATIVO</span>
             <ThemeMock t={t}/>
@@ -7032,6 +7206,8 @@ function CfgAparencia({st,setCfg,setSt}){
             <div className="tc-vibes">
               {(t.vibes||[]).slice(0,3).map(v=><span key={v}className="tc-vibe">{v}</span>)}
             </div>
+            <button type="button" className="theme-select" aria-label={t.name} aria-pressed={on}
+              onClick={()=>{if(!on)setTheme(t.id);}}/>
           </div>;
         })}
       </div>
@@ -9149,7 +9325,8 @@ function App(){
   const layoutMode=st.config.layoutMode||'classic';
   const menuMode=st.config.menuMode||'top';
   const isSidebar=menuMode==='side';
-  const rootClass=['workspace',layoutMode==='redesign'?'layout-redesign':'',isSidebar?'layout-sidebar':''].filter(Boolean).join(' ');
+  const identity=THEMES.some(t=>t.id===st.config.themeId&&t.identity);
+  const rootClass=['workspace',identity?'identity-workspace':'',layoutMode==='redesign'?'layout-redesign':'',isSidebar?'layout-sidebar':''].filter(Boolean).join(' ');
   return<div className={rootClass}>
     {isSidebar
       ?<Sidebar cur={visibleTab}onChange={setTab}st={st}fbUser={fbUser}syncStatus={syncStatus}/>

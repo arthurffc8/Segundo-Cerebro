@@ -1,4 +1,4 @@
-const CACHE_NAME = 'segundo-cerebro-v16';
+const CACHE_NAME = 'segundo-cerebro-v17';
 const WIDGET_DATA_URL = './widgets/hoje-data.json';
 const ASSETS_TO_CACHE = [
   './',
